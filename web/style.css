@@ -1,0 +1,40 @@
+:root {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+body {
+    margin: 24px;
+    max-width: 980px;
+}
+
+header h1 {
+    margin: 0 0 8px 0;
+}
+
+.panel {
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.muted {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+#screen {
+    /* scale up for visibility; keep pixelated */
+    width: 1024px;
+    height: 512px;
+    image-rendering: pixelated;
+    border: 1px solid #111;
+    background: #000;
+}
