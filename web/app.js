@@ -33,5 +33,5 @@
         result.textContent = "Canvas test pattern drawn.";
     });
 
-    status.textContent = "Ready. Click “Run JS Test”.";
+    status.textContent = "Ready. Select a program to load.";
 })();

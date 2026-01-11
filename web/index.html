@@ -7,21 +7,48 @@
     <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-<header>
-    <h1>Hack WebEmu</h1>
-    <p id="status">Static site served from Docker.</p>
-</header>
+<main class="stage">
+    <div class="mac128k" role="application" aria-label="Hack WebEmu Macintosh-style frame">
+        <div class="mac-top">
 
-<main>
-    <section class="panel">
-        <div class="row">
-            <button id="btn-test">Run JS Test</button>
-            <span id="result" class="muted"></span>
+            <div class="mac-screen">
+                <div class="mac-crt">
+                    <canvas id="screen" width="512" height="256"></canvas>
+                    <div class="crt-overlay" aria-hidden="true"></div>
+                </div>
+            </div>
+
         </div>
 
-        <canvas id="screen" width="512" height="256"></canvas>
-        <p class="muted">Canvas is 512×256 (Hack screen). Scaled up via CSS.</p>
-    </section>
+        <div class="mac-bottom">
+
+            <div class="mac-emboss">
+                <div class="mac-logo">
+                    <div class="bars">
+                        <i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                    <div class="mac-model">
+                        HACK++ <br> 128K
+                    </div>
+                </div>
+            </div>
+
+            <div class="mac-floppy">
+                <div class="slot" aria-hidden="true"></div>
+                <div class="label" id="status">Static site served from Docker.</div>
+            </div>
+
+            <div class="mac-controls">
+                <button id="btn-test" class="btn">Run JS Test</button>
+                <span id="result" class="hint"></span>
+            </div>
+
+        </div>
+    </div>
+
+    <p class="footer-hint">
+        Project info here.
+    </p>
 </main>
 
 <script src="/app.js"></script>
