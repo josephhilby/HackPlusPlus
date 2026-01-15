@@ -11,69 +11,110 @@
 #define N_BUCKETS 128
 #define N_REG 15
 
-// type
-typedef enum { INST_A, INST_C, INST_L} InstType;
+// INST LIST
+// Instruction Type
+typedef enum { INST_A, INST_C, INST_L } InstType;
 
-// instruction LL Node
+// Instruction Node/List
 typedef struct Instruction {
     InstType type;
     char ltrl[MAX_LENGTH];
-    bool is_var;
-    char dest[4];
+    bool is_const;    // aka. numerical value
     char comp[16];
+    char dest[4];
     char jump[4];
     uint16_t line;
     struct Instruction* next;
 } Instruction;
 
-// ROM system entry LL for hashmap
+// Instruction List Functions
+Instruction* create_instruction(size_t line_num);
+void add_instruction(Instruction** head, Instruction** tail, Instruction* next);
+void list_free(Instruction* list);
+
+
+// SYS TABLE
+// System Table Entry Node
 typedef struct SystemEntry {
-    char name[MAX_LENGTH];
+    char symbol[MAX_LENGTH];
     uint16_t addr;
     struct SystemEntry* next;
 } SystemEntry;
 
+// System Table (Hash Map)
 typedef struct SystemTable {
     SystemEntry* buckets[N_BUCKETS];
     uint16_t next_var;
 } SystemTable;
 
-typedef struct {
-    const char* mnemonic;
-    uint8_t code;   // 6 bits
-} CompEntry;
-
-static const CompEntry comp_table[] = {
-    {"0",   0b101010},
-    {"1",   0b111111},
-    {"-1",  0b111010},
-    {"D",   0b001100},
-    {"A",   0b110000},
-    {"!D",  0b001101},
-    {"!A",  0b110001},
-    {"-D",  0b001111},
-    {"-A",  0b110011},
-    {"D+1", 0b011111},
-    {"A+1", 0b110111},
-    {"D-1", 0b001110},
-    {"A-1", 0b110010},
-    {"D+A", 0b000010},
-    {"D-A", 0b010011},
-    {"A-D", 0b000111},
-    {"D&A", 0b000000},
-    {"D|A", 0b010101},
-};
-
-
+// System Table Functions
 SystemTable* table_init();
+void load_builtin(SystemTable* stbl);
 void table_free(SystemTable* table);
-void list_free(Instruction* list);
-
-size_t sys_hash(char* key);
+size_t sys_hash(const char* key);
 SystemEntry* create_entry(char* name, uint16_t addr);
 SystemEntry* find_entry(SystemTable* stbl, char* name);
 SystemEntry* add_entry(SystemTable* stbl, char* name, uint16_t addr);
-void load_builtin(SystemTable* stbl);
-void load_var(SystemTable* stbl, char* name, uint16_t addr);
+
+
+// COMP INSTRUCTION TABLES
+// Comp Instruction Node
+typedef struct {
+    const char* mnemonic;
+    uint16_t code;
+} CompInst;
+
+// Comp Tables (must turn any M to A)
+static const CompInst comp_table[] = {
+    {"0"  , 0b0000101010000000},
+    {"1"  , 0b0000111111000000},
+    {"-1" , 0b0000111010000000},
+    {"D"  , 0b0000001100000000},
+    {"A"  , 0b0000110000000000},
+    {"!D" , 0b0000001101000000},
+    {"!A" , 0b0000110001000000},
+    {"-D" , 0b0000001111000000},
+    {"-A" , 0b0000110011000000},
+    {"D+1", 0b0000011111000000},
+    {"A+1", 0b0000110111000000},
+    {"D-1", 0b0000001110000000},
+    {"A-1", 0b0000110010000000},
+    {"D+A", 0b0000000010000000},
+    {"D-A", 0b0000010011000000},
+    {"A-D", 0b0000000111000000},
+    {"D&A", 0b0000000000000000},
+    {"D|A", 0b0000010101000000},
+    {NULL , 0}
+};
+
+static const CompInst dest_table[] = {
+    {""   , 0b0000000000000000},
+    {"M"  , 0b0000000000001000},
+    {"D"  , 0b0000000000010000},
+    {"DM" , 0b0000000000011000},
+    {"A"  , 0b0000000000100000},
+    {"AM" , 0b0000000000101000},
+    {"AD" , 0b0000000000110000},
+    {"ADM", 0b0000000000111000},
+    {NULL , 0}
+};
+
+static const CompInst jump_table[] = {
+    {""   , 0b1110000000000000},
+    {"JGT", 0b1110000000000001},
+    {"JEQ", 0b1110000000000010},
+    {"JGE", 0b1110000000000011},
+    {"JLT", 0b1110000000000100},
+    {"JNE", 0b1110000000000101},
+    {"JLE", 0b1110000000000110},
+    {"JMP", 0b1110000000000111},
+    {NULL , 0}
+};
+
+// Comp Table Functions
+uint16_t get_inst_part(char* mnemonic, CompInst* tbl);
+uint16_t get_comp(char* mnemonic);
+uint16_t get_dest(char* mnemonic);
+uint16_t get_jump(char* mnemonic);
 
 #endif //STRUCTS_H

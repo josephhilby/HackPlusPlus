@@ -1,21 +1,21 @@
 (function () {
     const status = document.getElementById("status");
     const result = document.getElementById("result");
-    const btn = document.getElementById("btn-test");
-    const canvas = document.getElementById("screen");
-    const ctx = canvas.getContext("2d");
+    const button = document.getElementById("btn-test");
+    const screen = document.getElementById("screen");
+    const ctx = screen.getContext("2d");
 
-    // Paint a simple test pattern so you can verify the canvas and scaling.
-    function drawTestPattern() {
-        const img = ctx.createImageData(canvas.width, canvas.height);
-        const data = img.data;
+    // Paint a simple test pattern so you can verify the screen and scaling.
+    function testWebsocket() {
+        const image = ctx.createImageData(screen.width, screen.height);
+        const data = image.data;
 
-        for (let y = 0; y < canvas.height; y++) {
-            for (let x = 0; x < canvas.width; x++) {
-                const i = (y * canvas.width + x) * 4;
+        for (let y = 0; y < screen.height; y++) {
+            for (let x = 0; x < screen.width; x++) {
+                const i = (y * screen.width + x) * 4;
 
                 // Diagonal + border pattern
-                const on = (x === y) || (x === 0) || (y === 0) || (x === canvas.width - 1) || (y === canvas.height - 1);
+                const on = (x === y) || (x === 0) || (y === 0) || (x === screen.width - 1) || (y === screen.height - 1);
                 const v = on ? 255 : 0;
 
                 data[i + 0] = v;   // R
@@ -25,12 +25,12 @@
             }
         }
 
-        ctx.putImageData(img, 0, 0);
+        ctx.putImageData(image, 0, 0);
     }
 
-    btn.addEventListener("click", () => {
-        drawTestPattern();
-        result.textContent = "Canvas test pattern drawn.";
+    button.addEventListener("click", () => {
+        testWebsocket();
+        result.textContent = "Test Complete.";
     });
 
     status.textContent = "Ready. Select a program to load.";
