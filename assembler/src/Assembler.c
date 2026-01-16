@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "Structs.h"
 #include "Parser.h"
 #include "Generator.h"
@@ -28,7 +26,7 @@ int main(const int argc, char* argv[]) {
     }
 
     // Init System Table
-    SystemTable* stbl = table_init();
+    SystemTable* stbl = create_table();
     if (!stbl) {
         fclose(src);
         fclose(dest);

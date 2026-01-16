@@ -1,8 +1,12 @@
 #include "Structs.h"
 
-SystemTable* table_init() {
-    size_t table_size = sizeof(SystemTable);
+SystemTable* create_table() {
+    const size_t table_size = sizeof(SystemTable);
     SystemTable* stbl = malloc(table_size);
+    if (!stbl) {
+        printf("Failed to allocate memory for SystemTable\n");
+        return NULL;
+    }
     memset(stbl, 0, table_size);
     stbl->next_var = N_REG + 1;
     return stbl;
@@ -16,13 +20,17 @@ void table_free(SystemTable* stbl) {
             stbl->buckets[i] = next;
         }
     }
+    free(stbl);
 }
 
-Instruction* create_instruction(size_t line_num) {
-    Instruction* inst = malloc(sizeof(Instruction));
+Instruction* create_instruction(const size_t line_num) {
+    const size_t instruction_size = sizeof(Instruction);
+    Instruction* inst = malloc(instruction_size);
     if (!inst) {
+        printf("Failed to allocate memory for Instruction\n");
         return NULL;
     }
+    memset(inst, 0, instruction_size);
     inst->line = line_num;
     inst->next = NULL;
     return inst;
@@ -55,16 +63,22 @@ size_t sys_hash(const char* key) {
     return seed % N_BUCKETS;
 }
 
-SystemEntry* create_entry(char* name, uint16_t addr) {
-    SystemEntry* entry = malloc(sizeof(SystemEntry));
-    memcpy(entry->symbol, name, MAX_LENGTH);
+SystemEntry* create_entry(const char* name, const uint16_t addr) {
+    const size_t entry_size = sizeof(SystemEntry);
+    SystemEntry* entry = malloc(entry_size);
+    if (!entry) {
+        printf("Failed to allocate memory for SystemEntry\n");
+        return NULL;
+    }
+    memset(entry, 0, entry_size);
+    snprintf(entry->symbol, sizeof(entry->symbol), "%s", name);
     entry->addr = addr;
     entry->next = NULL;
     return entry;
 }
 
-SystemEntry* find_entry(SystemTable* stbl, char* name) {
-    size_t i = sys_hash(name);
+SystemEntry* find_entry(const SystemTable* stbl, const char* name) {
+    const size_t i = sys_hash(name);
     if (!stbl->buckets[i]) {
         return NULL;
     }
@@ -80,9 +94,12 @@ SystemEntry* find_entry(SystemTable* stbl, char* name) {
     return NULL;
 }
 
-SystemEntry* add_entry(SystemTable* stbl, char* name, uint16_t addr) {
-    size_t i = sys_hash(name);
+SystemEntry* add_entry(SystemTable* stbl, const char* name, const uint16_t addr) {
+    const size_t i = sys_hash(name);
     SystemEntry* entry = create_entry(name, addr);
+    if (!entry) {
+        return NULL;
+    }
 
     if (!stbl->buckets[i]) {
         stbl->buckets[i] = entry;
@@ -114,7 +131,7 @@ void load_builtin(SystemTable* stbl) {
     add_entry(stbl, "KBD"   , 24576);
 }
 
-uint16_t get_inst_part(char* mnemonic, CompInst* tbl) {
+uint16_t get_inst_part(const char* mnemonic, const CompInst* tbl) {
     size_t i = 0;
     while (tbl[i].mnemonic) {
         if (strcmp(mnemonic, tbl[i].mnemonic) == 0) {
@@ -125,14 +142,14 @@ uint16_t get_inst_part(char* mnemonic, CompInst* tbl) {
     return 0;
 }
 
-uint16_t get_comp(char* mnemonic) {
+uint16_t get_comp(const char* mnemonic) {
     return get_inst_part(mnemonic, comp_table);
 }
 
-uint16_t get_dest(char* mnemonic) {
+uint16_t get_dest(const char* mnemonic) {
     return get_inst_part(mnemonic, dest_table);
 }
 
-uint16_t get_jump(char* mnemonic) {
+uint16_t get_jump(const char* mnemonic) {
     return get_inst_part(mnemonic, jump_table);
 }

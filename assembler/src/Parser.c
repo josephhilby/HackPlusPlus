@@ -18,7 +18,7 @@ Instruction* first_pass(FILE* src, SystemTable* stbl) {
         // INST_A or INST_C
         if (next->type == INST_A || next->type == INST_C) {
             if (next->type == INST_C) {
-                parse_c_type(next);
+                parse_c_inst(next);
             }
 
             add_instruction(&head, &tail, next);
@@ -28,6 +28,7 @@ Instruction* first_pass(FILE* src, SystemTable* stbl) {
         // INST_L
         if (next->type == INST_L) {
             add_entry(stbl, next->ltrl, next->line);
+            free(next);
         }
     }
 
@@ -35,29 +36,39 @@ Instruction* first_pass(FILE* src, SystemTable* stbl) {
 }
 
 // INST Type C
-void parse_c_type(Instruction* inst) {
+void parse_c_inst(Instruction* inst) {
     long i;
-    char* dest = inst->ltrl;
-    char* comp = strchr(dest, '=');
-    char* jump = strchr(dest, ';');
+    // dest=comp;jump, dest=comp, comp;jump
+    const char* first = inst->ltrl;
+    //     =comp;jump,     =comp
+    const char* second = strchr(first, '=');
+    //          ;jump,          ,     ;jump
+    const char* third = strchr(first, ';');
 
-    if (comp) {
-        i = comp - dest;
-        memcpy(inst->dest, dest, i);
+    if (second) {
+        // dest=...
+        i = second - first;
+        memcpy(inst->dest, first, i);
+        inst->dest[i] = '\0';
 
-        // dest=comp;jump
-        if (jump) {
-            i = jump - comp - 1;
-            memcpy(inst->comp, comp + 1, i);
-            memcpy(inst->jump, jump + 1, strlen(jump));
-        // dest=comp
+        if (third) {
+            // =comp;jump
+            i = third - second - 1;
+            memcpy(inst->comp, second + 1, i);
+            inst->comp[i] = '\0';
+            memcpy(inst->jump, third + 1, strlen(third));
+            inst->jump[strlen(third)] = '\0';
         } else {
-            memcpy(inst->comp, comp + 1, strlen(comp));
+            // =comp
+            memcpy(inst->comp, second + 1, strlen(second));
+            inst->comp[strlen(second)] = '\0';
         }
-    // comp;jump
     } else {
-        i = jump - dest;
-        memcpy(inst->comp, dest, i);
-        memcpy(inst->jump, jump + 1, strlen(jump));
+        // comp;jump
+        i = third - first;
+        memcpy(inst->comp, first, i);
+        inst->comp[i] = '\0';
+        memcpy(inst->jump, third + 1, strlen(third));
+        inst->jump[strlen(third)] = '\0';
     }
 }

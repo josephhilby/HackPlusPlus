@@ -48,13 +48,13 @@ typedef struct SystemTable {
 } SystemTable;
 
 // System Table Functions
-SystemTable* table_init();
+SystemTable* create_table();
 void load_builtin(SystemTable* stbl);
 void table_free(SystemTable* table);
 size_t sys_hash(const char* key);
-SystemEntry* create_entry(char* name, uint16_t addr);
-SystemEntry* find_entry(SystemTable* stbl, char* name);
-SystemEntry* add_entry(SystemTable* stbl, char* name, uint16_t addr);
+SystemEntry* create_entry(const char* name, uint16_t addr);
+SystemEntry* find_entry(const SystemTable* stbl, const char* name);
+SystemEntry* add_entry(SystemTable* stbl, const char* name, uint16_t addr);
 
 
 // COMP INSTRUCTION TABLES
@@ -112,9 +112,9 @@ static const CompInst jump_table[] = {
 };
 
 // Comp Table Functions
-uint16_t get_inst_part(char* mnemonic, CompInst* tbl);
-uint16_t get_comp(char* mnemonic);
-uint16_t get_dest(char* mnemonic);
-uint16_t get_jump(char* mnemonic);
+uint16_t get_inst_part(const char* mnemonic, const CompInst* tbl);
+uint16_t get_comp(const char* mnemonic);
+uint16_t get_dest(const char* mnemonic);
+uint16_t get_jump(const char* mnemonic);
 
 #endif //STRUCTS_H

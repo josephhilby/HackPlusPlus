@@ -1,7 +1,6 @@
 #include "Generator.h"
 
-void second_pass(FILE* dist, Instruction* list, SystemTable* stbl) {
-    Instruction* curr = list;
+void second_pass(FILE* dist, const Instruction* curr, SystemTable* stbl) {
     uint16_t inst;
     char buffer[16];
 
@@ -25,7 +24,7 @@ void second_pass(FILE* dist, Instruction* list, SystemTable* stbl) {
     }
 }
 
-uint16_t decode_a_inst(Instruction* inst, SystemTable* stbl) {
+uint16_t decode_a_inst(const Instruction* inst, SystemTable* stbl) {
     if (inst->is_const) {
         return strtol(inst->ltrl, NULL, 10);
     }
@@ -39,7 +38,7 @@ uint16_t decode_a_inst(Instruction* inst, SystemTable* stbl) {
     return entry->addr;
 }
 
-uint16_t decode_c_inst(Instruction* inst) {
+uint16_t decode_c_inst(const Instruction* inst) {
     const uint16_t comp_mask = decode_comp(inst->comp); // ...acccccc......
     const uint16_t dest_mask = decode_dest(inst->dest); // ..........ddd...
     const uint16_t jump_mask = decode_jump(inst->jump); // .............jjj
@@ -47,7 +46,7 @@ uint16_t decode_c_inst(Instruction* inst) {
     return 0b1110000000000000 | comp_mask | dest_mask | jump_mask;
 }
 
-uint16_t decode_comp(char* comp) {
+uint16_t decode_comp(const char* comp) {
     uint16_t a_mask = 0;
     uint16_t comp_mask = 0;
 
@@ -62,17 +61,17 @@ uint16_t decode_comp(char* comp) {
     return 0 | a_mask | comp_mask;
 }
 
-uint16_t decode_dest(char* dest) {
+uint16_t decode_dest(const char* dest) {
     const uint16_t dest_mask = get_dest(dest);
     return 0 | dest_mask;
 }
 
-uint16_t decode_jump(char* jump) {
+uint16_t decode_jump(const char* jump) {
     const uint16_t jump_mask = get_jump(jump);
     return 0 | jump_mask;
 }
 
-void inst_to_bits(uint16_t inst, char* buffer) {
+void inst_to_bits(const uint16_t inst, char* buffer) {
     for (int i = 0; i < 16; i++) {
         const uint16_t mask = 1u << (15 - i);
         buffer[i] = (inst & mask) ? '1' : '0';

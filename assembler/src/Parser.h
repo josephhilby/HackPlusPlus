@@ -5,6 +5,6 @@
 #include "Lexer.h"
 
 Instruction* first_pass(FILE* src, SystemTable* stbl);
-void parse_c_type(Instruction* inst);
+void parse_c_inst(Instruction* inst);
 
 #endif //PARSER_H
