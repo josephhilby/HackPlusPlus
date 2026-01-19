@@ -5,33 +5,76 @@
     const screen = document.getElementById("screen");
     const ctx = screen.getContext("2d");
 
-    // Paint a simple test pattern so you can verify the screen and scaling.
-    function testWebsocket() {
-        const image = ctx.createImageData(screen.width, screen.height);
+    const WIDTH = 512;
+    const HEIGHT = 256;
+    const WORDS_PER_ROW = 32; // 512 / 16
+
+    let ws = null;
+
+    function renderFramebuffer(buffer) {
+        const bytes = new Uint8Array(buffer);
+        const image = ctx.createImageData(WIDTH, HEIGHT);
         const data = image.data;
 
-        for (let y = 0; y < screen.height; y++) {
-            for (let x = 0; x < screen.width; x++) {
-                const i = (y * screen.width + x) * 4;
+        let byteIndex = 0;
 
-                // Diagonal + border pattern
-                const on = (x === y) || (x === 0) || (y === 0) || (x === screen.width - 1) || (y === screen.height - 1);
-                const v = on ? 255 : 0;
+        for (let row = 0; row < HEIGHT; row++) {
+            for (let w = 0; w < WORDS_PER_ROW; w++) {
+                // little-endian 16-bit word
+                const lo = bytes[byteIndex++];
+                const hi = bytes[byteIndex++];
+                const word = lo | (hi << 8);
 
-                data[i + 0] = v;   // R
-                data[i + 1] = v;   // G
-                data[i + 2] = v;   // B
-                data[i + 3] = 255; // A
+                for (let bit = 0; bit < 16; bit++) {
+                    const x = w * 16 + bit;
+                    const y = row;
+                    const i = (y * WIDTH + x) * 4;
+
+                    const on = (word >> bit) & 1; // if flipped, use (15 - bit)
+                    const v = on ? 0 : 255;       // 1 = black, 0 = white
+
+                    data[i + 0] = v;
+                    data[i + 1] = v;
+                    data[i + 2] = v;
+                    data[i + 3] = 255;
+                }
             }
         }
 
         ctx.putImageData(image, 0, 0);
     }
 
+    function connectWS() {
+        const url = `ws://${location.host}/ws`;
+        ws = new WebSocket(url);
+        ws.binaryType = "arraybuffer";
+
+        ws.onopen = () => {
+            status.textContent = "WebSocket connected.";
+            result.textContent = "";
+        };
+
+        ws.onmessage = (ev) => {
+            if (typeof ev.data === "string") {
+                result.textContent = ev.data;
+            } else {
+                renderFramebuffer(ev.data);
+                result.textContent = "Screen updated.";
+            }
+        };
+
+        ws.onclose = () => {
+            status.textContent = "WebSocket closed.";
+        };
+    }
+
     button.addEventListener("click", () => {
-        testWebsocket();
-        result.textContent = "Test Complete.";
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            connectWS();
+        } else {
+            ws.send("get"); // ask server to resend framebuffer
+        }
     });
 
-    status.textContent = "Ready. Select a program to load.";
+    status.textContent = "Ready. Click to connect.";
 })();
