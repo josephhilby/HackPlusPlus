@@ -1,4 +1,4 @@
-#include "Lexer.h"
+#include "lexer.h"
 
 Operation* lex_line(char* line) {
     if (!line) {

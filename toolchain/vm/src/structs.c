@@ -1,4 +1,4 @@
-#include "Structs.h"
+#include "structs.h"
 
 Operation* create_operation(const char* command, const char* segment, const char* data) {
     Operation* operation = malloc(sizeof(Operation));

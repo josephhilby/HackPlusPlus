@@ -2,7 +2,7 @@
 #define LEXER_H
 
 #include <ctype.h>
-#include "Structs.h"
+#include "structs.h"
 
 Operation* lex_line(char* line);
 void lex_comment(char* line);

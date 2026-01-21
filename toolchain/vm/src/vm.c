@@ -1,22 +1,16 @@
-#include "Lexer.h"
-#include "Generator.h"
+#include "lexer.h"
+#include "generator.h"
 
-int main(const int argc, char* argv[]) {
-    // Check Args
-    if (argc != 3) {
-        printf("Usage: ./main <input_file> <output_file>\n");
-        return 1;
-    }
-
+int translate_asm(const char* in, const char* out) {
     // Open Source File
-    FILE* src = fopen(argv[1], "r");
+    FILE* src = fopen(in, "r");
     if (!src) {
         printf("Error opening source file\n");
         return 1;
     }
 
     // Open Destination File
-    FILE* dest = fopen(argv[2], "w");
+    FILE* dest = fopen(out, "w");
     if (!dest) {
         printf("Error opening output file\n");
         fclose(src);
@@ -26,8 +20,8 @@ int main(const int argc, char* argv[]) {
     // ONE PASS TRANSLATOR
     char buffer[MAX_LENGTH];
     while (fgets(buffer, MAX_LENGTH, src)) {
-        const Operation* next = lex_line(buffer);
-        generate(dest, &next);
+        Operation* next = lex_line(buffer);
+        generate(dest, next);
     }
 
     // Close Files

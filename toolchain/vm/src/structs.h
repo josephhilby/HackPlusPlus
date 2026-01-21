@@ -25,10 +25,7 @@ typedef struct {
     Emitter emit;
 } Command;
 
-// Use
-// Operation *op = find_vm_operation(cmd);
-// if (!op) error("unknown VM command");
-// operation->emit(out, arg1, arg2);
+
 
 // // Segment Map
 // typedef struct {

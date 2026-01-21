@@ -6,7 +6,7 @@
 #include <algorithm>
 
 extern "C" {
-#include "assembler.h"
+#include "vm.h"
 }
 
 namespace fs = std::filesystem;
@@ -48,22 +48,22 @@ static void fail_with_diff(const std::string& stem,
     std::string exp_line = get_line(expected, line0, BYTES_PER_LINE);
 
     FAIL() << "Mismatch: " << stem
-           << " (line " << (line0 + 1) << ", bit " << (col0 + 1) << ")\n"
-           << "actual word:   \"" << act_line << "\"\n"
-           << "expected word: \"" << exp_line << "\"";
+           << " (instruction " << (line0 + 1) << ")\n"
+           << "actual inst:   \"" << act_line << "\"\n"
+           << "expected inst: \"" << exp_line << "\"";
 }
 
 static void run_golden_case(const std::string& stem) {
     fs::create_directories(actual_dir());
 
-    fs::path in  = cases_dir()    / (stem + ".asm");
-    fs::path out = actual_dir()   / (stem + ".hack");
-    fs::path exp = expected_dir() / (stem + ".hack");
+    fs::path in  = cases_dir()    / (stem + ".vm");
+    fs::path out = actual_dir()   / (stem + ".asm");
+    fs::path exp = expected_dir() / (stem + ".asm");
 
     ASSERT_TRUE(fs::exists(in))  << "Missing input: "    << in.string();
     ASSERT_TRUE(fs::exists(exp)) << "Missing expected: " << exp.string();
 
-    int rc = assemble_txt(in.c_str(), out.c_str());
+    int rc = translate_asm(in.c_str(), out.c_str());
     ASSERT_EQ(rc, 0) << "Assemble failed: " << in.string();
 
     auto a = read_all(out);
@@ -78,22 +78,18 @@ TEST(Golden, Add)   {
     run_golden_case("Add");
 }
 
-TEST(Golden, Max)   {
-    run_golden_case("Max");
-}
-
-TEST(Golden, MaxL)  {
-    run_golden_case("MaxL");
-}
-
-TEST(Golden, Rect)  {
-    run_golden_case("Rect");
-}
-
-TEST(Golden, RectL) {
-    run_golden_case("RectL");
-}
-
-TEST(Golden, Pong) {
-    run_golden_case("Pong");
-}
+//TEST(Golden, Basic)   {
+//    run_golden_case("Basic");
+//}
+//
+//TEST(Golden, Pointer)  {
+//    run_golden_case("Pointer");
+//}
+//
+//TEST(Golden, Stack)  {
+//    run_golden_case("Stack");
+//}
+//
+//TEST(Golden, Static) {
+//    run_golden_case("Static");
+//}
