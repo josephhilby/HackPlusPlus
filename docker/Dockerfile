@@ -1,6 +1,7 @@
 # Single-container build: C server serves ./web and handles /ws
 FROM debian:bookworm-slim
 
+# make may not be needed
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential make \
     && rm -rf /var/lib/apt/lists/*

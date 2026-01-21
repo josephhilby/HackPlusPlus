@@ -30,12 +30,14 @@
                     const y = row;
                     const i = (y * WIDTH + x) * 4;
 
-                    const on = (word >> bit) & 1; // if flipped, use (15 - bit)
-                    const v = on ? 0 : 255;       // 1 = black, 0 = white
+                    // if flipped, use (15 - bit)
+                    const on = (word >> bit) & 1;
+                    // 1 = black, 0 = white add some bias for crt effect
+                    const v = on ? 0 : (190 + ((Math.random() * 6) | 0));
 
-                    data[i + 0] = v;
-                    data[i + 1] = v;
-                    data[i + 2] = v;
+                    data[i + 0] = v;    // R
+                    data[i + 1] = v;    // G
+                    data[i + 2] = v;    // B
                     data[i + 3] = 255;
                 }
             }
