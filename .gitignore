@@ -1,4 +1,26 @@
-.idea
+# IDE and OS files
+.idea/
+.DS_Store
 
+# Compiled artifacts / binaries
+*.o
+*.a
+
+# Compiled test binaries
+vm_tests
+assembler_tests
+
+# C/C++ tooling
+*.dSYM/
+
+# README in sub-directories
 toolchain/assembler/README.md
 toolchain/vm/README.md
+
+# Build outputs
+toolchain/assembler/build/
+toolchain/vm/build/
+
+# Golden test outputs (generated)
+toolchain/assembler/test/golden/actual/
+toolchain/vm/test/golden/actual/
