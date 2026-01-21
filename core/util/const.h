@@ -1,0 +1,3 @@
+#define RAMSIZE 32768
+#define SCREEN_BASE 16384
+#define SCREEN_LEN 8192
