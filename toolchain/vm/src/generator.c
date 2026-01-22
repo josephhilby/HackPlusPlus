@@ -5,17 +5,23 @@ static const Command vm_table[] = {
     {"push", emit_push},
     {"pop",  emit_pop},
     {"add",  emit_add},
+    {"sub",  emit_sub},
     {NULL,   NULL}
 };
-// Use
-// Operation *op = find_vm_operation(cmd);
-// if (!op) error("unknown VM command");
-// operation->emit(out, arg1, arg2);
-void generate(FILE* dest, Operation* opr) {
 
+// Operation := Command Segment Data
+void generate(FILE* dest, Operation* op) {
+    if (!op) {
+        return;
+    }
+    const Command* command = find_vm_command(op->command);
+    if (!command) {
+        fprintf(dest, "error: command not found\n");
+    }
+    command->emit(dest, op->segment, op->data);
 }
 
-Command* find_vm_operation(const char *mnemonic) {
+const Command* find_vm_command(const char *mnemonic) {
     for (size_t i = 0; vm_table[i].mnemonic; i++) {
         if (strcmp(vm_table[i].mnemonic, mnemonic) == 0) {
             return &vm_table[i];
@@ -24,40 +30,75 @@ Command* find_vm_operation(const char *mnemonic) {
     return NULL;
 }
 
-void emit_push(FILE *out, const char *segment, int index) {
+// push:
+//   segment := argument, local, static, constant, this, that, pointer, temp
+//   index   := non neg int
+void emit_push(FILE *out, const char *segment, const char* data) {
     if (strcmp(segment, "constant") == 0) {
         fprintf(out,
-            "@%d\n"
-            "D=A\n"
-            "@SP\n"
-            "A=M\n"
-            "M=D\n"
-            "@SP\n"
-            "M=M+1\n",
-            index);
+            "@%s\n"    // # in reg A
+            "D=A\n"    // # in reg D
+            "@SP\n"    // SP ptr in reg A
+            "A=M\n"    // SP addr in reg A
+            "M=D\n"    // # in RAM[SP]
+            "@SP\n"    // SP ptr in reg A
+            "M=M+1\n", // SP addr++
+            data);
+    }
+    else if (strcmp(segment, "static") == 0) {
+        fprintf(out,
+            "@%s.%s\n" // # in reg A
+            "D=M\n"    // # in reg D
+            "@SP\n"    // SP ptr in reg A
+            "A=M\n"    // SP addr in reg A
+            "M=D\n"    // # in RAM[SP]
+            "@SP\n"    // SP ptr in reg A
+            "M=M+1\n", // SP addr++
+            filename, data);
     }
 }
 
-void emit_pop(FILE *out, const char *segment, int index) {
-    if (strcmp(segment, "constant") == 0) {
+// push:
+//   segment := argument, local, static, this, that, pointer, temp
+//   index   := non neg int
+void emit_pop(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "static") == 0) {
         fprintf(out,
-            "@SP\n"
-            "M=M+1\n"
-            "D=M\n",
-            index);
+            "@SP\n"    // SP ptr in reg A
+            "AM=M-1\n" // SP addr--
+            "D=M\n"    // RAM[SP] in reg D
+            "@%s.%s\n"
+            "M=D\n",
+            filename, data);
     }
 }
 
-void emit_add(FILE *out, const char *segment, int index) {
-    if (strcmp(segment, "constant") == 0) {
+void emit_add(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "") == 0) {
         fprintf(out,
-            "@%d\n"
-            "D=A\n"
             "@SP\n"
-            "A=M\n"
-            "M=D\n"
+            "AM=M-1\n"
+            "D=M\n"
+            "@SP\n"
+            "AM=M-1\n"
+            "M=D+M\n"
             "@SP\n"
             "M=M+1\n",
-            index);
+            data);
+    }
+}
+
+void emit_sub(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "") == 0) {
+        fprintf(out,
+            "@SP\n"
+            "AM=M-1\n"
+            "D=M\n"
+            "@SP\n"
+            "AM=M-1\n"
+            "M=D-M\n"
+            "@SP\n"
+            "M=M+1\n",
+            data);
     }
 }
