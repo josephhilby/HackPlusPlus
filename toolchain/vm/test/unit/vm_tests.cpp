@@ -21,15 +21,33 @@ static std::vector<unsigned char> read_all(const fs::path& p) {
                                       std::istreambuf_iterator<char>());
 }
 
+// EOL sanitize: make CRLF and LF compare equal by dropping '\r'
+static std::vector<unsigned char> normalize_eol(std::vector<unsigned char> v) {
+    v.erase(std::remove(v.begin(), v.end(), (unsigned char)'\r'), v.end());
+    return v;
+}
+
 static std::string strip_eol(std::string s) {
     while (!s.empty() && (s.back() == '\n' || s.back() == '\r')) s.pop_back();
     return s;
 }
 
-static std::string get_line(const std::vector<unsigned char>& v, size_t line0, size_t bytes_per_line) {
-    size_t start = line0 * bytes_per_line;
-    size_t end   = std::min(start + bytes_per_line, v.size());
-    if (start >= v.size()) return "";
+// Find line start/end (byte indices) containing idx
+static void line_bounds(const std::vector<unsigned char>& v, size_t idx, size_t& start, size_t& end) {
+    if (v.empty()) { start = end = 0; return; }
+    if (idx >= v.size()) idx = v.size() - 1;
+
+    start = idx;
+    while (start > 0 && v[start - 1] != '\n') --start;
+
+    end = idx;
+    while (end < v.size() && v[end] != '\n') ++end;
+    if (end < v.size() && v[end] == '\n') ++end;
+}
+
+static std::string extract_line(const std::vector<unsigned char>& v, size_t idx) {
+    size_t start = 0, end = 0;
+    line_bounds(v, idx, start, end);
     return strip_eol(std::string(v.begin() + start, v.begin() + end));
 }
 
@@ -40,12 +58,31 @@ static void fail_with_diff(const std::string& stem,
     size_t i = 0;
     while (i < n && actual[i] == expected[i]) ++i;
 
-    const size_t BYTES_PER_LINE = 17; // 16 chars + '\n'
-    size_t line0 = i / BYTES_PER_LINE;
-    size_t col0  = i % BYTES_PER_LINE;
+    size_t mismatch = (i < n) ? i : n;
 
-    std::string act_line = get_line(actual,   line0, BYTES_PER_LINE);
-    std::string exp_line = get_line(expected, line0, BYTES_PER_LINE);
+    // Find line number and line start
+    size_t line0 = 0;
+    size_t line_start = 0;
+    for (size_t k = 0; k < mismatch && k < actual.size(); ++k) {
+        if (actual[k] == '\n') {
+            ++line0;
+            line_start = k + 1;
+        }
+    }
+
+    // Find end of line
+    size_t line_end = line_start;
+    while (line_end < actual.size() && actual[line_end] != '\n') ++line_end;
+    if (line_end < actual.size() && actual[line_end] == '\n') ++line_end;
+
+    auto extract = [&](const std::vector<unsigned char>& v) {
+        if (v.empty() || line_start >= v.size()) return std::string{};
+        size_t end = std::min(line_end, v.size());
+        return strip_eol(std::string(v.begin() + line_start, v.begin() + end));
+    };
+
+    std::string act_line = extract(actual);
+    std::string exp_line = extract(expected);
 
     FAIL() << "Mismatch: " << stem
            << " (instruction " << (line0 + 1) << ")\n"
@@ -64,18 +101,22 @@ static void run_golden_case(const std::string& stem) {
     ASSERT_TRUE(fs::exists(exp)) << "Missing expected: " << exp.string();
 
     int rc = translate_asm(in.c_str(), out.c_str());
-    ASSERT_EQ(rc, 0) << "Assemble failed: " << in.string();
+    ASSERT_EQ(rc, 0) << "Translate failed: " << in.string();
 
-    auto a = read_all(out);
-    auto b = read_all(exp);
+    auto a = normalize_eol(read_all(out));
+    auto b = normalize_eol(read_all(exp));
 
     if (a != b) {
         fail_with_diff(stem, a, b);
     }
 }
 
-TEST(Golden, Add)   {
+TEST(Golden, Add) {
     run_golden_case("Add");
+}
+
+TEST(Golden, Static) {
+    run_golden_case("Static");
 }
 
 //TEST(Golden, Basic)   {
@@ -88,8 +129,4 @@ TEST(Golden, Add)   {
 //
 //TEST(Golden, Stack)  {
 //    run_golden_case("Stack");
-//}
-//
-//TEST(Golden, Static) {
-//    run_golden_case("Static");
 //}

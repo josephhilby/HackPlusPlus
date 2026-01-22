@@ -40,7 +40,7 @@ void parse_c_inst(Instruction* inst) {
     long i;
     // dest=comp;jump, dest=comp, comp;jump
     const char* first = inst->ltrl;
-    //     =comp;jump,     =comp
+    //     =comp;jump,     =comp,
     const char* second = strchr(first, '=');
     //          ;jump,          ,     ;jump
     const char* third = strchr(first, ';');

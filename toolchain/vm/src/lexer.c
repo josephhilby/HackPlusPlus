@@ -18,7 +18,14 @@ Operation* lex_line(char* line) {
         return NULL;
     }
 
-    Operation* operation = create_operation();
+    Operation* op = malloc(sizeof(Operation));
+    return lex_operation(line, op, start, len);
+}
+
+Operation* lex_operation(char* line, Operation* op, size_t start, size_t len) {
+    memcpy(op->ltrl, line + start, len);
+    op->ltrl[len] = '\0';
+    return op;
 }
 
 void lex_comment(char* line) {
