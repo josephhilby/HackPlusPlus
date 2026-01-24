@@ -1,6 +1,7 @@
 #include "generator.h"
 
 char filename[256];
+long return_id = 1;
 
 void set_filename(const char* path) {
     // this will break on windows
@@ -20,6 +21,13 @@ static const Command vm_table[] = {
     {"pop",  emit_pop},
     {"add",  emit_add},
     {"sub",  emit_sub},
+    {"eq",  emit_eq},
+    {"lt",  emit_lt},
+    {"gt",  emit_gt},
+    {"neg",  emit_neg},
+    {"and",  emit_and},
+    {"or",  emit_or},
+    {"not",  emit_not},
     {NULL,   NULL}
 };
 
@@ -42,6 +50,30 @@ const Command* find_vm_command(const char *mnemonic) {
         }
     }
     return NULL;
+}
+
+// true = -1, false = 0, use R15 as RA
+void emit_builtins(FILE *out) {
+    fprintf(out,
+        "@START\n"
+        "0;JMP\n"
+        "(RETURN)\n"
+        "@R15\n"
+        "A=M\n"
+        "0;JMP\n"
+        "(TRUE)\n"
+        "@SP\n"
+        "A=M-1\n"
+        "M=-1\n"
+        "@RETURN\n"
+        "0;JMP\n"
+        "(FALSE)\n"
+        "@SP\n"
+        "A=M-1\n"
+        "M=0\n"
+        "@RETURN\n"
+        "0;JMP\n"
+        "(START)\n");
 }
 
 // push:
@@ -97,8 +129,7 @@ void emit_add(FILE *out, const char *segment, const char* data) {
             "AM=M-1\n"
             "M=D+M\n"
             "@SP\n"
-            "M=M+1\n",
-            data);
+            "M=M+1\n");
     }
 }
 
@@ -110,9 +141,134 @@ void emit_sub(FILE *out, const char *segment, const char* data) {
             "D=M\n"
             "@SP\n"
             "AM=M-1\n"
-            "M=D-M\n"
+            "M=M-D\n"
             "@SP\n"
-            "M=M+1\n",
-            data);
+            "M=M+1\n");
+    }
+}
+
+void emit_eq(FILE *out, const char *segment, const char* data) {
+    fprintf(out,
+        "@RET_POINT_%ld\n"
+        "D=A\n"
+        "@R15\n"
+        "M=D\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "MD=M-D\n"
+        "@SP\n"
+        "M=M+1\n"
+        "@TRUE\n"
+        "D;JEQ\n"
+        "@FALSE\n"
+        "0;JMP\n"
+        "(RET_POINT_%ld)\n",
+        return_id, return_id);
+    return_id++;
+}
+
+void emit_lt(FILE *out, const char *segment, const char* data) {
+    fprintf(out,
+        "@RET_POINT_%ld\n"
+        "D=A\n"
+        "@R15\n"
+        "M=D\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "MD=M-D\n"
+        "@SP\n"
+        "M=M+1\n"
+        "@TRUE\n"
+        "D;JLT\n"
+        "@FALSE\n"
+        "0;JMP\n"
+        "(RET_POINT_%ld)\n",
+        return_id, return_id);
+    return_id++;
+}
+
+void emit_gt(FILE *out, const char *segment, const char* data) {
+    fprintf(out,
+        "@RET_POINT_%ld\n"
+        "D=A\n"
+        "@R15\n"
+        "M=D\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "MD=M-D\n"
+        "@SP\n"
+        "M=M+1\n"
+        "@TRUE\n"
+        "D;JGT\n"
+        "@FALSE\n"
+        "0;JMP\n"
+        "(RET_POINT_%ld)\n",
+        return_id, return_id);
+    return_id++;
+}
+
+void emit_neg(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "") == 0) {
+        fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "M=-M\n"
+        "@SP\n"
+        "M=M+1\n");
+    }
+}
+
+// can improve by just overwirting SP-1
+// @SP
+// AM=M-1
+// D=M
+// A=A-1
+// M=D&M
+
+void emit_and(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "") == 0) {
+        fprintf(out,
+            "@SP\n"
+            "AM=M-1\n"
+            "D=M\n"
+            "@SP\n"
+            "AM=M-1\n"
+            "M=D&M\n"
+            "@SP\n"
+            "M=M+1\n");
+    }
+}
+
+void emit_or(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "") == 0) {
+        fprintf(out,
+            "@SP\n"
+            "AM=M-1\n"
+            "D=M\n"
+            "@SP\n"
+            "AM=M-1\n"
+            "M=D|M\n"
+            "@SP\n"
+            "M=M+1\n");
+    }
+}
+
+void emit_not(FILE *out, const char *segment, const char* data) {
+    if (strcmp(segment, "") == 0) {
+        fprintf(out,
+            "@SP\n"
+            "AM=M-1\n"
+            "M=!M\n"
+            "@SP\n"
+            "M=M+1\n");
     }
 }

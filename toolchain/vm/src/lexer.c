@@ -18,7 +18,7 @@ Operation* lex_line(char* line) {
         return NULL;
     }
 
-    Operation* op = malloc(sizeof(Operation));
+    Operation* op = create_operation();
     return lex_operation(line, op, start, len);
 }
 

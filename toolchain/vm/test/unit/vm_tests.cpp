@@ -115,6 +115,10 @@ TEST(Golden, Add) {
     run_golden_case("Add");
 }
 
+TEST(Golden, Stack)  {
+    run_golden_case("Stack");
+}
+
 TEST(Golden, Static) {
     run_golden_case("Static");
 }
