@@ -47,7 +47,7 @@ c_instruction ::= [ dest "=" ] comp [ ";" jump ]
 dest          ::= dest_char { dest_char }
 dest_char     ::= "A" | "D" | "M"
 
-comp           ::= "0" |  "1" | "-1"
+comp          ::=  "0" |  "1" | "-1"
                 |  "A" |  "D" |  "M"
                 | "!A" | "!D" | "!M"
                 | "-A" | "-D" | "-M"
@@ -73,18 +73,6 @@ predefined symbols = R1..R15, SP, LCL, ARG, THIS, THAT, SCREEN, KBD
 integer := ^[0-9]+$
 symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
 comment := ^//.*$
-```
-
-```regexp
-VARIABLE @xxx
-    constant := ^[0-9]+$
-    symbol   :
-        predefined := R0..R15, SP, LCL, ARG, THIS, THAT, SCREEN, KBD
-        label      := ^\( [A-Za-z_$:.] [A-Za-z0-9_-]* \)$
-        variable   := [A-Za-z_$:.] [A-Za-z0-9_-]* [^predefined]
-
-COMMENT //
-    comment := ^\\\\
 ```
 
 ### Memory Map

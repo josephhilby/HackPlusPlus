@@ -4,6 +4,7 @@
 #include "structs.h"
 
 void generate(FILE* dest, Operation* opr);
+void set_filename(const char* path);
 const Command* find_vm_command(const char* mnemonic);
 void emit_push(FILE *out, const char *segment, const char* data);
 void emit_pop(FILE *out, const char *segment, const char* data);

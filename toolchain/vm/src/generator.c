@@ -1,5 +1,19 @@
 #include "generator.h"
 
+char filename[256];
+
+void set_filename(const char* path) {
+    // this will break on windows
+    const char* slash = strrchr(path, '/');
+    const char* name = slash ? slash + 1 : path;
+
+    strncpy(filename, name, sizeof(filename));
+    filename[sizeof(filename) - 1] = '\0';
+
+    char* dot = strrchr(filename, '.');
+    if (dot) *dot = '\0';
+}
+
 // Dispatch table
 static const Command vm_table[] = {
     {"push", emit_push},
