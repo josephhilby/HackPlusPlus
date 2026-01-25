@@ -63,15 +63,15 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 ## Emulator Architecture
 
 ### Components
-| Component (Language) | Description                                                                                                    |
-|----------------------|----------------------------------------------------------------------------------------------------------------|
-| Compiler (C)         | Stack based compiler that produces VM bytecode code from Jack code.                                            |
-| VM Translator (C)    | Stack based vm that produces assembly for the Hack CPU from VM bytecode code.                                  |
-| Assembler (C)        | Two-pass assembler that produces binary code and resolves symbols, labels, and variables.                      |
-| EMU (C)              | Software emulation of the Hack CPU, ROM, RAM, screen buffer, and last press keyboard interface.                |
-| Server (C)           | Bridges emulator state to the web UI using the Mongoose WebSocket.                                             |
-| Web (JS/CSS/HTML)    | Visualizes screen output and collects user input in real time.                                                 |
-| Tests (C++)          | Golden tests for assembler, VM, compiler output, and MMIO, plus sanitizer-based memory and correctness checks. |
+| Component   | Description                                                                                |
+|-------------|--------------------------------------------------------------------------------------------|
+| compiler.c  | Stack based compiler that produces VM bytecode code from Jack code.                        |
+| vm.c        | Stack based vm that produces assembly for the Hack CPU from VM bytecode code.              |
+| assembler.c | Two-pass assembler that produces binary code and resolves symbols, labels, and variables.  |
+| mem.c       | Software emulation of the Hack ROM, RAM, screen buffer, and last press keyboard interface. |
+| cpu.c       | Software emulation of the Hack CPU.                                                        |
+| server.c    | Bridges emulator state to the web UI using the Mongoose WebSocket.                         |
+| app.js      | Sends screen output to `index.html` for rendering and collects user input in real time.    |
 
 
 ### Diagram
