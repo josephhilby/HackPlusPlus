@@ -70,56 +70,44 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 
 ### Diagram
 ```mermaid
-flowchart TD
-  %% Hack++ Emulator / Toolchain Architecture
+flowchart TB
+%% Hack++ Emulator / Toolchain Architecture
 
-  %% -----------------------------
-  %% Web
-  %% -----------------------------
-  subgraph Web["Web UI"]
-    UI["app.js<br/>(Canvas / Frontend)"]
-  end
+subgraph Host["Core"]
+SRV["server.c - I/O Bridge"]
+CPU["cpu.c - Hack++ CPU"]
+ROM["mem.c - ROM"]
+MEM["mem.c - RAM / MMIO"]
+end
 
-  %% -----------------------------
-  %% Core
-  %% -----------------------------
-  subgraph Host["Core"]
-    SRV["server.c<br/>(HTTP / WebSocket Bridge)"]
-    CPU["cpu.c<br/>(Hack CPU Core)"]
-    MEM["mem.c<br/>(RAM & MMIO)"]
-  end
+subgraph Web["Web"]
+    UI["app.js - I/O User Interface"]
+end
 
-  %% -----------------------------
-  %% Toolchain
-  %% -----------------------------
-  subgraph Toolchain["Toolchain"]
-    JACK["compiler.c<br/>(JACK → VM)"]
-    VM["vm.c<br/>(VM → ASM)"]
-    ASM["assembler.c<br/>(ASM → HACK)"]
-  end
+subgraph Toolchain["Toolchain"]
+    JACK["compiler.c - JACK -> VM"]
+    VM["vm.c - VM -> ASM"]
+    ASM["assembler.c - ASM -> HACK"]
+end
 
-  %% -----------------------------
-  %% Data / Control Flow
-  %% -----------------------------
-  UI <-->|HTTP / WebSocket| SRV
+JACK -->|.vm| VM
+VM   -->|.asm| ASM
+ASM  -->|.hack| ROM
 
-  SRV <-->|MMIO (SCREEN/KBD) / State Sync| MEM
-  CPU <-->|Memory Bus| MEM
+UI  <-->|WebSocket| SRV
+SRV <-->|MMIO| MEM
+CPU <-->|Data Bus| MEM
+ROM  -->|Instruction Bus| CPU
 
-  JACK -->|.vm| VM
-  VM -->|.asm| ASM
-  ASM -->|.hack| CPU
+classDef ui fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
+classDef core fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20;
+classDef tool fill:#F5F5F5,stroke:#757575,stroke-width:1.5px,color:#424242;
+classDef rom fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#5D4037;
 
-  %% -----------------------------
-  %% Styling
-  %% -----------------------------
-  classDef ui fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
-  classDef core fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20;
-  classDef tool fill:#F5F5F5,stroke:#757575,stroke-width:1.5px,color:#424242;
-
-  class UI ui;
-  class SRV,CPU,MEM core;
-  class JACK,VM,ASM tool;
+class UI ui;
+class SRV,CPU,MEM core;
+class JACK,VM,ASM tool;
+class ROM rom;
 ```
 
 ## Hardware Architecture
