@@ -70,10 +70,10 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 
 ### Diagram
 ```mermaid
-flowchart TB
+flowchart TD
 %% Hack++ Emulator / Toolchain Architecture
 
-subgraph Host["Core"]
+subgraph Core["Core"]
 SRV["server.c - I/O Bridge"]
 CPU["cpu.c - Hack++ CPU"]
 ROM["mem.c - ROM"]
@@ -92,12 +92,14 @@ end
 
 JACK -->|.vm| VM
 VM   -->|.asm| ASM
+
 ASM  -->|.hack| ROM
 
-UI  <-->|WebSocket| SRV
-SRV <-->|MMIO| MEM
-CPU <-->|Data Bus| MEM
 ROM  -->|Instruction Bus| CPU
+CPU <-->|Data Bus| MEM
+SRV <-->|MMIO| MEM
+
+UI  <-->|WebSocket| SRV
 
 classDef ui fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
 classDef core fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20;
