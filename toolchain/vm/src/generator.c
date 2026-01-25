@@ -28,7 +28,7 @@ static const Command vm_table[] = {
     {"and",  emit_and},
     {"or",  emit_or},
     {"not",  emit_not},
-    {nullptr,   nullptr}
+    {NULL,   NULL}
 };
 
 // Operation := Command Segment Data
@@ -49,7 +49,7 @@ const Command* find_vm_command(const char* mnemonic) {
             return &vm_table[i];
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 // true = -1, false = 0, use R15 as RA
@@ -208,7 +208,7 @@ void emit_pop(FILE* out, const char* segment, const char* data) {
     }
 
     // base-pointer segments: local/argument/this/that
-    const char* base = nullptr;
+    const char* base = NULL;
     if (strcmp(segment, "local") == 0) base = "LCL";
     else if (strcmp(segment, "argument") == 0) base = "ARG";
     else if (strcmp(segment, "this") == 0) base = "THIS";
