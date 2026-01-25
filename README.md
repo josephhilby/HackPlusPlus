@@ -10,14 +10,17 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Hack++ is a first-principles computer system built from the ground up, starting with hardware built with 
-the elementary NAND logic gate and extending through an assembler, virtual machine, and operating system. The project 
-follows the methodology outlined in the book [*The Elements of Computing Systems*](https://www.nand2tetris.org/book) (commonly known as nand2tetris).
+Hack++ is a first-principles computer system built from the ground up, starting with hardware designed with only 
+the elementary NAND logic gate upto a functioning computer, and extending through an assembler, virtual machine, compiler, 
+and operating system. The project follows the methodology outlined in the book [*The Elements of Computing Systems*](https://www.nand2tetris.org/book) 
+(commonly known as nand2tetris).
 
 This project represents a full re-implementation and extension of the baseline Hack platform with an emphasis on:
 - Systems-level understanding
 - Clean architectural boundaries
 - Practical tooling (emulator, web UI, and test harnesses)
+
+<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Dr. Nisan & Dr. Schocken</a>)</p>
 
 ### Requirements
 - Docker
@@ -53,20 +56,22 @@ Once running, open your browser and navigate to: `http://localhost:8080`
     - [x] VM
     - [ ] Compiler
     - [ ] OS
+    - [ ] CPU
+    - [ ] MEM
     - [ ] Update README
 
 ## Emulator Architecture
 
 ### Components
-| Component (Language)   | Description                                                                                                                     |
-|------------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| Compiler (C)           | Stack based compiler that produces binary Hack VM code.                                                                         |
-| VM Translator (C)      | Parses and lowers Hack VM code into Hack assembly with built-in runtime helpers (comparisons, branching, function call/return). |
-| Assembler (C)          | Two-pass assembler that resolves symbols, labels, and variables, producing binary Hack machine code.                            |
-| CPU / Memory Core (C)  | Software emulation of the Hack CPU, RAM, MMIO, screen buffer, and keyboard interface.                                           |
-| Server (C)             | Bridges emulator state to the web UI using HTTP and WebSockets.                                                                 |
-| Frontend (JS/CSS/HTML) | Visualizes memory, registers, and screen output in real time.                                                                   |
-| Tests (C++)            | Golden tests for assembler, VM, and compiler output, plus sanitizer-based memory and correctness checks.                        |
+| Component (Language) | Description                                                                                                    |
+|----------------------|----------------------------------------------------------------------------------------------------------------|
+| Compiler (C)         | Stack based compiler that produces VM bytecode code from Jack code.                                            |
+| VM Translator (C)    | Stack based vm that produces assembly for the Hack CPU from VM bytecode code.                                  |
+| Assembler (C)        | Two-pass assembler that produces binary code and resolves symbols, labels, and variables.                      |
+| EMU (C)              | Software emulation of the Hack CPU, ROM, RAM, screen buffer, and last press keyboard interface.                |
+| Server (C)           | Bridges emulator state to the web UI using the Mongoose WebSocket.                                             |
+| Web (JS/CSS/HTML)    | Visualizes screen output and collects user input in real time.                                                 |
+| Tests (C++)          | Golden tests for assembler, VM, compiler output, and MMIO, plus sanitizer-based memory and correctness checks. |
 
 
 ### Diagram
@@ -148,7 +153,7 @@ While it looks imposing it really boils down to two steps:
 1. Determine the instruction: 
    - `a_instruction` - load an address into the A Register
    - `c_instruction` - perform a computation
-2. Map the given instructions mnemonics such that: 
+2. Map the given instructions mnemonics to binary, such that: 
    - `a_instruction` - `value` is mapped to a binary address 
    - `c_instruction` - `comp`, `dest`, `jump` is mapped to a binary instruction
 
@@ -240,16 +245,18 @@ The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal 
 | `RAM[16384..24575]` | —          | Memory-mapped video I/O (512×256 monochrome display) |
 | `RAM[24576]`        | —          | Memory-mapped keyboard I/O (Last key pressed)        |
 | `RAM[24577..32767]` | —          | Unused                                               |
-<p align="right">(<a href="#Attribution">see, Attribution</a>)</p>
+<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
 
 ## Virtual Machine (VM) Architecture
 
-With the instruction set architecture being covered, the ROM being a simple linear set of commands that can be accessed
-at will, and the RAM being a working table for the CPU to put values that it will need to track (thus completes the 
-compile time description). We can now focus on how Hack++ can keep track of inputs and changes made by the user that 
-will interrupt any perfectly ordered error free program file... \s.
+With the Hack++ instruction set defined, ROM modeled as a linear, addressable instruction stream, and RAM serving 
+as the CPU’s working state, the system’s hardware abstraction is complete. We now introduce the Virtual Machine 
+layer, which bridges high-level program semantics with the low-level execution syntax of the Hack architecture.
 
-//todo: brief paragraph about general aspects of the VM arch
+The VM defines a formal execution model—stack-based evaluation, segmented memory, and explicit control flow—that 
+gives meaning to operations such as arithmetic, branching, and function calls beyond their raw instruction encodings. 
+By separating semantic intent from machine syntax, this layer enables portable, machine-independent program 
+representation while still compiling deterministically into Hack assembly.
 
 #### Memory Segments
 The VM exposes eight logical memory segments to every function:
@@ -264,7 +271,7 @@ The VM exposes eight logical memory segments to every function:
 | `static`   | Stores static variables     | RAM[16..255] / shared across all functions in that file, (`file_name.i`) |
 | `pointer`  | Base address selectors      | `pointer 0` aligns `this`, `pointer 1` aligns `that`                     |
 | `constant` | Immediate values (0..32767) | Pseudo-segment not stored in RAM shared across all functions             |
-<p align="right">(<a href="#Attribution">see, Attribution</a>)</p>
+<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
 
 
 #### Data Types
@@ -313,35 +320,35 @@ nargs         ::= integer  (* number args passed by caller *)
 
 **Semantics**
 
-| Command      | Type	      | Effect                                                                   |
-|--------------|------------|--------------------------------------------------------------------------|
+| Command      | Type	      | Effect                                                                     |
+|--------------|------------|----------------------------------------------------------------------------|
 | push	        | memory     | Reads value from designated VM segment[index] and pushes it onto the stack |
-| pop	         | memory     | Pops the stack top and stores it into designated VM segment[index]       |
+| pop	        | memory     | Pops the stack top and stores it into designated VM segment[index]         |
 | eq / lt / gt | arithmetic | 	Pops two operands, compares, pushes -1 (true) or 0 (false) onto the stack |
-| and / or     | arithmetic | Pops two operands, compares, pushes result onto the stack                |
-| not          | arithmetic | Pops one operatnd, inverts, pushes result onto the stack                 |
-| add / sub    | arithmetic | Pops two operatnds, computes, pushes result onto the stack               |
-| neg          | arithmetic | Pops one operatnd, negates, pushes result onto the stack                 |
-| function     | function   | 	Declares a function and allocates local variables                       |
-| call         | function   | 	Sets up a call frame and transfers control                              |
-| return       | function   | 	Restores caller frame and jumps back                                    |
+| and / or     | arithmetic | Pops two operands, compares, pushes result onto the stack                  |
+| not          | arithmetic | Pops one operatnd, inverts, pushes result onto the stack                   |
+| add / sub    | arithmetic | Pops two operatnds, computes, pushes result onto the stack                 |
+| neg          | arithmetic | Pops one operatnd, negates, pushes result onto the stack                   |
+| function     | function   | 	Declares a function and allocates local variables                         |
+| call         | function   | 	Sets up a call frame and transfers control                                |
+| return       | function   | 	Restores caller frame and jumps back                                      |
 
-
-## Attribution
-
-The denoted work in my documentation was adapted from work originally authored by Charles Stevenson, licensed 
-under the MIT License.
-
-Stevenson, C. (2024-05-30). CodeWriter.java — Hack VM memory model documentation.
-Original source repository:
-https://github.com/brucesdad13/nand2tetris-vm-translator
-
-The content has been reformatted and edited for clarity and consistency within the Hack++ project README.
-The original author retains full credit for the underlying technical description.
 
 ## Acknowledgments
 
-Based on **The Elements of Computing Systems** by Nisan & Schocken and inspired by modern systems engineering practices.
+### Dr. Nisan & Dr. Schocken
+> Based on **The Elements of Computing Systems** by Nisan & Schocken and inspired by modern systems engineering practices.
+>
+> If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the
+> book — it provides the conceptual foundation for everything implemented here.
 
-If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the
-book — it provides the conceptual foundation for everything implemented here.
+### Charles Stevenson
+> Adapted from work originally authored by Charles Stevenson, licensed under the MIT License.
+>
+> Stevenson, C. (2024-05-30). CodeWriter.java — Hack VM memory model documentation.
+> Original source repository:
+> https://github.com/brucesdad13/nand2tetris-vm-translator
+>
+> The content has been reformatted and edited for clarity and consistency within the Hack++ project README.
+> The original author retains full credit for the underlying technical description.
+
