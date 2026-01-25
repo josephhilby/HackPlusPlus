@@ -1,3 +1,4 @@
+```java
 /**
 * ALU (Arithmetic Logic Unit):
 * Computes out = one of the following functions:
@@ -63,3 +64,4 @@ ng;           // if (out < 0)  equals 1, else 0
     Not(in=w6, out=zr);
     Or16(a[8..15]=msb, a[0..7]=lsb, b=false, out=out);
 }
+```

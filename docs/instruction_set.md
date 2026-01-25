@@ -1,18 +1,26 @@
-# A_INSTRUCTION (MSB = 0)
+# Instruction Set Architecture
+
+## A_INSTRUCTION (MSB = 0)
 
 ```
 0 vvvvvvvvvvvvvvv
 ```
+Where zero is the opcode denoting the `a_instruction`, and the remaining 15 locations are some value denoting an
+integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
 
-@xxx, where xxx is an integer from 0 to 32767, or a symbol that is bound to such an integer.
+The value can be either the integer itself or a label that maps to such an integer via a lookup table contained in 
+the assembler itself.
 
-# C_INSTRUCTION (MSB = 1)
+## C_INSTRUCTION (MSB = 1)
 
 ```
 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
 ```
 
-## comp (a, c1–c6)
+Where the one is the opcode denoting the `c_instruction`, the following two ones are unused, and the 
+remaining groups (comp, dest, and jump) are mapped according to the following tables.
+
+### comp (a, c1–c6)
 
 | comp   | a | c1 | c2 | c3 | c4 | c5 | c6 | effect                      |
 | ------ | - | -- | -- | -- | -- | -- | -- |-----------------------------|
@@ -46,7 +54,7 @@
 | `D\|M` | 1 | 0  | 1  | 0  | 1  | 0  | 1  | Bitwise OR of D and RAM[A]  |
 
 
-## dest (d1–d3)
+### dest (d1–d3)
 
 | dest   | d1 | d2 | d3 | Effect                             |
 | ------ | -- | -- | -- | ---------------------------------- |
@@ -59,7 +67,7 @@
 | `AD`   | 1  | 1  | 0  | A register and D register          |
 | `AMD`  | 1  | 1  | 1  | A register, RAM[A], and D register |
 
-## jump (j1–j3)
+### jump (j1–j3)
 
 | jump   | j1 | j2 | j3 | Effect             |
 | ------ | -- | -- | -- | ------------------ |

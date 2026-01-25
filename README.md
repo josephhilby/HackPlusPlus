@@ -18,9 +18,6 @@ This project represents a full re-implementation and extension of the baseline H
 - Systems-level understanding
 - Clean architectural boundaries
 - Practical tooling (emulator, web UI, and test harnesses)
-  
-If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the 
-book — it provides the conceptual foundation for everything implemented here.
 
 ### Requirements
 - Docker
@@ -38,22 +35,25 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 - [x] Create front end web UI
     - [x] Create app.js, style.css, index.html
     - [x] Create server.h/c to provide updates for screen and keyboard MMIO
-    - [x] Connect server.c to app.js via websocket
+    - [x] Connect mem.c to app.js via websocket to allow MMIO
       - app.js ⇄ (HTTP/WS) ⇄ server.c ⇄ mem.c
     - [x] Update README
 - [ ] Emulate HACK CPU, and MEMORY.
     - [ ] CPU
     - [x] MEM
+    - [ ] Update README
 - [ ] Rework baseline implementation from Python to C
     - [x] Assembler
     - [x] VM
     - [ ] Compiler
     - [ ] OS
+    - [ ] Update README
 - [ ] Test with Google Test (unit/golden) and LLVM (leak)
     - [x] Assembler
     - [x] VM
     - [ ] Compiler
     - [ ] OS
+    - [ ] Update README
 
 ## Emulator Architecture
 
@@ -122,7 +122,7 @@ of this repo.
 At its core, Hack++ follows a von Neumann architecture; programs and data are stored in memory, accessed and 
 manipulated by a central processing unit (CPU) composed of:
 - Registers — for holding intermediate values and addresses
-- ALU (Arithmetic Logic Unit) — for performing integer arithmetic and bitwise logic
+- Arithmetic Logic Unit (ALU) — for performing integer arithmetic and bitwise logic
 
 The CPU itself is intentionally minimal. It contains only two programmer-visible registers:
 - D Register — 16-bit data register
@@ -134,29 +134,33 @@ The ALU operates on 16-bit signed integers and supports a constrained set of ope
 - Unary negation and bitwise NOT
 
 Memory is divided into two logical regions:
-- ROM (Read-Only Memory) — stores program instructions
-- RAM (Random Access Memory) — stores program state, stack, heap, and memory-mapped I/O
+- Read-Only Memory (ROM) — stores program instructions
+- Random Access Memory (RAM) — stores program state, stack, heap, and memory-mapped I/O
 
 
 ### Instruction Set Architecture
 To instruct the CPU, the ROM is loaded with a program in the form of a `.hack` binary file. That file is
 assembled from a more human-readable assembly language file (`.asm`). The mapping between the two can be found 
-in `\docs`, however as to not get bogged down in ones and zeros here, we will skip the binary and proceed directly 
-to the assembly language syntax, and describe it in Extended Backus–Naur Form (EBNF).
+in `\docs`. However, as to not get bogged down in ones and zeros here, we will skip the binary and proceed directly 
+to the assembly language syntax and describe it in Extended Backus–Naur Form (EBNF).
 
 While it looks imposing it really boils down to two steps:
-1. Determine if the CPU needs to load an address into the A Register (a_instruction) or compute a value (c_instruction).
-2. Map the mnemonics in `value` (a_instruction) or `comp`, `dest`, `jump` (c_instruction) to binary.
+1. Determine the instruction: 
+   - `a_instruction` - load an address into the A Register
+   - `c_instruction` - perform a computation
+2. Map the given instructions mnemonics such that: 
+   - `a_instruction` - `value` is mapped to a binary address 
+   - `c_instruction` - `comp`, `dest`, `jump` is mapped to a binary instruction
 
 A quick example could be:
 ```asm
 // Foo.asm
 ...
-@BAR   // load address attributed to BAR in A Register
-0;JMP  // Jump to instruction ROM[BAR]
+@BAR   // load address attributed to BAR label in ROM into A Register (a_instruction)
+0;JMP  // Jump to instruction in ROM at BAR (c_instruction)
 ...
-(BAR)  // Address label being jumping to
-@SP    // First line of code after the jump
+(BAR)  // Address label being jumped to (label)
+@SP    // First line of code after the jump (a_instruction)
 ...
 ```
 
@@ -338,3 +342,6 @@ The original author retains full credit for the underlying technical description
 ## Acknowledgments
 
 Based on **The Elements of Computing Systems** by Nisan & Schocken and inspired by modern systems engineering practices.
+
+If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the
+book — it provides the conceptual foundation for everything implemented here.
