@@ -1,27 +1,45 @@
-CC         := cc
-CXX        := c++
-AR         := ar
-RANLIB     := ranlib
+CC            := cc
+CXX           := c++
+AR            := ar
+RANLIB        := ranlib
 
-SRC_DIR    := src
-OBJ_DIR    := build
-INC_DIR    := include
-LIB_A      := $(OBJ_DIR)/libvm.a
+SRC_DIR       := src
+OBJ_DIR       := build
+INC_DIR       := include
+LIB_A         := $(OBJ_DIR)/libvm.a
 
-TEST_DIR   := test/unit
-TEST_BIN   := $(OBJ_DIR)/vm_tests
+TEST_DIR      := test/unit
+TEST_BIN      := $(OBJ_DIR)/vm_tests
 
-GTEST_INC  := /opt/homebrew/include
-GTEST_LIB  := /opt/homebrew/lib
-GTEST_LIBS := -lgtest -lgtest_main
+GTEST_INC     := /opt/homebrew/include
+GTEST_LIB     := /opt/homebrew/lib
+GTEST_LIBS    := -lgtest -lgtest_main
 
-CFLAGS     := -std=c2x -Wall -Wextra -Wpedantic -I$(INC_DIR) -I$(SRC_DIR)
-CXXFLAGS   := -std=c++20
+CFLAGS        := -std=c2x -Wall -Wextra -Wpedantic -I$(INC_DIR) -I$(SRC_DIR)
+CXXFLAGS      := -std=c++20
 
-SRCS       := $(wildcard $(SRC_DIR)/*.c)
-OBJS       := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+SRCS          := $(wildcard $(SRC_DIR)/*.c)
+OBJS          := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 
-.PHONY: all clean test debug
+SAN_CFLAGS    := -g -O0 -fno-omit-frame-pointer
+SAN_LDFLAGS   :=
+
+LLVM_BINDIR   := /opt/homebrew/opt/llvm/bin
+CLANG         := $(LLVM_BINDIR)/clang
+CLANGXX       := $(LLVM_BINDIR)/clang++
+
+SAN_FLAGS     := -fsanitize=address,undefined
+LEAK_CXXWARN  := -Wno-character-conversion
+
+LEAK_BIN      := $(OBJ_DIR)/vm_tests_leak
+LEAK_LIB_A    := $(OBJ_DIR)/libvm_leak.a
+LEAK_OBJ_DIR  := $(OBJ_DIR)/leak
+LEAK_OBJS     := $(patsubst $(SRC_DIR)/%.c,$(LEAK_OBJ_DIR)/%.o,$(SRCS))
+
+ASAN_OPTIONS  ?= detect_leaks=1:abort_on_error=1:strict_string_checks=1:check_initialization_order=1
+UBSAN_OPTIONS ?= halt_on_error=1:print_stacktrace=1
+
+.PHONY: all clean test debug leak
 
 all: $(LIB_A)
 
@@ -54,3 +72,27 @@ $(TEST_BIN): $(LIB_A) $(TEST_DIR)/vm_tests.cpp | $(OBJ_DIR)
 debug: CFLAGS   += -g -O0
 debug: CXXFLAGS += -g -O0
 debug: $(TEST_BIN)
+
+$(LEAK_OBJ_DIR):
+	mkdir -p $(LEAK_OBJ_DIR)
+
+$(LEAK_OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(LEAK_OBJ_DIR)
+	$(CLANG) $(CFLAGS) $(SAN_CFLAGS) $(SAN_FLAGS) -c $< -o $@
+
+$(LEAK_LIB_A): $(LEAK_OBJS) | $(OBJ_DIR)
+	$(AR) rcs $@ $(LEAK_OBJS)
+	$(RANLIB) $@
+
+$(LEAK_BIN): $(LEAK_LIB_A) $(TEST_DIR)/vm_tests.cpp | $(OBJ_DIR)
+	$(CLANGXX) $(CXXFLAGS) $(LEAK_CXXWARN) $(SAN_CFLAGS) $(SAN_FLAGS) \
+	  -I$(INC_DIR) -I$(SRC_DIR) -I$(GTEST_INC) \
+	  $(TEST_DIR)/vm_tests.cpp \
+	  $(LEAK_LIB_A) \
+	  -L$(GTEST_LIB) $(GTEST_LIBS) \
+	  -o $@
+
+leak: $(LEAK_BIN)
+	ASAN_OPTIONS="$(ASAN_OPTIONS)" UBSAN_OPTIONS="$(UBSAN_OPTIONS)" ./$(LEAK_BIN)
+
+#leak: $(LEAK_BIN)
+#	ASAN_OPTIONS="$(ASAN_OPTIONS)" UBSAN_OPTIONS="$(UBSAN_OPTIONS)" ./$(LEAK_BIN) || true

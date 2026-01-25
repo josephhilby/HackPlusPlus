@@ -69,6 +69,6 @@ void parse_c_inst(Instruction* inst) {
         memcpy(inst->comp, first, i);
         inst->comp[i] = '\0';
         memcpy(inst->jump, third + 1, strlen(third));
-        inst->jump[strlen(third)] = '\0';
+        inst->jump[strlen(third) - 1] = '\0';
     }
 }

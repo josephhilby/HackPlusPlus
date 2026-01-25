@@ -115,18 +115,18 @@ TEST(Golden, Add) {
     run_golden_case("Add");
 }
 
+TEST(Golden, Stack)  {
+    run_golden_case("Stack");
+}
+
+TEST(Golden, Basic)   {
+    run_golden_case("Basic");
+}
+
+TEST(Golden, Pointer)  {
+    run_golden_case("Pointer");
+}
+
 TEST(Golden, Static) {
     run_golden_case("Static");
 }
-
-//TEST(Golden, Basic)   {
-//    run_golden_case("Basic");
-//}
-//
-//TEST(Golden, Pointer)  {
-//    run_golden_case("Pointer");
-//}
-//
-//TEST(Golden, Stack)  {
-//    run_golden_case("Stack");
-//}

@@ -9,10 +9,6 @@
 
 #define MAX_LENGTH 128
 
-char filename[256];
-
-void set_filename(const char* path);
-
 typedef struct {
     char ltrl[MAX_LENGTH];
     char command[10];

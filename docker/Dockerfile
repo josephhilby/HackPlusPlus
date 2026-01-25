@@ -9,16 +9,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy everything needed to build + run
-COPY src ./src
+COPY core ./core
 COPY web ./web
 
-# Build using your src/Makefile
-RUN make -C src
+# Build using your core/Makefile
+RUN make -C core
 
 EXPOSE 8080
 
 # Ensure relative paths like "./web" resolve correctly in your server
-CMD ["./src/hackemu"]
+CMD ["./core/hackemu"]
 
 # docker build -t hack-webemu-static -f docker/Dockerfile .
 # docker run --rm -p 8080:8080 hack-webemu-static
