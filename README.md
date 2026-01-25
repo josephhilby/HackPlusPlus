@@ -10,17 +10,17 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Hack++ is a first-principles computer system built from the ground up, starting with the elementary NAND logic 
-gate and extending through an assembler, virtual machine, and operating system. The project follows the methodology 
-outlined in the book [*The Elements of Computing Systems*](https://www.nand2tetris.org/book) (commonly known as nand2tetris).
+Hack++ is a first-principles computer system built from the ground up, starting with hardware built with 
+the elementary NAND logic gate and extending through an assembler, virtual machine, and operating system. The project 
+follows the methodology outlined in the book [*The Elements of Computing Systems*](https://www.nand2tetris.org/book) (commonly known as nand2tetris).
 
-This work represents a full reimplementation and extension of the baseline Hack platform with an emphasis on:
+This project represents a full re-implementation and extension of the baseline Hack platform with an emphasis on:
 - Systems-level understanding
 - Clean architectural boundaries
 - Practical tooling (emulator, web UI, and test harnesses)
   
 If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the 
-book—it provides the conceptual foundation for everything implemented here.
+book — it provides the conceptual foundation for everything implemented here.
 
 ### Requirements
 - Docker
@@ -49,7 +49,7 @@ Once running, open your browser and navigate to: `http://localhost:8080`
     - [x] VM
     - [ ] Compiler
     - [ ] OS
-- [ ] Test with Google Test (unit) and LLVM (leak)
+- [ ] Test with Google Test (unit/golden) and LLVM (leak)
     - [x] Assembler
     - [x] VM
     - [ ] Compiler
@@ -58,14 +58,15 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 ## Emulator Architecture
 
 ### Components
-| Component            | Description                                                                                 |
-|----------------------|---------------------------------------------------------------------------------------------|
-| VM Translator (C)   | Parses and lowers Hack VM programs into Hack assembly with built-in runtime helpers (comparisons, branching, function call/return). |
-| Assembler (C)      | Two-pass assembler that resolves symbols, labels, and variables, producing binary Hack machine code. |
-| CPU / Memory Core (C) | Software emulation of the Hack CPU, RAM, MMIO, screen buffer, and keyboard interface.       |
-| Server (C)         | Bridges emulator state to the web UI using HTTP and WebSockets.                             |
-| Frontend (JS/Canvas) | Visualizes memory, registers, and screen output in real time.                              |
-| Tests (GoogleTest) | Golden tests for assembler and VM output, plus sanitizer-based memory and correctness checks. |
+| Component (Language)   | Description                                                                                                                     |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| Compiler (C)           | Stack based compiler that produces binary Hack VM code.                                                                         |
+| VM Translator (C)      | Parses and lowers Hack VM code into Hack assembly with built-in runtime helpers (comparisons, branching, function call/return). |
+| Assembler (C)          | Two-pass assembler that resolves symbols, labels, and variables, producing binary Hack machine code.                            |
+| CPU / Memory Core (C)  | Software emulation of the Hack CPU, RAM, MMIO, screen buffer, and keyboard interface.                                           |
+| Server (C)             | Bridges emulator state to the web UI using HTTP and WebSockets.                                                                 |
+| Frontend (JS/CSS/HTML) | Visualizes memory, registers, and screen output in real time.                                                                   |
+| Tests (C++)            | Golden tests for assembler, VM, and compiler output, plus sanitizer-based memory and correctness checks.                        |
 
 
 ### Diagram
@@ -113,7 +114,12 @@ class ROM rom;
 ```
 
 ## Hardware Architecture
-At its core, Hack++ follows a von Neumann architecture. Programs and data are stored in memory, accessed and 
+All hardware in Hack++ (and Hack) is described via a Hardware Description Language (HDL), and constructed from the single
+elementary logic gate NAND. These HDL files can be found in the `\docs` section of this repo. It's implementation however
+is emulated in the C programming language according to the below specifications, and can be found in the `\core` section 
+of this repo.
+
+At its core, Hack++ follows a von Neumann architecture; programs and data are stored in memory, accessed and 
 manipulated by a central processing unit (CPU) composed of:
 - Registers — for holding intermediate values and addresses
 - ALU (Arithmetic Logic Unit) — for performing integer arithmetic and bitwise logic
@@ -131,8 +137,85 @@ Memory is divided into two logical regions:
 - ROM (Read-Only Memory) — stores program instructions
 - RAM (Random Access Memory) — stores program state, stack, heap, and memory-mapped I/O
 
-This strict separation enables a clean instructional pipeline from: Hardware → ISA → Assembler → VM → OS → application.
 
+### Instruction Set Architecture
+To instruct the CPU, the ROM is loaded with a program in the form of a `.hack` binary file. That file is
+assembled from a more human-readable assembly language file (`.asm`). The mapping between the two can be found 
+in `\docs`, however as to not get bogged down in ones and zeros here, we will skip the binary and proceed directly 
+to the assembly language syntax, and describe it in Extended Backus–Naur Form (EBNF).
+
+While it looks imposing it really boils down to two steps:
+1. Determine if the CPU needs to load an address into the A Register (a_instruction) or compute a value (c_instruction).
+2. Map the mnemonics in `value` (a_instruction) or `comp`, `dest`, `jump` (c_instruction) to binary.
+
+A quick example could be:
+```asm
+// Foo.asm
+...
+@BAR   // load address attributed to BAR in A Register
+0;JMP  // Jump to instruction ROM[BAR]
+...
+(BAR)  // Address label being jumping to
+@SP    // First line of code after the jump
+...
+```
+
+Labels, comments, and lines can all be ignored, for now. With that, below is the EBNF for the Hack++ assembly language.
+
+#### Assembly Grammar (EBNF)
+```ebnf
+non-terminal  ::= production rule
+---               ---
+program       ::= { line }
+
+line          ::= [ insrtuction | label ] [ comment ] newline
+comment       ::= "//" { any_char_except_newline }
+
+instruction   ::= a_instruction | c_instruction
+
+a_instruction ::= "@" value
+
+c_instruction ::= [ dest "=" ] comp [ ";" jump ]
+
+dest          ::= dest_char { dest_char }
+dest_char     ::= "A" | "D" | "M"
+
+comp          ::=  "0" |  "1" | "-1"
+                |  "A" |  "D" |  "M"
+                | "!A" | "!D" | "!M"
+                | "-A" | "-D" | "-M"
+                | "A+1" | "D+1" | "M+1"
+                | "A-1" | "D-1" | "M-1"
+                | "D+A" | "D+M"
+                | "D-A" | "D-M" | "A-D" | "M-D"
+                | "D&A" | "D&M"
+                | "D|A" | "D|M"
+
+jump          ::= "JGT" | "JEQ" | "JGE" | "JLT" | "JNE" | "JLE" | "JMP"
+
+label         ::= "(" symbol ")"
+
+value         ::= constant | symbol
+
+constant      ::= integer (* 0 <= integer <= 32767 *)
+```
+**Legend:**
+- `{ … }` = zero or more
+- `[ … ]` = optional (zero or one)
+- `|` = alternative
+- Keywords (`"LET"`, `"DEF"`, etc.) are case-sensitive
+
+**Predefined Symbols**
+```
+R1..R15, SP, LCL, ARG, THIS, THAT, SCREEN, KBD
+```
+
+**Tokens**
+```regexp
+integer := ^[0-9]+$
+symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
+newline := [\r\n]
+```
 
 ### Memory Map
 The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal addresses):
@@ -144,7 +227,7 @@ The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal 
 | `RAM[2]`            | `ARG`      | Base of the current function's argument segment      |
 | `RAM[3]`            | `THIS`     | Base of the current function's `this` segment (heap) |
 | `RAM[4]`            | `THAT`     | Base of the current function's `that` segment (heap) |
-| `RAM[5..12]`        | `TEMP`     | Segment for current function's temperary storage     |
+| `RAM[5..12]`        | `TEMP`     | Segment for current function's temporary storage     |
 | `RAM[13..14]`       | `R13..R14` | General-purpose registers                            |
 | `RAM[15]`           | `R15`      | Return Address register                              |
 | `RAM[16..255]`      | —          | Static variables (assigned at compile time)          |
@@ -155,7 +238,12 @@ The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal 
 | `RAM[24577..32767]` | —          | Unused                                               |
 <p align="right">(<a href="#Attribution">see, Attribution</a>)</p>
 
-### Virtual Machine (VM) Architecture
+## Virtual Machine (VM) Architecture
+
+With the instruction set architecture being covered, the ROM being a simple linear set of commands that can be accessed
+at will, and the RAM being a working table for the CPU to put values that it will need to track (thus completes the 
+compile time description). We can now focus on how Hack++ can keep track of inputs and changes made by the user that 
+will interrupt any perfectly ordered error free program file... \s.
 
 //todo: brief paragraph about general aspects of the VM arch
 
@@ -234,62 +322,7 @@ nargs         ::= integer  (* number args passed by caller *)
 | call         | function   | 	Sets up a call frame and transfers control                              |
 | return       | function   | 	Restores caller frame and jumps back                                    |
 
-### Assembly Specification
 
-#### Grammar (EBNF)
-```ebnf
-non-terminal  ::= production rule
----               ---
-program       ::= { line }
-
-line          ::= [ insrtuction | label ] [ comment ] newline
-comment       ::= "//" { any_char_except_newline }
-
-instruction   ::= a_instruction | c_instruction
-
-a_instruction ::= "@" value
-
-c_instruction ::= [ dest "=" ] comp [ ";" jump ]
-
-dest          ::= dest_char { dest_char }
-dest_char     ::= "A" | "D" | "M"
-
-comp          ::=  "0" |  "1" | "-1"
-                |  "A" |  "D" |  "M"
-                | "!A" | "!D" | "!M"
-                | "-A" | "-D" | "-M"
-                | "A+1" | "D+1" | "M+1"
-                | "A-1" | "D-1" | "M-1"
-                | "D+A" | "D+M"
-                | "D-A" | "D-M" | "A-D" | "M-D"
-                | "D&A" | "D&M"
-                | "D|A" | "D|M"
-
-jump          ::= "JGT" | "JEQ" | "JGE" | "JLT" | "JNE" | "JLE" | "JMP"
-
-label         ::= "(" symbol ")"
-
-value         ::= constant | symbol
-
-constant      ::= integer (* 0 <= integer <= 32767 *)
-```
-**Legend:**
-- `{ … }` = zero or more
-- `[ … ]` = optional (zero or one)
-- `|` = alternative
-- Keywords (`"LET"`, `"DEF"`, etc.) are case-sensitive
-
-**Predefined Symbols**
-```
-R1..R15, SP, LCL, ARG, THIS, THAT, SCREEN, KBD
-```
-
-**Tokens**
-```regexp
-integer := ^[0-9]+$
-symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
-newline := [\r\n]
-```
 ## Attribution
 
 The denoted work in my documentation was adapted from work originally authored by Charles Stevenson, licensed 
