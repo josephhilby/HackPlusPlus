@@ -4,7 +4,7 @@ char filename[256];
 long return_id = 1;
 
 void set_filename(const char* path) {
-    // this will break on windows
+    // this will break on windows (linux and mac only)
     const char* slash = strrchr(path, '/');
     const char* name = slash ? slash + 1 : path;
 
@@ -28,7 +28,7 @@ static const Command vm_table[] = {
     {"and",  emit_and},
     {"or",  emit_or},
     {"not",  emit_not},
-    {NULL,   NULL}
+    {nullptr,   nullptr}
 };
 
 // Operation := Command Segment Data
@@ -43,17 +43,17 @@ void generate(FILE* dest, Operation* op) {
     command->emit(dest, op->segment, op->data);
 }
 
-const Command* find_vm_command(const char *mnemonic) {
+const Command* find_vm_command(const char* mnemonic) {
     for (size_t i = 0; vm_table[i].mnemonic; i++) {
         if (strcmp(vm_table[i].mnemonic, mnemonic) == 0) {
             return &vm_table[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // true = -1, false = 0, use R15 as RA
-void emit_builtins(FILE *out) {
+void emit_builtins(FILE* out) {
     fprintf(out,
         "@START\n"
         "0;JMP\n"
@@ -79,75 +79,184 @@ void emit_builtins(FILE *out) {
 // push:
 //   segment := argument, local, static, constant, this, that, pointer, temp
 //   index   := non neg int
-void emit_push(FILE *out, const char *segment, const char* data) {
+void emit_push(FILE* out, const char* segment, const char* data) {
+    // push constant i
     if (strcmp(segment, "constant") == 0) {
         fprintf(out,
-            "@%s\n"    // # in reg A
-            "D=A\n"    // # in reg D
-            "@SP\n"    // SP ptr in reg A
-            "A=M\n"    // SP addr in reg A
-            "M=D\n"    // # in RAM[SP]
-            "@SP\n"    // SP ptr in reg A
-            "M=M+1\n", // SP addr++
+            "@%s\n"
+            "D=A\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n",
             data);
+        return;
     }
-    else if (strcmp(segment, "static") == 0) {
+
+    // push static i   (FileName.i)
+    if (strcmp(segment, "static") == 0) {
         fprintf(out,
-            "@%s.%s\n" // # in reg A
-            "D=M\n"    // # in reg D
-            "@SP\n"    // SP ptr in reg A
-            "A=M\n"    // SP addr in reg A
-            "M=D\n"    // # in RAM[SP]
-            "@SP\n"    // SP ptr in reg A
-            "M=M+1\n", // SP addr++
+            "@%s.%s\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n",
             filename, data);
+        return;
+    }
+
+    // push pointer 0/1  -> THIS/THAT
+    if (strcmp(segment, "pointer") == 0) {
+        int idx = atoi(data);
+        fprintf(out,
+            "@%s\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n",
+            (idx == 0) ? "THIS" : "THAT");
+        return;
+    }
+
+    // push temp i -> RAM[5+i]
+    if (strcmp(segment, "temp") == 0) {
+        int addr = 5 + atoi(data);
+        fprintf(out,
+            "@%d\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n",
+            addr);
+        return;
+    }
+
+    // base-pointer segments: local/argument/this/that
+    const char *base = NULL;
+    if (strcmp(segment, "local") == 0) base = "LCL";
+    else if (strcmp(segment, "argument") == 0) base = "ARG";
+    else if (strcmp(segment, "this") == 0) base = "THIS";
+    else if (strcmp(segment, "that") == 0) base = "THAT";
+
+    if (base) {
+        // R13 = base + index; D = *R13; push D
+        fprintf(out,
+            "@%s\n"
+            "D=M\n"
+            "@%s\n"
+            "D=D+A\n"
+            "@R13\n"
+            "M=D\n"
+            "@R13\n"
+            "A=M\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n",
+            base, data);
     }
 }
 
 // push:
 //   segment := argument, local, static, this, that, pointer, temp
 //   index   := non neg int
-void emit_pop(FILE *out, const char *segment, const char* data) {
+void emit_pop(FILE* out, const char* segment, const char* data) {
     if (strcmp(segment, "static") == 0) {
         fprintf(out,
-            "@SP\n"    // SP ptr in reg A
-            "AM=M-1\n" // SP addr--
-            "D=M\n"    // RAM[SP] in reg D
+            "@SP\n"
+            "AM=M-1\n"
+            "D=M\n"
             "@%s.%s\n"
             "M=D\n",
             filename, data);
+        return;
     }
-}
 
-void emit_add(FILE *out, const char *segment, const char* data) {
-    if (strcmp(segment, "") == 0) {
+    // pointer 0/1 -> THIS/THAT
+    if (strcmp(segment, "pointer") == 0) {
+        int idx = atoi(data);
         fprintf(out,
             "@SP\n"
             "AM=M-1\n"
             "D=M\n"
-            "@SP\n"
-            "AM=M-1\n"
-            "M=D+M\n"
-            "@SP\n"
-            "M=M+1\n");
+            "@%s\n"
+            "M=D\n",
+            (idx == 0) ? "THIS" : "THAT");
+        return;
     }
-}
 
-void emit_sub(FILE *out, const char *segment, const char* data) {
-    if (strcmp(segment, "") == 0) {
+    // temp i -> RAM[5+i]
+    if (strcmp(segment, "temp") == 0) {
+        int addr = 5 + atoi(data);
         fprintf(out,
             "@SP\n"
             "AM=M-1\n"
             "D=M\n"
+            "@%d\n"
+            "M=D\n",
+            addr);
+        return;
+    }
+
+    // base-pointer segments: local/argument/this/that
+    const char* base = nullptr;
+    if (strcmp(segment, "local") == 0) base = "LCL";
+    else if (strcmp(segment, "argument") == 0) base = "ARG";
+    else if (strcmp(segment, "this") == 0) base = "THIS";
+    else if (strcmp(segment, "that") == 0) base = "THAT";
+
+    if (base) {
+        fprintf(out,
+            "@%s\n"
+            "D=M\n"
+            "@%s\n"
+            "D=D+A\n"
+            "@R13\n"
+            "M=D\n"
             "@SP\n"
             "AM=M-1\n"
-            "M=M-D\n"
-            "@SP\n"
-            "M=M+1\n");
+            "D=M\n"
+            "@R13\n"
+            "A=M\n"
+            "M=D\n",
+            base, data);
     }
 }
 
-void emit_eq(FILE *out, const char *segment, const char* data) {
+void emit_add(FILE* out, const char* segment, const char* data) {
+    fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "M=D+M\n"
+        "@SP\n"
+        "M=M+1\n");
+}
+
+void emit_sub(FILE* out, const char* segment, const char* data) {
+    fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "M=M-D\n"
+        "@SP\n"
+        "M=M+1\n");
+}
+
+void emit_eq(FILE* out, const char* segment, const char* data) {
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -170,7 +279,7 @@ void emit_eq(FILE *out, const char *segment, const char* data) {
     return_id++;
 }
 
-void emit_lt(FILE *out, const char *segment, const char* data) {
+void emit_lt(FILE* out, const char* segment, const char* data) {
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -193,7 +302,7 @@ void emit_lt(FILE *out, const char *segment, const char* data) {
     return_id++;
 }
 
-void emit_gt(FILE *out, const char *segment, const char* data) {
+void emit_gt(FILE* out, const char* segment, const char* data) {
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -216,59 +325,51 @@ void emit_gt(FILE *out, const char *segment, const char* data) {
     return_id++;
 }
 
-void emit_neg(FILE *out, const char *segment, const char* data) {
-    if (strcmp(segment, "") == 0) {
-        fprintf(out,
+void emit_neg(FILE* out, const char* segment, const char* data) {
+    fprintf(out,
         "@SP\n"
         "AM=M-1\n"
         "M=-M\n"
         "@SP\n"
         "M=M+1\n");
-    }
 }
 
-// can improve by just overwirting SP-1
+
+// todo: can improve emit_and by just overwirting SP-1
 // @SP
 // AM=M-1
 // D=M
 // A=A-1
 // M=D&M
-
-void emit_and(FILE *out, const char *segment, const char* data) {
-    if (strcmp(segment, "") == 0) {
-        fprintf(out,
-            "@SP\n"
-            "AM=M-1\n"
-            "D=M\n"
-            "@SP\n"
-            "AM=M-1\n"
-            "M=D&M\n"
-            "@SP\n"
-            "M=M+1\n");
-    }
+void emit_and(FILE* out, const char* segment, const char* data) {
+    fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "M=D&M\n"
+        "@SP\n"
+        "M=M+1\n");
 }
 
-void emit_or(FILE *out, const char *segment, const char* data) {
-    if (strcmp(segment, "") == 0) {
-        fprintf(out,
-            "@SP\n"
-            "AM=M-1\n"
-            "D=M\n"
-            "@SP\n"
-            "AM=M-1\n"
-            "M=D|M\n"
-            "@SP\n"
-            "M=M+1\n");
-    }
+void emit_or(FILE* out, const char* segment, const char* data) {
+    fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@SP\n"
+        "AM=M-1\n"
+        "M=D|M\n"
+        "@SP\n"
+        "M=M+1\n");
 }
 
-void emit_not(FILE *out, const char *segment, const char* data) {
-    if (strcmp(segment, "") == 0) {
-        fprintf(out,
-            "@SP\n"
-            "AM=M-1\n"
-            "M=!M\n"
-            "@SP\n"
-            "M=M+1\n");
-    }
+void emit_not(FILE* out, const char* segment, const char* data) {
+    fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "M=!M\n"
+        "@SP\n"
+        "M=M+1\n");
 }

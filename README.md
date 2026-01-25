@@ -1,4 +1,10 @@
 
+## Run
+```shell
+docker build -t hack-webemu-static -f docker/Dockerfile .
+docker run --rm -p 8080:8080 hack-webemu-static
+```
+
 ## Emu flow
 app.js ⇄ (HTTP/WS) ⇄ server.c ⇄ mem.c
 
