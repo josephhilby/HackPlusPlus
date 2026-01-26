@@ -1,49 +1,70 @@
 # Wide Combinational Gates
-This section documents wide (multi-bit) combinational gates that operate on buses rather than single-bit signals. 
-These components extend the primitive logic gates into 16-bit datapath elements and reduction logic used throughout 
+
+This section documents wide (multi-bit) combinational gates that operate on buses rather than single-bit signals.
+These components extend the primitive logic gates into 16-bit datapath elements and reduction logic used throughout
 the ALU, CPU, and memory system.
 
-They form the bridge between bit-level logic and word-level computation.
+They form the architectural bridge between **bit-level logic** and **word-level computation**.
 
 **Related:**
-- [Primitive Gates](./01_primitives.md)
-- [Routing & Control Gates](./03_routing.md)
-- [Arithmetic Units](./04_arithmetic.md)
-- [Processor Components](./07_processor.md)
+
+* [Primitive Gates](./01_primitives.md)
+* [Routing & Control Gates](./03_routing.md)
+* [Arithmetic Units](./04_arithmetic.md)
+* [Processor Components](./07_processor.md)
+
+---
 
 ## Design Notes
-**Bitwise extension**
 
-These gates apply a single-bit operation across each bit position of a multi-bit bus, preserving bit alignment 
-and enabling word-level computation.
+**Bitwise extension**
+Wide gates apply a single-bit operation independently across each bit position of a multi-bit bus. This preserves bit
+alignment while enabling word-level computation without introducing cross-bit dependencies.
 
 **Datapath role**
+These components appear directly in the Hack++ datapath:
 
-Wide gates are used extensively in:
-- The ALU (bitwise AND/OR, output negation)
-- Flag generation (Or8Way for zero detection)
-- Bus conditioning and masking
+* **ALU** — bitwise AND/OR and output negation (`no` control bit)
+* **Flag generation** — reduction OR (`Or8Way`) for zero detection (`zr`)
+* **Bus conditioning** — masking, merging, and intermediate value propagation
 
-**Little Endian**
+**Bit ordering (bus convention)**
+Signals use a fixed indexing convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This defines logical bit position, not memory endianness.
 
-Data is stored in little-endian format such that the input for `gate16`, the most significant bit (MSB) will be `in[15]`,
-and the least significant bit (LSB) will be `in[0]`.
+**Hierarchical construction**
+All wide gates are constructed strictly from their single-bit equivalents, preserving the abstraction ladder:
+
+`Not → Not16`
+`And → And16`
+`Or → Or16 → Or8Way`
+
+---
 
 ## Gates
+
 ### Not16 — Bitwise Inverter
-The **Not16 gate** is used to negate the output of the ALU (`no` control bit) and general-purpose signal inversion 
-across 16-bit buses.
 
-It inverts each bit of a 16-bit input bus independently.
+The **Not16 gate** performs a parallel bitwise inversion across a 16-bit input bus.
 
-#### Logic
-```text 
+It is used in:
+
+* ALU output negation (`no` control bit)
+* Two’s complement formation (via downstream adders)
+* General-purpose bus inversion and masking
+
+**Also known as:** *Word inverter*, *Bitwise negator*
+
+#### Behavior
+
+```text
 For i = 0..15:
     out[i] = ¬in[i]
 ```
 
 #### HDL
-```java 
+
+```java
 CHIP Not16 {
 IN in[16];
 OUT out[16];
@@ -65,25 +86,36 @@ OUT out[16];
     Not(in=in[12], out=out[12]);
     Not(in=in[13], out=out[13]);
     Not(in=in[14], out=out[14]);
-    
+
     // MSB
     Not(in=in[15], out=out[15]);
 }
 ```
 
+---
+
 ### And16 — Bitwise Enable
-The **And16 gate** is used for masking and conditional propagation in the ALU and memory addressing logic.
 
-It computes the logical AND across two 16-bit input buses, bit by bit.
+The **And16 gate** computes a parallel logical AND across two 16-bit input buses.
 
-#### Logic
+It is used for:
+
+* Masking intermediate ALU results
+* Qualifying memory addresses
+* Conditional propagation of data paths
+
+**Also known as:** *Bus mask*, *Word enable*
+
+#### Behavior
+
 ```text
 For i = 0..15:
     out[i] = a[i] ∧ b[i]
 ```
 
 #### HDL
-```java 
+
+```java
 CHIP And16 {
 IN a[16], b[16];
 OUT out[16];
@@ -105,24 +137,35 @@ OUT out[16];
     And(a=a[12], b=b[12], out=out[12]);
     And(a=a[13], b=b[13], out=out[13]);
     And(a=a[14], b=b[14], out=out[14]);
-    
+
     // MSB
     And(a=a[15], b=b[15], out=out[15]);
 }
 ```
+
+---
+
 ### Or16 — Bitwise Combine
-The **Or16 gate** is used to merge data busses and intermediate results in teh ALU and 
-control logic.
 
-It computes the logical OR across two 16-bit input buses, bit by bit.
+The **Or16 gate** computes a parallel logical OR across two 16-bit input buses.
 
-#### Logic
+It is used for:
+
+* Merging ALU intermediate results
+* Combining bus sources
+* Forming reduction trees for flag logic
+
+**Also known as:** *Bus merge*, *Word combine*
+
+#### Behavior
+
 ```text
 For i = 0..15:
     out[i] = a[i] ∨ b[i]
 ```
 
 #### HDL
+
 ```java
 CHIP Or16 {
 IN a[16], b[16];
@@ -145,25 +188,31 @@ OUT out[16];
     Or(a=a[12], b=b[12], out=out[12]);
     Or(a=a[13], b=b[13], out=out[13]);
     Or(a=a[14], b=b[14], out=out[14]);
-    
+
     // MSB
     Or(a=a[15], b=b[15], out=out[15]);
 }
 ```
 
+---
+
 ### Or8Way — Reduction OR
-The **Or8Way gate** is used for computing the ALU flag `zr` by detecting if any bit
-in the output is nonzero.
 
-It computes a logical OR across all bits of an 8-bit bus, producing a single bit output.
+The **Or8Way gate** reduces an 8-bit bus to a single status bit by computing the logical OR of all inputs.
 
-#### Logic
+It is a core component of **flag generation**, most notably for computing the ALU’s zero flag (`zr`).
+
+**Also known as:** *Reduction OR*, *Zero detector stage*
+
+#### Behavior
+
 ```text
 out = in[0] ∨ in[1] ∨ in[2] ∨ in[3] ∨ in[4] ∨ in[5] ∨ in[6] ∨ in[7]
 ```
 
 #### HDL
-```java 
+
+```java
 CHIP Or8Way {
 IN in[8];
 OUT out;
@@ -180,3 +229,15 @@ OUT out;
     Or(a=or4, b=or5, out=out);
 }
 ```
+
+---
+
+## Architectural Context
+
+Wide combinational gates form the **word-level surface of the datapath**.
+
+- **ALU** uses `And16`, `Or16`, and `Not16` to implement its logical and negation stages
+- **CPU control logic** uses `Or8Way` to collapse multi-bit ALU outputs into single-bit condition flags
+- **Memory and bus systems** use these gates to mask, merge, and condition values as they traverse the machine
+
+Together, these components translate *bitwise logic* into *architectural state transitions* that can be observed and controlled by the ISA.
