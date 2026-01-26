@@ -1,28 +1,40 @@
-```java
-/**
-* ALU (Arithmetic Logic Unit):
-* Computes out = one of the following functions:
-*                0, 1, -1,
-*                x, y, !x, !y, -x, -y,
-*                x + 1, y + 1, x - 1, y - 1,
-*                x + y, x - y, y - x,
-*                x & y, x | y
-* on the 16-bit inputs x, y,
-* according to the input bits zx, nx, zy, ny, f, no.
-* In addition, computes the two output bits:
-* if (out == 0) zr = 1, else zr = 0
-* if (out < 0)  ng = 1, else ng = 0
-  */
-  // Implementation: Manipulates the x and y inputs
-  // and operates on the resulting values, as follows:
-  // if (zx == 1) sets x = 0        // 16-bit constant
-  // if (nx == 1) sets x = !x       // bitwise not
-  // if (zy == 1) sets y = 0        // 16-bit constant
-  // if (ny == 1) sets y = !y       // bitwise not
-  // if (f == 1)  sets out = x + y  // integer 2's complement addition
-  // if (f == 0)  sets out = x & y  // bitwise and
-  // if (no == 1) sets out = !out   // bitwise not
+# Hack++ ALU (Arithmetic Logic Unit)
 
+The Hack++ ALU is a 16-bit arithmetic/logic unit derived from the nand2tetris hardware platform. It takes two 
+16-bit inputs (`x, y`) plus six control bits (`zx, nx, zy, ny, f, no`) and produces:
+- `out[16]`: a 16-bit result
+- `zr`: 1 iff `out` is `0b0000 0000 0000 0000`
+- `ng`: 1 iff `out[15]` is `0b1` (i.e., negative number in two's complement)
+
+This ALU design is intentionally minimal: rather than implementing many separate operations directly, it normalizes 
+inputs with simple bitwise transforms, computes either AND or ADD, then optionally negates the result.
+
+## Control Bits
+The ALU is defined by the following deterministic pipeline:
+1. Preprocess x
+   - If `zx == 1` → set `x = 0`
+   - If `nx == 1` → set `x = !x`
+
+2. Preprocess y
+   - If `zy == 1` → set `y = 0`
+   - If `ny == 1` → set `y = !y`
+
+3. Core operation select
+   - If `f == 1` → out = `x + y` (16-bit two’s complement addition)
+   - If `f == 0` → out = `x & y`
+
+4. Optional output negate
+   - If `no == 1` → `out = !out`
+
+5. Flags
+   - `zr = 1` iff all bits of `out` are 0
+   - `ng = out[15]` (MSB)
+
+This pipeline yields the standard Hack ALU repertoire: constants (`0, 1, −1`), passthroughs (`x, y`), unary ops 
+(`!x`, `−x`, etc.), increments/decrements, add/subtract variants, and bitwise AND/OR.
+
+## Implementation
+```java
 CHIP ALU {
 IN  
 x[16], y[16], // 16-bit inputs        
@@ -32,6 +44,7 @@ zy,           // zero the y input?
 ny,           // negate the y input?
 f,            // compute (out = x + y) or (out = x & y)?
 no;           // negate the out output?
+
 OUT
 out[16],      // 16-bit output
 zr,           // if (out == 0) equals 1, else 0

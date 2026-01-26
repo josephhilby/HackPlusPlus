@@ -63,15 +63,15 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 ## Emulator Architecture
 
 ### Components
-| Component   | Description                                                                                |
-|-------------|--------------------------------------------------------------------------------------------|
-| compiler.c  | Stack based compiler that produces VM bytecode code from Jack code.                        |
-| vm.c        | Stack based vm that produces assembly for the Hack CPU from VM bytecode code.              |
-| assembler.c | Two-pass assembler that produces binary code and resolves symbols, labels, and variables.  |
-| mem.c       | Software emulation of the Hack ROM, RAM, screen buffer, and last press keyboard interface. |
-| cpu.c       | Software emulation of the Hack CPU.                                                        |
-| server.c    | Bridges emulator state to the web UI using the Mongoose WebSocket.                         |
-| app.js      | Sends screen output to `index.html` for rendering and collects user input in real time.    |
+| Component   | Description                                                                                   |
+|-------------|-----------------------------------------------------------------------------------------------|
+| compiler.c  | Stack based compiler that produces VM bytecode code from Jack code.                           |
+| vm.c        | Stack based vm that produces assembly for the Hack CPU from VM bytecode code.                 |
+| assembler.c | Two-pass assembler that produces binary code and resolves symbols, labels, and variables.     |
+| mem.c       | Software emulation of the Hack ROM, RAM, screen buffer, and last press keyboard interface.    |
+| cpu.c       | Software emulation of the Hack CPU.                                                           |
+| server.c    | Bridges emulator state to the web UI using the Mongoose WebSocket.                            |
+| app.js      | Sends screen output to `index.html` for rendering and collects last key pressed user input.   |
 
 
 ### Diagram
@@ -124,14 +124,14 @@ elementary logic gate NAND. These HDL files can be found in the `\docs` section 
 is emulated in the C programming language according to the below specifications, and can be found in the `\core` section 
 of this repo.
 
-At its core, Hack++ follows a von Neumann architecture; programs and data are stored in memory, accessed and 
+At its core, Hack++ follows a **modified von Neumann (stored-program)** architecture; programs and data are stored in memory, accessed and 
 manipulated by a central processing unit (CPU) composed of:
-- Registers — for holding intermediate values and addresses
-- Arithmetic Logic Unit (ALU) — for performing integer arithmetic and bitwise logic
+- **Registers** — for holding intermediate values and addresses
+- **Arithmetic Logic Unit (ALU)** — for performing integer arithmetic and bitwise logic
 
 The CPU itself is intentionally minimal. It contains only two programmer-visible registers:
-- D Register — 16-bit data register
-- A Register — 16-bit address register
+- **D Register** — 16-bit data register
+- **A Register** — 16-bit address register
 
 The ALU operates on 16-bit signed integers and supports a constrained set of operations:
 - Addition and subtraction
@@ -139,8 +139,8 @@ The ALU operates on 16-bit signed integers and supports a constrained set of ope
 - Unary negation and bitwise NOT
 
 Memory is divided into two logical regions:
-- Read-Only Memory (ROM) — stores program instructions
-- Random Access Memory (RAM) — stores program state, stack, heap, and memory-mapped I/O
+- **Read-Only Memory (ROM)** — stores program instructions
+- **Random Access Memory (RAM)** — stores program state, stack, heap, and memory-mapped I/O
 
 
 ### Instruction Set Architecture
@@ -172,6 +172,13 @@ A quick example could be:
 Labels, comments, and lines can all be ignored, for now. With that, below is the EBNF for the Hack++ assembly language.
 
 #### Assembly Grammar (EBNF)
+**Tokens**
+```regexp
+integer := ^[0-9]+$
+symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
+newline := [\r\n]
+```
+
 ```ebnf
 non-terminal  ::= production rule
 ---               ---
@@ -212,18 +219,12 @@ constant      ::= integer (* 0 <= integer <= 32767 *)
 - `{ … }` = zero or more
 - `[ … ]` = optional (zero or one)
 - `|` = alternative
-- Keywords (`"LET"`, `"DEF"`, etc.) are case-sensitive
+- Mnemonics for dest, comp, jump (e.g., `"AM"`, `"D+A"`, `"JEQ"`) are case-sensitive
+- Mnemonics for comp, jump (e.g., `"D+A"`, `"JEQ"`) are not comutive
 
 **Predefined Symbols**
 ```
 R1..R15, SP, LCL, ARG, THIS, THAT, SCREEN, KBD
-```
-
-**Tokens**
-```regexp
-integer := ^[0-9]+$
-symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
-newline := [\r\n]
 ```
 
 ### Memory Map
@@ -316,7 +317,7 @@ nargs         ::= integer  (* number args passed by caller *)
 - `{ … }` = zero or more
 - `[ … ]` = optional (zero or one)
 - `|` = alternative
-- Keywords (`"LET"`, `"DEF"`, etc.) are case-sensitive
+- Mnemonics and labels (`"add"`, `"goto"`, `Foo.1`, etc.) are case-sensitive
 
 **Semantics**
 
