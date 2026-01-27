@@ -8,6 +8,90 @@ For execution details, see:
 - docs/alu.md — ALU control bits and flag generation
 - docs/pc.md — jump and sequencing behavior
 
+### Instruction Set Architecture
+To instruct the CPU, the ROM is loaded with a program in the form of a `.hack` binary file. That file is
+assembled from a more human-readable assembly language file (`.asm`). The mapping between the two can be found
+in `\docs`. However, as to not get bogged down in ones and zeros here, we will skip the binary and proceed directly
+to the assembly language syntax and describe it in Extended Backus–Naur Form (EBNF).
+
+While it looks imposing it really boils down to two steps:
+1. Determine the instruction:
+    - `a_instruction` - load an address into the A Register
+    - `c_instruction` - perform a computation
+2. Map the given instructions mnemonics to binary, such that:
+    - `a_instruction` - `value` is mapped to a binary address
+    - `c_instruction` - `comp`, `dest`, `jump` is mapped to a binary instruction
+
+Labels, comments, and lines can all be ignored, for now. With that, below is the EBNF for the Hack++ assembly language.
+
+#### Assembly Grammar (EBNF)
+**Tokens**
+```regexp
+integer := ^[0-9]+$
+symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
+newline := [\r\n]
+```
+
+```ebnf
+non-terminal  ::= production rule
+---               ---
+program       ::= { line }
+
+line          ::= [ insrtuction | label ] [ comment ] newline
+comment       ::= "//" { any_char_except_newline }
+
+instruction   ::= a_instruction | c_instruction
+
+a_instruction ::= "@" value
+
+c_instruction ::= [ dest "=" ] comp [ ";" jump ]
+
+dest          ::= dest_char { dest_char }
+dest_char     ::= "A" | "D" | "M"
+
+comp          ::=  "0" |  "1" | "-1"
+                |  "A" |  "D" |  "M"
+                | "!A" | "!D" | "!M"
+                | "-A" | "-D" | "-M"
+                | "A+1" | "D+1" | "M+1"
+                | "A-1" | "D-1" | "M-1"
+                | "D+A" | "D+M"
+                | "D-A" | "D-M" | "A-D" | "M-D"
+                | "D&A" | "D&M"
+                | "D|A" | "D|M"
+
+jump          ::= "JGT" | "JEQ" | "JGE" | "JLT" | "JNE" | "JLE" | "JMP"
+
+label         ::= "(" symbol ")"
+
+value         ::= constant | symbol
+
+constant      ::= integer (* 0 <= integer <= 32767 *)
+```
+**Legend:**
+- `{ … }` = zero or more
+- `[ … ]` = optional (zero or one)
+- `|` = alternative
+- Mnemonics for dest, comp, jump (e.g., `"AM"`, `"D+A"`, `"JEQ"`) are case-sensitive
+- Mnemonics for comp, jump (e.g., `"D+A"`, `"JEQ"`) are not comutive
+
+**Predefined Symbols**
+```
+R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD
+```
+
+A quick example could be:
+```asm
+// Foo.asm
+...
+@BAR   // load address attributed to BAR label in ROM into A Register (a_instruction)
+0;JMP  // Jump to instruction in ROM at BAR (c_instruction)
+...
+(BAR)  // Address label being jumped to (label)
+@SP    // First line of code after the jump (a_instruction)
+...
+```
+
 ## Instruction Determination
 All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determines the instruction class:
 - `MSB = 0b0` → A-instruction (address / constant load)
@@ -19,7 +103,7 @@ All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determi
 0b 0vvv vvvv vvvv vvvv
    ^     address
 ```
-Where zero is the opcode denoting the `a_instruction`, and the remaining 15 locations are some value denoting an
+Where zero is the opcode denoting the `a_instruction`, and the remaining 15 locations are a binary value denoting an
 integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
 
 

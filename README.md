@@ -20,18 +20,30 @@ This project represents a full re-implementation and extension of the baseline H
 - Clean architectural boundaries
 - Practical tooling (emulator, web UI, and test harnesses)
 
-<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Dr. Nisan & Dr. Schocken</a>)</p>
+> Full technical reference (HDL, ISA, VM grammar, memory maps, and processor internals) lives in [/docs](./docs/00_index.md).
 
 ### Requirements
 - Docker
 
-### Get Started
+### Quick Start
 ```shell
 docker build -t hack-webemu-static -f docker/Dockerfile .
 docker run --rm -p 8080:8080 hack-webemu-static
 ```
 
-Once running, open your browser and navigate to: `http://localhost:8080`
+Open: `http://localhost:8080`
+
+### Repository Structure
+```text
+assets/               # Repo/docs Images
+core/                 # C Emulator
+docs/                 # Technical Reference
+programs/             # Hack Programs for running in UI
+toolchain/compiler/   # Compiler (file.jack → file.vm)
+toolchain/vm/         # Translator (file.vm → file.asm)
+toolchain/assembler/  # Assembler (file.asm → file.hack)
+web/                  # Web UI
+```
 
 ### Roadmap
 - [x] Complete Nand2Tetris baseline implementation
@@ -60,7 +72,7 @@ Once running, open your browser and navigate to: `http://localhost:8080`
     - [ ] MEM
     - [ ] Update README
 
-## Emulator Architecture
+## Project Architecture
 
 ### Components
 | Component   | Description                                                                                   |
@@ -117,223 +129,26 @@ class JACK,VM,ASM tool;
 class ROM rom;
 ```
 
-## Hardware Architecture
-All hardware in Hack++ (and Hack) is described via a Hardware Description Language (HDL), and constructed from the single
-elementary logic gate NAND. These HDL files can be found in the `\docs` section of this repo. It's implementation however
-is emulated in the C programming language according to the below specifications, and can be found in the `\core` section 
-of this repo.
+### Technical Reference
+The full hardware and language specification is maintained in /docs:
+- Hardware Stack — NAND → Gates → ALU → CPU → Computer
+- Instruction Set Architecture — Hack++ binary + assembly syntax
+- Memory Hierarchy — RAM, MMIO (screen & keyboard)
+- Virtual Machine — stack model, segments, control flow
+- System Integration — execution cycle, timing, and signal flow
 
-At its core, Hack++ follows a **modified von Neumann (stored-program)** architecture; programs and data are stored in memory, accessed and 
-manipulated by a central processing unit (CPU) composed of:
-- **Registers** — for holding intermediate values and addresses
-- **Arithmetic Logic Unit (ALU)** — for performing integer arithmetic and bitwise logic
-
-The CPU itself is intentionally minimal. It contains only two programmer-visible registers:
-- **D Register** — 16-bit data register
-- **A Register** — 16-bit address register
-
-The ALU operates on 16-bit signed integers and supports a constrained set of operations:
-- Addition and subtraction
-- Bitwise AND and OR
-- Unary negation and bitwise NOT
-
-Memory is divided into two logical regions:
-- **Read-Only Memory (ROM)** — stores program instructions
-- **Random Access Memory (RAM)** — stores program state, stack, heap, and memory-mapped I/O
-
-
-### Instruction Set Architecture
-To instruct the CPU, the ROM is loaded with a program in the form of a `.hack` binary file. That file is
-assembled from a more human-readable assembly language file (`.asm`). The mapping between the two can be found 
-in `\docs`. However, as to not get bogged down in ones and zeros here, we will skip the binary and proceed directly 
-to the assembly language syntax and describe it in Extended Backus–Naur Form (EBNF).
-
-While it looks imposing it really boils down to two steps:
-1. Determine the instruction: 
-   - `a_instruction` - load an address into the A Register
-   - `c_instruction` - perform a computation
-2. Map the given instructions mnemonics to binary, such that: 
-   - `a_instruction` - `value` is mapped to a binary address 
-   - `c_instruction` - `comp`, `dest`, `jump` is mapped to a binary instruction
-
-A quick example could be:
-```asm
-// Foo.asm
-...
-@BAR   // load address attributed to BAR label in ROM into A Register (a_instruction)
-0;JMP  // Jump to instruction in ROM at BAR (c_instruction)
-...
-(BAR)  // Address label being jumped to (label)
-@SP    // First line of code after the jump (a_instruction)
-...
-```
-
-Labels, comments, and lines can all be ignored, for now. With that, below is the EBNF for the Hack++ assembly language.
-
-#### Assembly Grammar (EBNF)
-**Tokens**
-```regexp
-integer := ^[0-9]+$
-symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
-newline := [\r\n]
-```
-
-```ebnf
-non-terminal  ::= production rule
----               ---
-program       ::= { line }
-
-line          ::= [ insrtuction | label ] [ comment ] newline
-comment       ::= "//" { any_char_except_newline }
-
-instruction   ::= a_instruction | c_instruction
-
-a_instruction ::= "@" value
-
-c_instruction ::= [ dest "=" ] comp [ ";" jump ]
-
-dest          ::= dest_char { dest_char }
-dest_char     ::= "A" | "D" | "M"
-
-comp          ::=  "0" |  "1" | "-1"
-                |  "A" |  "D" |  "M"
-                | "!A" | "!D" | "!M"
-                | "-A" | "-D" | "-M"
-                | "A+1" | "D+1" | "M+1"
-                | "A-1" | "D-1" | "M-1"
-                | "D+A" | "D+M"
-                | "D-A" | "D-M" | "A-D" | "M-D"
-                | "D&A" | "D&M"
-                | "D|A" | "D|M"
-
-jump          ::= "JGT" | "JEQ" | "JGE" | "JLT" | "JNE" | "JLE" | "JMP"
-
-label         ::= "(" symbol ")"
-
-value         ::= constant | symbol
-
-constant      ::= integer (* 0 <= integer <= 32767 *)
-```
-**Legend:**
-- `{ … }` = zero or more
-- `[ … ]` = optional (zero or one)
-- `|` = alternative
-- Mnemonics for dest, comp, jump (e.g., `"AM"`, `"D+A"`, `"JEQ"`) are case-sensitive
-- Mnemonics for comp, jump (e.g., `"D+A"`, `"JEQ"`) are not comutive
-
-**Predefined Symbols**
-```
-R1..R15, SP, LCL, ARG, THIS, THAT, SCREEN, KBD
-```
-
-### Memory Map
-The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal addresses):
-
-| Address Range       | ASM Name   | Usage                                                |
-|---------------------|------------|------------------------------------------------------|
-| `RAM[0]`            | `SP`       | Current top of the stack                             |
-| `RAM[1]`            | `LCL`      | Base of the current function's local segment         |
-| `RAM[2]`            | `ARG`      | Base of the current function's argument segment      |
-| `RAM[3]`            | `THIS`     | Base of the current function's `this` segment (heap) |
-| `RAM[4]`            | `THAT`     | Base of the current function's `that` segment (heap) |
-| `RAM[5..12]`        | `TEMP`     | Segment for current function's temporary storage     |
-| `RAM[13..14]`       | `R13..R14` | General-purpose registers                            |
-| `RAM[15]`           | `R15`      | Return Address register                              |
-| `RAM[16..255]`      | —          | Static variables (assigned at compile time)          |
-| `RAM[256..2047]`    | —          | Stack                                                |
-| `RAM[2048..16383]`  | —          | Heap                                                 |
-| `RAM[16384..24575]` | —          | Memory-mapped video I/O (512×256 monochrome display) |
-| `RAM[24576]`        | —          | Memory-mapped keyboard I/O (Last key pressed)        |
-| `RAM[24577..32767]` | —          | Unused                                               |
-<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
-
-## Virtual Machine (VM) Architecture
-
-With the Hack++ instruction set defined, ROM modeled as a linear, addressable instruction stream, and RAM serving 
-as the CPU’s working state, the system’s hardware abstraction is complete. We now introduce the Virtual Machine 
-layer, which bridges high-level program semantics with the low-level execution syntax of the Hack architecture.
-
-The VM defines a formal execution model—stack-based evaluation, segmented memory, and explicit control flow—that 
-gives meaning to operations such as arithmetic, branching, and function calls beyond their raw instruction encodings. 
-By separating semantic intent from machine syntax, this layer enables portable, machine-independent program 
-representation while still compiling deterministically into Hack assembly.
-
-#### Memory Segments
-The VM exposes eight logical memory segments to every function:
-
-| Segment    | Purpose                     | Allocation / Behavior                                                    |
-| ---------- |-----------------------------|--------------------------------------------------------------------------|
-| `local`    | Stores local variables      | Allocated per `func` when a function is called / sized by `nlocals`      |
-| `argument` | Stores function arguments   | Allocated per `func` when a function is called / sized by `nargs`        |
-| `this`     | General-purpose segment     | Used to manipulate heap-based data structures                            |
-| `that`     | General-purpose segment     | Used to manipulate heap-based data structures                            |
-| `temp`     | Temporary variables         | Eight multi-purpose registers shared across all functions                |
-| `static`   | Stores static variables     | RAM[16..255] / shared across all functions in that file, (`file_name.i`) |
-| `pointer`  | Base address selectors      | `pointer 0` aligns `this`, `pointer 1` aligns `that`                     |
-| `constant` | Immediate values (0..32767) | Pseudo-segment not stored in RAM shared across all functions             |
-<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
-
-
-#### Data Types
-- integer - 16-bit signed via two's complement 
-- bool - -1: true, 0: false
-
-#### VM Grammar (EBNF)
-**Tokens**
-```regexp
-integer    := ^[0-9]+$
-identifier := ^[A-Za-z_$:.][A-Za-z0-9_-]*
-newline    := [\r\n]
-```
-
-**Syntax**
-```ebnf
-non-terminal  ::= production rule
----               ---
-program       ::= { line }
-
-line          ::= [ command ] [ comment ] newline
-comment       ::= "//" { any_char_except_newline }
-
-command       ::= arithmetic | memory | branching | function
-
-arithmetic    ::= "add" | "sub" | "neg" | "eq" | "gt" | "lt" | "and" | "or" | "not"
-
-memory        ::= ("push" | "pop") segment index  (* segment[index] *)
-segment       ::= "local" | "argument" | "this" | "that" 
-                | "temp" | "static" | "pointer" | "constant"
-index         ::= integer
-
-branching     ::= ("label" | "goto" | "if-goto") label
-
-function      ::= "function" function_name nlocals | "call" function_name nargs | "return"
-
-label         ::= identifier
-function_name ::= identifier
-nlocals       ::= integer  (* number of locals allocated by callee*)
-nargs         ::= integer  (* number args passed by caller *)
-```
-**Legend:**
-- `{ … }` = zero or more
-- `[ … ]` = optional (zero or one)
-- `|` = alternative
-- Mnemonics and labels (`"add"`, `"goto"`, `Foo.1`, etc.) are case-sensitive
-
-**Semantics**
-
-| Command      | Type	      | Effect                                                                     |
-|--------------|------------|----------------------------------------------------------------------------|
-| push	        | memory     | Reads value from designated VM segment[index] and pushes it onto the stack |
-| pop	        | memory     | Pops the stack top and stores it into designated VM segment[index]         |
-| eq / lt / gt | arithmetic | 	Pops two operands, compares, pushes -1 (true) or 0 (false) onto the stack |
-| and / or     | arithmetic | Pops two operands, compares, pushes result onto the stack                  |
-| not          | arithmetic | Pops one operatnd, inverts, pushes result onto the stack                   |
-| add / sub    | arithmetic | Pops two operatnds, computes, pushes result onto the stack                 |
-| neg          | arithmetic | Pops one operatnd, negates, pushes result onto the stack                   |
-| function     | function   | 	Declares a function and allocates local variables                         |
-| call         | function   | 	Sets up a call frame and transfers control                                |
-| return       | function   | 	Restores caller frame and jumps back                                      |
-
+#### /docs
+| Topic                 | 	Document                                      | 
+|-----------------------|------------------------------------------------|
+| Hardware Overview     | [docs/00_index.md](./docs/00_index.md)         | 
+| Primitive Gates	      | [docs/01_primitives.md](docs/01_primitives.md) |
+| Sequential Logic	     | docs/05_sequential.md                          |
+| Memory System	        | docs/06_memory.md                              |
+| Processor (ALU + CPU) | docs/07_processor.md                           |
+| System Integration	   | docs/08_system.md                              |
+| ISA Specification	    | docs/09_instruction_set.md                     |
+| VM Architecture	      | docs/10_vm.md                                  |
+| OS                    | todo                                           |
 
 ## Acknowledgments
 

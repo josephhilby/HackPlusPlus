@@ -41,6 +41,27 @@ Region selection is determined by the high-order address bits. In this implement
 
 ---
 
+### Memory Map
+The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal addresses):
+
+| Address Range       | ASM Name        | Usage                                                |
+|---------------------|-----------------|------------------------------------------------------|
+| `RAM[0]`            | `R0`/`SP`       | Current top of the stack                             |
+| `RAM[1]`            | `R1`/`LCL`      | Base of the current function's local segment         |
+| `RAM[2]`            | `R2`/`ARG`      | Base of the current function's argument segment      |
+| `RAM[3]`            | `R3`/`THIS`     | Base of the current function's `this` segment (heap) |
+| `RAM[4]`            | `R4`/`THAT`     | Base of the current function's `that` segment (heap) |
+| `RAM[5..12]`        | `R5..12`/`TEMP` | Segment for current function's temporary storage     |
+| `RAM[13..14]`       | `R13..R14`      | General-purpose registers                            |
+| `RAM[15]`           | `R15`/`RA`      | Return Address register                              |
+| `RAM[16..255]`      | —               | Static variables (assigned at compile time)          |
+| `RAM[256..2047]`    | —               | Stack                                                |
+| `RAM[2048..16383]`  | —               | Heap                                                 |
+| `RAM[16384..24575]` | `SCREEN`        | Memory-mapped video I/O (512×256 monochrome display) |
+| `RAM[24576]`        | `KBD`           | Memory-mapped keyboard I/O (Last key pressed)        |
+| `RAM[24577..32767]` | —               | Unused                                               |
+<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
+
 ## Address Map
 
 Only the lower portion of the 15-bit address space is defined by the Hack platform. The `Memory` chip implements the following map:
