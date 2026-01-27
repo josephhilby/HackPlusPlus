@@ -50,29 +50,26 @@ The **Hack++ Computer** composes the CPU, instruction memory, and data / I/O mem
 
 ## Structural Overview
 
-```text
-           ┌────────────┐
-           │   ROM32K   │
-           │ (Program)  │
-           └─────┬──────┘
-                 │ instruction[16]
-                 ▼
-           ┌────────────┐
-           │    CPU     │
-           │ (Control + │
-           │ Datapath)  │
-           └─────┬──────┘
-      outM[16]   │ addressM[15]
-                 ▼
-           ┌────────────┐
-           │   Memory   │
-           │ (RAM +     │
-           │  MMIO)     │
-           └─────┬──────┘
-                 │ inM[16]
-                 └───────────────┐
-                                 ▼
-                                CPU
+```mermaid
+flowchart TD
+    %% Nodes
+    ROM(["ROM32K<br/>(Program)"])
+    CPU{{"CPU<br/>(Control + Datapath)"}}
+    MEM[("Memory<br/>(RAM + MMIO)")]
+
+    %% Connections
+    ROM -->|"instruction[16]"| CPU
+    CPU -->|"outM[16]<br/>addressM[15]"| MEM
+    MEM -->|"inM[16]"| CPU
+
+    %% Styles
+    classDef rom fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px;
+    classDef cpu fill:#FFF3E0,stroke:#FB8C00,stroke-width:2px;
+    classDef mem fill:#E8F5E9,stroke:#43A047,stroke-width:2px;
+
+    class ROM rom;
+    class CPU cpu;
+    class MEM mem;
 ```
 
 This loop forms a closed feedback system:

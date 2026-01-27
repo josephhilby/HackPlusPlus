@@ -146,7 +146,7 @@ All other signals are internal to the execution pipeline.
 Loads a 15-bit value into `A`:
 
 ```text
-0 vvvvvvvvvvvvvvv
+0 vvv vvvv vvvv vvvv
 ```
 
 * `A = instruction[0..14]`
@@ -155,7 +155,7 @@ Loads a 15-bit value into `A`:
 Controls ALU computation, destinations, and jumps:
 
 ```text
-1 1 1 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
         comp              dest      jump
 ```
 
@@ -168,25 +168,54 @@ Controls ALU computation, destinations, and jumps:
 
 ### Signal Flow Summary
 
-```text
-ROM → instruction
-           │
-           ▼
-      Control Decode
-           │
-A ─────┐   │      D
-       ▼   ▼      ▼
-      Mux → ALU → Dest Mux ──┐
-                 │           │
-               Flags         │
-                 ▼           ▼
-               Jump Logic → PC → ROM
+```mermaid
+flowchart TD
+    %% ===== Nodes =====
+    subgraph CPU["CPU"]
+        AREG[("A Register")]
+        DREG[("D Register")]
+        MUXY["Y Mux<br/>(A / M)"]
+        ALU["ALU"]
+        DEST{{"Dest<br/>Logic"}}
+        JUMP{{"Jump<br/>Logic"}}
+    end
+
+    subgraph MEM["Memory"]
+        RAM(["RAM<br/>(Data)"])
+    end
+
+    %% ===== Datapath =====
+    RAM -->|"M = RAM[A]"| MUXY
+    AREG -->|A| MUXY
+
+    MUXY -->|"Y"| ALU
+    DREG -->|"X"| ALU
+
+    %% ===== Control Flow =====
+    ALU -->|"dest bits"| DEST
+    ALU -->|"flags (zr, ng)"| JUMP
+
+    %% ===== Styles =====
+    %% A-instruction highlight (A Register)
+    classDef aInstr fill:#E1F5FE,stroke:#0288D1,stroke-width:2px;
+
+    %% C-instruction highlight (D, Dest, Jump)
+    classDef cInstr fill:#FCE4EC,stroke:#C2185B,stroke-width:2px;
+
+    %% Neutral compute / memory
+    classDef compute fill:#FFF3E0,stroke:#FB8C00,stroke-width:2px;
+    classDef mem fill:#E8F5E9,stroke:#43A047,stroke-width:2px;
+
+    %% ===== Class Assignment =====
+    class AREG aInstr;
+    class DREG,DEST,JUMP cInstr;
+    class ALU,MUXY compute;
+    class RAM mem;
 ```
 
-* `A` / `M` → ALU `y`
-* `D` → ALU `x`
-* `ALU.out` → `{A, D, M}`
-* `ALU.flags` → jump control → `PC`
+- Blue (A-instruction) isolates addressing / operand selection through A
+- Pink (C-instruction) isolates computation + control effects (D, destinations, jumps)
+- Orange / Green keep the datapath and memory readable without stealing semantic focus
 
 ---
 
