@@ -1,34 +1,122 @@
-6. Memory Hierarchy
-
-Storage systems built from registers
-
-06_memory.md
-
-RAM8
-
-RAM64
-
-RAM512
-
-RAM4K
-
-RAM16K
-
-Why: This makes it obvious how memory scales structurally, which is pedagogically powerful and professionally clean.
-
 # Memory Hierarchy
 
-This section documents the Hack++ memory system, from basic storage elements to the full memory-mapped address space.
+This section documents the Hack++ **unified data memory subsystem**, including general-purpose RAM and memory-mapped I/O (MMIO).
 
-## RAM Building Blocks
-Briefly reference:
-- Bit
-- Register
-- RAM8 → RAM16K
-  (Link back to `05_sequential.md`)
+The Hack platform exposes a single 15-bit address space to the CPU. The `Memory` chip implements that space by decoding the address and routing each access to one of:
 
-## Unified Memory Module
-<!-- Paste ram.md content here -->
+* **RAM16K** (general-purpose data memory)
+* **Screen** (memory-mapped display buffer)
+* **Keyboard** (memory-mapped input register)
 
-## Memory Map
-(Summarize ROM/RAM/Screen/Keyboard)
+**Related:**
+
+* [Sequential Building Blocks](./05_sequential.md)
+* [Processor Components](./07_processor.md)
+* [System Integration](./08_system.md)
+
+---
+
+## Design Notes
+
+**Unified address space**
+From the CPU’s perspective, all data accesses use the same interface:
+
+* `address` selects the target word
+* `in` is the write-data bus
+* `load` is the write-enable
+* `out` is the read-data bus
+
+Internally, the `Memory` chip decodes the address and dispatches reads/writes to the correct region.
+
+**Read vs write timing**
+The memory subsystem follows the standard Hack timing model:
+
+* **Read (combinational):** `out(t) = Memory[address(t)](t)`
+* **Write (clocked):** if `load(t) = 1`, then `Memory[address(t)](t+1) = in(t)`
+
+In other words, writes commit on the next clock edge; reads reflect the currently stored value.
+
+**Address decoding via high bits**
+Region selection is determined by the high-order address bits. In this implementation, `address[13..14]` partitions the address space into four 8K-sized quadrants.
+
+---
+
+## Address Map
+
+Only the lower portion of the 15-bit address space is defined by the Hack platform. The `Memory` chip implements the following map:
+
+| Address Range (Hex) | Size   | Region   | Description                      |
+| ------------------- | ------ | -------- | -------------------------------- |
+| `0x0000–0x3FFF`     | 16K    | RAM      | General-purpose data memory      |
+| `0x4000–0x5FFF`     | 8K     | Screen   | Memory-mapped display buffer     |
+| `0x6000`            | 1 word | Keyboard | Memory-mapped keyboard register  |
+| `> 0x6000`          | —      | Invalid  | Reads return `0`, writes ignored |
+
+### Region select (address[14..13])
+
+| `address[14..13]` | Region             | Notes                  |
+| ----------------: | ------------------ | ---------------------- |
+|              `00` | RAM (low 16K)      | `0x0000–0x3FFF`        |
+|              `01` | Screen             | `0x4000–0x5FFF`        |
+|              `10` | Keyboard / invalid | only `0x6000` is valid |
+|              `11` | Invalid            | unused                 |
+
+> Note: The Hack spec treats `0x6000` as keyboard and does not define behavior for addresses above it. This implementation returns `0` on reads and ignores writes for out-of-range addresses.
+
+---
+
+## Read and Write Routing
+
+The `Memory` chip implements routing in three steps:
+
+1. **Region select**
+   The high bits `address[13..14]` choose one of four regions.
+
+2. **Write routing**
+   A `DMux4Way` gates the `load` signal so that only the selected region receives a write-enable. For the RAM half, the two RAM quadrants are OR’ed together to form the single `RAM16K` write enable.
+
+3. **Read routing**
+   A `Mux4Way16` selects the output from the active region and drives `out`.
+
+---
+
+## Implementation
+
+```java
+CHIP Memory {
+IN in[16], load, address[15];
+OUT out[16];
+
+    PARTS:
+    // Decode the write-enable into one-hot region enables
+    DMux4Way(in=load, sel=address[13..14], a=mem1, b=mem2, c=scr, d=key);
+
+    // Combine the two RAM quadrants into the single 16K RAM enable
+    Or(a=mem1, b=mem2, out=mem);
+
+    // RAM (0x0000–0x3FFF)
+    RAM16K(in=in, load=mem, address=address[0..13], out=memOut);
+
+    // MMIO
+    // Screen (0x4000–0x5FFF)
+    Screen(in=in, load=scr, address=address[0..12], out=scrOut);
+
+    // Keyboard (0x6000)
+    Keyboard(out=keyOut);
+
+    // Read mux: select the active region’s output
+    Mux4Way16(a=memOut, b=memOut, c=scrOut, d=keyOut, sel=address[13..14], out=out);
+}
+```
+
+---
+
+## Architectural Context
+
+The memory subsystem is where sequential storage becomes **programmable state**:
+
+* The CPU uses `addressM` to select a word and `writeM` to commit writes.
+* The `Memory` chip routes the access to either RAM (program state), Screen (output), or Keyboard (input).
+* Higher-level software abstractions (stack, heap, static segment, VM memory commands) ultimately lower into reads and writes through this single unified interface.
+
+This is the bridge between instruction execution and observable I/O behavior on the Hack platform.
