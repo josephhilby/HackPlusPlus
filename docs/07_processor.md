@@ -168,6 +168,14 @@ Controls ALU computation, destinations, and jumps:
 
 ### Signal Flow Summary
 
+A-instruction (`@value`) loads the A register (blue), which immediately determines the memory address (`M = RAM[A]`) 
+and selects the ALU’s `y` input (`A` vs. `M`) for subsequent instructions.
+
+C-instruction (`dest=comp;jump`) routes the D register (pink) to `ALU.x` and selects `A` or `M` for `ALU.y` via the 
+`a` bit. The ALU computes out under control of `c1..c6`, then:
+- DEST uses `d1..d3` to write `out` to `A`, `D`, and/or `M`
+- JUMP uses `j1..j3` and the ALU flags (`zr, ng`) to decide whether the PC loads `A` (jump) or increments (fall-through)
+
 ```mermaid
 flowchart TD
     %% ===== Nodes =====
@@ -185,15 +193,16 @@ flowchart TD
     end
 
     %% ===== Datapath =====
-    RAM -->|"M = RAM[A]"| MUXY
+    RAM -->|"RAM[A] = M"| MUXY
     AREG -->|A| MUXY
 
     MUXY -->|"Y"| ALU
     DREG -->|"X"| ALU
 
     %% ===== Control Flow =====
+    x:::hidden -->|"comp bits"| ALU
     ALU -->|"dest bits"| DEST
-    ALU -->|"flags (zr, ng)"| JUMP
+    ALU -->|"jump bits <br/>& flags (zr, ng)"| JUMP
 
     %% ===== Styles =====
     %% A-instruction highlight (A Register)
@@ -213,9 +222,11 @@ flowchart TD
     class RAM mem;
 ```
 
-- Blue (A-instruction) isolates addressing / operand selection through A
-- Pink (C-instruction) isolates computation + control effects (D, destinations, jumps)
-- Orange / Green keep the datapath and memory readable without stealing semantic focus
+**Legend**
+- Blue (A-instruction path): @value loads the A register (address/operand).
+- Pink (C-instruction path): dest + jump behavior (writes to D/A/M, evaluates jump from zr/ng).
+- Orange: core datapath compute/select (ALU + Y mux).
+- Green: data memory (M = RAM[A]).
 
 ---
 
