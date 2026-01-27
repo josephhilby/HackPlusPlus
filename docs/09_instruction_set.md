@@ -16,8 +16,8 @@ All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determi
 ## A-Instruction
 
 ```
-0b 0 vvv vvvv vvvv vvvv
-   ^      address
+0b 0vvv vvvv vvvv vvvv
+   ^     address
 ```
 Where zero is the opcode denoting the `a_instruction`, and the remaining 15 locations are some value denoting an
 integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
