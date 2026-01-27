@@ -73,7 +73,6 @@ Once running, open your browser and navigate to: `http://localhost:8080`
 | server.c    | Bridges emulator state to the web UI using the Mongoose WebSocket.                            |
 | app.js      | Sends screen output to `index.html` for rendering and collects last key pressed user input.   |
 
-
 ### Diagram
 ```mermaid
 flowchart TD
@@ -301,7 +300,8 @@ command       ::= arithmetic | memory | branching | function
 arithmetic    ::= "add" | "sub" | "neg" | "eq" | "gt" | "lt" | "and" | "or" | "not"
 
 memory        ::= ("push" | "pop") segment index  (* segment[index] *)
-segment       ::= "local" | "argument" | "this" | "that" | "temp" | "static" | "pointer" | "constant"
+segment       ::= "local" | "argument" | "this" | "that" 
+                | "temp" | "static" | "pointer" | "constant"
 index         ::= integer
 
 branching     ::= ("label" | "goto" | "if-goto") label
