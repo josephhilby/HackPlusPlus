@@ -5,69 +5,46 @@ All higher-level components—datapath elements, registers, memory, and the CPU�
 
 At the base of the system is the **NAND gate**, from which all other logic is derived.
 
-
-## Design Notes
-
-**Single-primitive constraint**
-All combinational and sequential logic in Hack++ is derived solely from the NAND gate. This enforces a minimal and uniform hardware foundation and makes the abstraction ladder explicit at every level of the design.
-
-**Abstraction ladder**
-These primitives form the base layer for:
-
-* **Wide gates** (`Not16`, `And16`, `Or16`)
-* **Routing logic** (`Mux`, `DMux`)
-* **Arithmetic units** (`Add16`, `Inc16`)
-* **Sequential elements** (`Register`, `RAM`)
-* **Processor and system components** (`ALU`, `CPU`, `Computer`)
-
-Together, they define the boundary between **physical signal behavior** and **architectural state transitions**.
-
----
-
 ## Gates
 
 ### NAND — Universal Gate
 
-The **NAND gate** is the single primitive from which all combinational and sequential logic in Hack++ is constructed.
+> **Also known as:** *Functional complete primitive*
 
-It computes the logical AND of two inputs and then inverts the result. Because NAND is functionally complete, every other gate in this system can be expressed as a composition of NAND gates.
+The **NAND gate** is the single primitive from which all combinational and sequential logic in 
+Hack++ is constructed.
 
-**Also known as:** *Universal gate*, *Functional complete primitive*
+It computes the logical AND of two inputs and then inverts the result. Because NAND is functionally 
+complete, every other gate in this system can be expressed as a composition of NAND gates.
 
-#### Behavior
+::: tip Behavior
 
-```text
-out = ¬(a ∧ b)
-```
+**Identity:**
 
-#### Truth Table
+**`NAND(a,b) = ¬(a ∧ b) = out`**
 
-| a | b | out |
-| - | - | --- |
-| 0 | 0 | 1   |
-| 0 | 1 | 1   |
-| 1 | 0 | 1   |
-| 1 | 1 | 0   |
+<NandGate />
+
+:::
 
 ---
 
 ### NOT — Inverter Gate
 
-The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal inversion, and two’s-complement arithmetic throughout the datapath and control logic.
+> **Also known as:** *Logical complement*
+
+The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal 
+inversion, and two’s-complement arithmetic throughout the datapath and control logic.
 
 It computes the inverse of its input.
-
-**Also known as:** *Inverter*, *Logical complement*
 
 <div class="callout-grid">
 
 ::: tip Behavior
 
-```latex
-¬(in ∧ in) = ¬in
-```
+**Identity:** `¬(in ∧ in) = ¬in`
 
-#### Truth Table
+**Truth Table:**
 
 | in | out |
 | -- | --- |
@@ -78,10 +55,10 @@ It computes the inverse of its input.
 
 ::: tip HDL
 
-```java
+```hdl
 CHIP Not {
-IN in;
-OUT out;
+    IN in;
+    OUT out;
 
     PARTS:
     Nand(a=in, b=in, out=out);

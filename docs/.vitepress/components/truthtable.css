@@ -1,0 +1,92 @@
+/* ------------------------------------------------ */
+/* truth table */
+/* ------------------------------------------------ */
+
+.truth-table {
+    font-family: var(--vp-font-family-mono);
+    border-collapse: collapse;
+    font-size: 0.95rem;
+
+    display: inline-table;
+    width: fit-content;
+
+    border: 1px solid var(--vp-c-brand-2);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* ------------------------------------------------ */
+/* base cells */
+/* ------------------------------------------------ */
+
+.truth-table th,
+.truth-table td {
+    text-align: center;
+    border: 1px solid var(--vp-c-divider);
+}
+
+/* tighter body rows */
+.truth-table td {
+    padding: 6px 10px;
+}
+
+/* ------------------------------------------------ */
+/* header styling */
+/* ------------------------------------------------ */
+
+.truth-table thead th {
+    padding: 8px 12px;
+    background: var(--vp-c-bg-soft);
+    font-weight: 700;
+    color: var(--vp-c-text-1);
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--vp-c-brand-2);
+}
+
+/* ------------------------------------------------ */
+/* row coloring */
+/* ------------------------------------------------ */
+
+/* rows where output = 1 */
+.truth-table tbody tr.truth-true td {
+    background: rgba(80, 200, 120, 0.08);
+}
+
+/* rows where output = 0 */
+.truth-table tbody tr.truth-false td {
+    background: rgba(255, 120, 120, 0.05);
+}
+
+/* emphasize output column */
+.truth-table tbody td:last-child {
+    font-weight: 700;
+}
+
+/* stronger highlight on output cell */
+.truth-table tbody tr.truth-true td:last-child {
+    background: rgba(80, 200, 120, 0.18);
+}
+
+.truth-table tbody tr.truth-false td:last-child {
+    background: rgba(255, 120, 120, 0.12);
+}
+
+/* ------------------------------------------------ */
+/* hover states */
+/* ------------------------------------------------ */
+
+.truth-table tbody tr.truth-true:hover td {
+    background: rgba(80, 200, 120, 0.12);
+}
+
+.truth-table tbody tr.truth-false:hover td {
+    background: rgba(255, 120, 120, 0.08);
+}
+
+.truth-table tbody tr.truth-true:hover td:last-child {
+    background: rgba(80, 200, 120, 0.24);
+}
+
+.truth-table tbody tr.truth-false:hover td:last-child {
+    background: rgba(255, 120, 120, 0.16);
+}

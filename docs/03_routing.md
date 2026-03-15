@@ -132,7 +132,7 @@ For i = 0..15:
 
 #### HDL
 
-```java
+```javascript
 CHIP Mux16 {
 IN a[16], b[16], sel;
 OUT out[16];

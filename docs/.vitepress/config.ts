@@ -32,7 +32,12 @@ export default withMermaid(defineConfig({
     description: 'A First Principles Computer, Assembler, VM, and Operating System',
 
     markdown: {
-        lineNumbers: true,
+        lineNumbers: false,
+        languageAlias: {
+            hdl: 'javascript'
+        },
+
+
         config(md: MarkdownIt) {
 
             const defaultFence =
