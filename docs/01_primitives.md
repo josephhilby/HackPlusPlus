@@ -19,9 +19,7 @@ complete, every other gate in this system can be expressed as a composition of N
 
 ::: tip Behavior
 
-**Identity:**
-
-**`NAND(a,b) = ¬(a ∧ b) = out`**
+**Identity := `¬(a ∧ b)`**
 
 <NandGate />
 
