@@ -17,10 +17,23 @@ RUN make -C core
 
 EXPOSE 8080
 
-# Ensure relative paths like "./web" resolve correctly in your server
+# Ensure relative paths like "./web" resolve correctly
 CMD ["./core/hackemu"]
 
-# docker build -t hack-webemu-static -f docker/Dockerfile .
-# docker run --rm -p 8080:8080 hack-webemu-static
+# Build image
+# docker build -t hack-webemu-static -f Dockerfile .
+
+# Run container
+# docker run --name hack-webemu --rm -p 8080:8080 hack-webemu-static
+
+# Stop container
+# docker stop hack-webemu
+
+# Restart container
+# docker start hack-webemu
+
+# View logs
+# docker logs -f hack-webemu
+
 # UI: http://localhost:8080/
 # WS: ws://localhost:8080/ws

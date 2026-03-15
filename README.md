@@ -1,9 +1,11 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/<your_repo>">
-    <img src="assets/banner.png" alt="Logo" width="80%">
-  </a>
+
+  [![Issues][issues-shield]][issues-url] [![Google Tests][test-shield]][test-url]
+
+  <img src="assets/banner.png" alt="Logo" width="80%">
+
 </div>
 
 ---
@@ -20,29 +22,40 @@ This project represents a full re-implementation and extension of the baseline H
 - Clean architectural boundaries
 - Practical tooling (emulator, web UI, and test harnesses)
 
-> Full technical reference (HDL, ISA, VM grammar, memory maps, and processor internals) lives in [/docs](./docs/00_index.md).
+> Full technical reference (HDL, ISA, VM grammar, memory maps, and processor internals) lives in `/docs`.
 
 ### Requirements
 - Docker
 
 ### Quick Start
-```shell
-docker build -t hack-webemu-static -f docker/Dockerfile .
-docker run --rm -p 8080:8080 hack-webemu-static
-```
+1. Ensure you meet the given requirements, see above
+2. Clone this repository
+3. Navigate to root
+4. Build and start the container:
+>```shell
+> docker build -t hack-webemu-static -f Dockerfile .
+> docker run --name hack-webemu --rm -p 8080:8080 hack-webemu-static
+>```
+5. Open your browser to `http://localhost:8080`
+6. Stop the container:
+>```bash
+> docker stop hack-webemu
+>```
 
-Open: `http://localhost:8080`
 
 ### Repository Structure
 ```text
-assets/               # Repo/docs Images
-core/                 # C Emulator
-docs/                 # Technical Reference
-programs/             # Hack Programs for running in UI
-toolchain/compiler/   # Compiler (file.jack → file.vm)
-toolchain/vm/         # Translator (file.vm → file.asm)
-toolchain/assembler/  # Assembler (file.asm → file.hack)
-web/                  # Web UI
+./
+ ├─ assets/         # Repo/docs Images
+ ├─ core/           # C/C++ Hardware Emulator
+ ├─ docs/           # Technical Reference
+ ├─ programs/       # Hack++ Programs
+ ├─ toolchain/
+ │   ├─ compiler/   # Compiler   (file.jack → file.vm)
+ │   ├─ vm/         # Translator (file.vm   → file.asm)
+ │   └─ assembler/  # Assembler  (file.asm  → file.hack)
+ ├─ web/            # Web UI
+ └─ README.md
 ```
 
 ### Roadmap
@@ -129,42 +142,38 @@ class JACK,VM,ASM tool;
 class ROM rom;
 ```
 
-### Technical Reference
-The full hardware and language specification is maintained in /docs:
-- Hardware Stack — NAND → Gates → ALU → CPU → Computer
-- Instruction Set Architecture — Hack++ binary + assembly syntax
-- Memory Hierarchy — RAM, MMIO (screen & keyboard)
-- Virtual Machine — stack model, segments, control flow
-- System Integration — execution cycle, timing, and signal flow
-
-#### /docs
-| Topic                 | 	Document                                      | 
-|-----------------------|------------------------------------------------|
-| Hardware Overview     | [docs/00_index.md](./docs/00_index.md)         | 
-| Primitive Gates	      | [docs/01_primitives.md](docs/01_primitives.md) |
-| Sequential Logic	     | docs/05_sequential.md                          |
-| Memory System	        | docs/06_memory.md                              |
-| Processor (ALU + CPU) | docs/07_processor.md                           |
-| System Integration	   | docs/08_system.md                              |
-| ISA Specification	    | docs/09_instruction_set.md                     |
-| VM Architecture	      | docs/10_vm.md                                  |
-| OS                    | todo                                           |
+## The /docs
+link TBD
 
 ## Acknowledgments
 
 ### Dr. Nisan & Dr. Schocken
-> Based on **The Elements of Computing Systems** by Nisan & Schocken and inspired by modern systems engineering practices.
->
-> If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the
-> book — it provides the conceptual foundation for everything implemented here.
+Based on **The Elements of Computing Systems** by Nisan & Schocken and inspired by modern systems engineering practices.
+
+If you are interested in computer architecture, compilers, or operating systems, I strongly recommend the
+book — it provides the conceptual foundation for everything implemented here.
 
 ### Charles Stevenson
-> Adapted from work originally authored by Charles Stevenson, licensed under the MIT License.
->
-> Stevenson, C. (2024-05-30). CodeWriter.java — Hack VM memory model documentation.
-> Original source repository:
-> https://github.com/brucesdad13/nand2tetris-vm-translator
->
-> The content has been reformatted and edited for clarity and consistency within the Hack++ project README.
-> The original author retains full credit for the underlying technical description.
+Adapted from work originally authored by Charles Stevenson, licensed under the MIT License. The content has been 
+reformatted and edited for clarity and consistency within the Hack++ project docs. The original author retains 
+full credit for the underlying technical description.
 
+Stevenson, C. (2024-05-30). CodeWriter.java — Adapted for use in Hack VM memory model documentation.
+- Original source repository: https://github.com/brucesdad13/nand2tetris-vm-translator
+
+### Christian Vallentin
+EBNF syntax highlighting file authored by Christian Vallentin, licensed under the MIT License. The original 
+author retains full credit for their work.
+
+Christian, V. (2020-06-03). bnf.tmLanguage.json — File used in Hack documentation syntax.
+- Original source repository: https://github.com/vallentin/vscode-bnf
+
+<!-- MARKDOWN LINKS & IMAGES -->
+
+<!-- Tests Shield -->
+[test-shield]: https://github.com/josephhilby/HackPlusPlus/actions/workflows/gradle_test_ci.yml/badge.svg
+[test-url]: https://github.com/josephhilby/HackPlusPlus/actions/workflows/gradle_test_ci.yml
+
+<!-- Issues Shield -->
+[issues-shield]: https://img.shields.io/github/issues/josephhilby/HackPlusPlus.svg
+[issues-url]: https://github.com/josephhilby/HackPlusPlus/issues

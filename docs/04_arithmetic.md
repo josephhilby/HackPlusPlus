@@ -4,14 +4,6 @@ This section documents the combinational arithmetic building blocks used to impl
 
 Arithmetic units sit above primitive logic and routing: they introduce *cross-bit coupling* via carry signals, turning independent bitwise operations into true word-level arithmetic.
 
-**Related:**
-
-* [Primitive Gates](./01_primitives.md)
-* [Wide Combinational Gates](./02_wide_gates.md)
-* [Routing & Control Gates](./03_routing.md)
-* [Processor Components](./07_processor.md)
-
----
 
 ## Design Notes
 

@@ -5,14 +5,6 @@ These components do not compute new values; instead, they **select**, **fan out*
 
 They represent the architectural boundary between **computation** (arithmetic/logic) and **control** (selection and enable).
 
-**Related:**
-
-* [Primitive Gates](./01_primitives.md)
-* [Wide Combinational Gates](./02_wide_gates.md)
-* [Arithmetic Units](./04_arithmetic.md)
-* [Processor Components](./07_processor.md)
-
----
 
 ## Design Notes
 

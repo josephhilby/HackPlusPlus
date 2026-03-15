@@ -6,14 +6,6 @@ the ALU, CPU, and memory system.
 
 They form the architectural bridge between **bit-level logic** and **word-level computation**.
 
-**Related:**
-
-* [Primitive Gates](./01_primitives.md)
-* [Routing & Control Gates](./03_routing.md)
-* [Arithmetic Units](./04_arithmetic.md)
-* [Processor Components](./07_processor.md)
-
----
 
 ## Design Notes
 

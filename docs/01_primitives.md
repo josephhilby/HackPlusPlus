@@ -5,13 +5,6 @@ All higher-level components—datapath elements, registers, memory, and the CPU�
 
 At the base of the system is the **NAND gate**, from which all other logic is derived.
 
-**Related:**
-
-* [Wide Combinational Gates](./02_wide_gates.md)
-* [Routing & Control Gates](./03_routing.md)
-* [Arithmetic Units](./04_arithmetic.md)
-
----
 
 ## Design Notes
 
@@ -66,9 +59,11 @@ It computes the inverse of its input.
 
 **Also known as:** *Inverter*, *Logical complement*
 
-#### Behavior
+<div class="callout-grid">
 
-```text
+::: tip Behavior
+
+```latex
 ¬(in ∧ in) = ¬in
 ```
 
@@ -79,7 +74,9 @@ It computes the inverse of its input.
 | 0  | 1   |
 | 1  | 0   |
 
-#### HDL
+:::
+
+::: tip HDL
 
 ```java
 CHIP Not {
@@ -90,6 +87,10 @@ OUT out;
     Nand(a=in, b=in, out=out);
 }
 ```
+
+:::
+
+</div>
 
 ---
 

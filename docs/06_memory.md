@@ -8,13 +8,6 @@ The Hack platform exposes a single 15-bit address space to the CPU. The `Memory`
 * **Screen** (memory-mapped display buffer)
 * **Keyboard** (memory-mapped input register)
 
-**Related:**
-
-* [Sequential Building Blocks](./05_sequential.md)
-* [Processor Components](./07_processor.md)
-* [System Integration](./08_system.md)
-
----
 
 ## Design Notes
 

@@ -6,13 +6,6 @@ Unlike combinational logic—which maps inputs to outputs within the same cycle�
 
 **Related:**
 
-* [Routing & Control Gates](./03_routing.md)
-* [Arithmetic Units](./04_arithmetic.md)
-* [Memory Hierarchy](./06_memory.md)
-* [Processor Components](./07_processor.md)
-
----
-
 ## Design Notes
 
 **Cycle semantics (`t` → `t+1`)**

@@ -2,13 +2,6 @@
 
 This section documents the top-level composition of Hack++ into a complete, executing computer. At this layer, the processor, instruction memory, and data / I/O memory are unified into a closed execution loop that continuously fetches, decodes, executes, and commits program state.
 
-**Related:**
-
-* [Processor Components](./07_processor.md)
-* [Memory Hierarchy](./06_memory.md)
-* [Instruction Set Architecture](./09_instruction_set.md)
-
----
 
 ## Design Notes
 
@@ -168,4 +161,4 @@ This layer closes the full **abstraction ladder**:
 
 The **Computer** is the meeting point: where symbolic programs become physical signal transitions, and where computation becomes observable behavior.
 
-Together with the [Instruction Set Architecture](./09_instruction_set.md), this defines the complete contract between *program* and *machine*.
+Together with the ISA, this defines the complete contract between *program* and *machine*.

@@ -4,14 +4,7 @@ This section documents the computational and control units that integrate datapa
 
 At this layer, signals become **instructions**: bits are interpreted as operations, destinations, and jumps that shape program execution over time.
 
-**Related:**
 
-* [Arithmetic Units](./04_arithmetic.md)
-* [Sequential Building Blocks](./05_sequential.md)
-* [Memory Hierarchy](./06_memory.md)
-* [Instruction Set Architecture](./09_instruction_set.md)
-
----
 
 ## Design Notes
 

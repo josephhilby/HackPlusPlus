@@ -1,3 +1,21 @@
+---
+# https://vitepress.dev/reference/default-theme-home-page
+layout: home
+
+hero:
+  name: "Hack++"
+  text: "Software & Hardware Reference"
+  tagline: A First Principles Computer, Assembler, VM, and Operating System
+  actions:
+    - theme: brand
+      text: Read the Docs
+      link: /01_primitives
+#    - theme: alt
+#      text: Try the Live Computer
+#      link: ...
+
+---
+
 # Hack++ Hardware Reference
 
 This section documents the complete Hack++ hardware stack, from primitive logic gates to the full computer system, and
@@ -24,17 +42,6 @@ into machine behavior.
 
 *Note:* The ladder is bidirectional. Hardware layers are constructed upward from NAND to Computer, while software 
 layers are lowered downward from Compiler to machine code executed by the CPU.
-
-## Sections
-1. [Primitive Gates](./01_primitives.md)
-2. [Wide Combinational Gates](./02_wide_gates.md)
-3. [Routing & Control Gates](./03_routing.md)
-4. [Arithmetic Units](./04_arithmetic.md)
-5. [Sequential Building Blocks](./05_sequential.md)
-6. [Memory Hierarchy](./06_memory.md) 
-7. [Processor Components](./07_processor.md)
-8. [System Integration](./08_system.md)
-9. [Instruction Set Architecture](./09_instruction_set.md)
 
 ## Reading Guide
 - Start at **Primitive Gates-Memory Hierarchy** to understand the physical logic foundation
