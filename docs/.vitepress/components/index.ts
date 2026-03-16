@@ -4,6 +4,7 @@ export { default as GateInversionBubble } from './gates/parts/GateInversionBubbl
 export { default as GateLabel } from './gates/parts/GateLabel.vue'
 export { default as GateWire } from './gates/parts/GateWire.vue'
 export { default as NandBody } from './gates/parts/NandBody.vue'
+export { default as NotBody } from './gates/parts/NotBody.vue'
 
 // Gates
 export { default as NandGate } from './gates/NandGate.vue'

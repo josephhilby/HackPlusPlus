@@ -1,17 +1,25 @@
 <script setup lang="ts">
-import '../table/truthtable.css'
 import './gate.css'
 import { ref } from 'vue'
+import TruthTable, { type TruthTableRow } from '../table/TruthTable.vue'
 
-type TruthRow = {
+import GateInversionBubble from './parts/GateInversionBubble.vue'
+import GateLabel from './parts/GateLabel.vue'
+import GateWire from './parts/GateWire.vue'
+import NandBody from './parts/NandBody.vue'
+import NotBody from './parts/NotBody.vue'
+
+type NotRow = TruthTableRow & {
   input: number
   out: number
   rowClass: string
 }
 
-const hovered = ref<TruthRow | null>(null)
+const hovered = ref<NotRow | null>(null)
 
-const rows: TruthRow[] = [
+const columns = ['input', 'out']
+
+const rows: NotRow[] = [
   { input: 0, out: 1, rowClass: 'truth-true' },
   { input: 1, out: 0, rowClass: 'truth-false' }
 ]
@@ -20,33 +28,17 @@ const rows: TruthRow[] = [
 <template>
   <div class="gate-identity">
     <span class="identity-label">Identity:</span>
-    <code class="identity-formula">NOT(in) := ¬(in ∧ in)</code>
+    <code class="identity-formula">NOT(in) := NAND(in, in)</code>
   </div>
 
   <div class="gate-demo">
-    <div class="truth-table-wrap">
-      <table class="truth-table">
-        <thead>
-        <tr>
-          <th>in</th>
-          <th>out</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr
-            v-for="(row, i) in rows"
-            :key="i"
-            :class="[row.rowClass, { hovered: hovered === row }]"
-            @mouseenter="hovered = row"
-            @mouseleave="hovered = null"
-        >
-          <td>{{ row.input }}</td>
-          <td>{{ row.out }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <TruthTable
+        :columns="columns"
+        :rows="rows"
+        :hovered-row="hovered"
+        @row-enter="hovered = $event as NotRow"
+        @row-leave="hovered = null"
+    />
 
     <div class="gate-visual">
       <div class="gate-svg-wrap">
@@ -56,89 +48,52 @@ const rows: TruthRow[] = [
             role="img"
             aria-label="NOT gate implemented with an internal NAND gate"
         >
-          <!-- external labels -->
-          <text x="34" y="108" class="gate-text">In</text>
-          <text x="336" y="108" class="gate-text gate-text-out">Out</text>
+          <GateLabel :x="34" :y="102" text="In" />
+          <GateLabel :x="338" :y="102" text="Out" class="gate-text-out" />
 
-          <!-- outer NOT triangle -->
-          <path
-              d="M150 52 L150 152 L255 102 Z"
-              class="gate-shell"
-          />
-
-          <!-- main input wire -->
-          <line
-              x1="62"
-              y1="102"
-              x2="145"
-              y2="102"
-              :class="['gate-wire', hovered?.input === 1 ? 'is-on' : 'is-off']"
+          <!-- outer input wire -->
+          <GateWire
+              :x1="62"
+              :y1="102"
+              :x2="157"
+              :y2="102"
+              :on="hovered?.input === 1"
           />
 
           <!-- split wire to internal NAND top -->
-          <line
-              x1="145"
-              y1="102"
-              x2="145"
-              y2="84"
-              :class="['gate-wire', hovered?.input === 1 ? 'is-on' : 'is-off']"
-          />
-          <line
-              x1="145"
-              y1="84"
-              x2="178"
-              y2="84"
-              :class="['gate-wire', hovered?.input === 1 ? 'is-on' : 'is-off']"
+          <GateWire
+              :x1="158"
+              :y1="110"
+              :x2="158"
+              :y2="94"
+              :on="hovered?.input === 1"
           />
 
-          <!-- split wire to internal NAND bottom -->
-          <line
-              x1="145"
-              y1="102"
-              x2="145"
-              y2="120"
-              :class="['gate-wire', hovered?.input === 1 ? 'is-on' : 'is-off']"
-          />
-          <line
-              x1="145"
-              y1="120"
-              x2="178"
-              y2="120"
-              :class="['gate-wire', hovered?.input === 1 ? 'is-on' : 'is-off']"
-          />
+          <!-- outer NOT shell -->
+          <g transform="translate(150 52)">
+            <NotBody />
+          </g>
 
-          <!-- internal NAND output -->
-          <line
-              x1="236"
-              y1="102"
-              x2="255"
-              y2="102"
-              :class="['gate-wire', hovered?.out === 1 ? 'is-on' : 'is-off']"
-          />
-
-          <!-- small internal NAND gate -->
-          <path
-              d="M178 74 L204 74 A28 28 0 0 1 204 130 L178 130 Z"
-              class="gate-body"
-          />
-
-          <!-- small internal NAND bubble -->
-          <circle cx="230" cy="102" r="6" class="gate-bubble" />
-
-          <!-- outer NOT bubble -->
-          <circle cx="266" cy="102" r="10" class="gate-bubble" />
+          <!-- small internal NAND -->
+          <g transform="translate(160 88) scale(0.22)">
+            <NandBody
+                :a-on="hovered?.input === 1"
+                :b-on="hovered?.input === 1"
+                :out-on="hovered?.out === 1"
+            />
+          </g>
 
           <!-- output wire -->
-          <line
-              x1="276"
-              y1="102"
-              x2="330"
-              y2="102"
-              :class="['gate-wire', hovered?.out === 1 ? 'is-on' : 'is-off']"
+          <GateWire
+              :x1="210"
+              :y1="102"
+              :x2="330"
+              :y2="102"
+              :on="hovered?.out === 1"
           />
 
-          <!-- internal label -->
-          <text x="186" y="147" class="gate-text gate-text-small">NAND</text>
+          <!-- outer NOT bubble -->
+          <GateInversionBubble :cx="266" :cy="102" :r="10" />
         </svg>
       </div>
 
