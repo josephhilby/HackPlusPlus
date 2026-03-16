@@ -136,6 +136,26 @@ and the ALU’s arithmetic pipeline.
 
 **Also known as:** *Sum gate*, *Difference detector*
 
+::: details Definition
+```hdl
+CHIP Xor {
+    IN a, b;
+    OUT out;
+
+    PARTS:
+    Or(a=a, b=b, out=or);
+    Nand(a=a, b=b, out=nand);
+    And(a=or, b=nand, out=out);
+}
+```
+:::
+
+::: tip Logic
+
+
+
+:::
+
 #### Behavior
 
 ```text
@@ -151,16 +171,4 @@ and the ALU’s arithmetic pipeline.
 | 1 | 0 | 1   |
 | 1 | 1 | 0   |
 
-#### HDL
 
-```java
-CHIP Xor {
-IN a, b;
-OUT out;
-
-    PARTS:
-    Or(a=a, b=b, out=or);
-    Nand(a=a, b=b, out=nand);
-    And(a=or, b=nand, out=out);
-}
-```
