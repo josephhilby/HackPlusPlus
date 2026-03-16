@@ -28,7 +28,7 @@ const rows: NotRow[] = [
 <template>
   <div class="gate-identity">
     <span class="identity-label">Identity:</span>
-    <code class="identity-formula">NOT(in) := NAND(in, in)</code>
+    <code class="identity-formula">NOT(in) := ¬(in ∧ in) = ¬in</code>
   </div>
 
   <div class="gate-demo">

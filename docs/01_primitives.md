@@ -33,7 +33,7 @@ complete, every other gate in this system can be expressed as a composition of N
 
 ### NOT — Inverter Gate
 
-> **Also known as:** *Logical complement*
+> **Also known as:** *Negation*, *Logical complement*
 
 The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal 
 inversion, and two’s-complement arithmetic throughout the datapath and control logic.
@@ -64,16 +64,31 @@ CHIP Not {
 
 ### AND — Enable Gate
 
-The **AND gate** qualifies signal propagation and control enables by allowing a value to pass only when all 
-conditions are asserted.
+> **Also known as:** *Qualifier*
 
-It is widely used in:
+The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely 
+used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
-* Write-enable qualification
-* Jump-condition evaluation
-* Masked datapath propagation
+::: details Definition
 
-**Also known as:** *Enable gate*, *Qualifier*
+```hdl
+CHIP And {
+IN a, b;
+OUT out;
+
+    PARTS:
+    Nand(a=a, b=b, out=nand);
+    Not(in=nand, out=out);
+}
+```
+
+:::
+
+::: tip Logic
+
+<AndGate />
+
+:::
 
 #### Behavior
 
@@ -90,18 +105,6 @@ It is widely used in:
 | 1 | 0 | 0   |
 | 1 | 1 | 1   |
 
-#### HDL
-
-```java
-CHIP And {
-IN a, b;
-OUT out;
-
-    PARTS:
-    Nand(a=a, b=b, out=nand);
-    Not(in=nand, out=out);
-}
-```
 
 ---
 

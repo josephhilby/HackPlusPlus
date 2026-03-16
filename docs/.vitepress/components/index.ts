@@ -7,6 +7,7 @@ export { default as NandBody } from './gates/parts/NandBody.vue'
 export { default as NotBody } from './gates/parts/NotBody.vue'
 
 // Gates
+export { default as AndGate } from './gates/AndGate.vue'
 export { default as NandGate } from './gates/NandGate.vue'
 export { default as NotGate } from './gates/NotGate.vue'
 
