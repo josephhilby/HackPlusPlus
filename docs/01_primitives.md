@@ -1,17 +1,22 @@
 # Primitive Logic Gates
 
-This section documents the primitive logic gates that form the physical and logical foundation of the Hack++ 
-hardware stack. All higher-level components — datapaths, registers, memory, and the CPU — are constructed 
-exclusively from these gates:
+This section documents the primitive logic gates that form the physical and logical foundation of the 
+Hack++ hardware stack. Every higher-level component of the computer — **the datapath, control unit, memory system, 
+input devices, and output interfaces** — is ultimately constructed from combinations of these gates.
 
-* **NAND** establishes the universal basis for all other gates
-* **NOT, AND, OR** form the foundations of the control and datapath structures
-* **XOR** allows arithmetic operations by enabling binary addition
+Each gate serves distinct roles across the system
 
-Together, these gates mark the boundary where **boolean algebra becomes machine behavior**, enabling the 
-construction of a programmable computer system.
+* **NAND** establishes the universal basis from which all other digital logic can be constructed
+* **NOT, AND, OR** implement the decision logic used throughout control circuits, multiplexers, and datapath routing
+* **XOR** enables binary arithmetic, forming the core of adders and arithmetic logic units (ALUs)
 
-## Gates
+From these small Boolean primitives emerge the mechanisms that drive a computer: signals are combined to control 
+execution, stored to represent memory, manipulated to perform arithmetic, and propagated to input and output devices.
+
+Together, these gates represent the boundary where **boolean algebra becomes machine behavior**, enabling the construction 
+of a programmable computing system.
+
+## The Gates
 
 ### NAND — Universal Gate
 
@@ -51,7 +56,6 @@ CHIP Not {
     Nand(a=in, b=in, out=out);
 }
 ```
-
 :::
 
 ::: tip Logic
@@ -70,18 +74,16 @@ The **AND gate** controls enables by allowing a value to pass only when all cond
 used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
 ::: details Definition
-
 ```hdl
 CHIP And {
-IN a, b;
-OUT out;
+    IN a, b;
+    OUT out;
 
     PARTS:
     Nand(a=a, b=b, out=nand);
     Not(in=nand, out=out);
 }
 ```
-
 :::
 
 ::: tip Logic
@@ -90,59 +92,24 @@ OUT out;
 
 :::
 
-#### Behavior
-
-```text
-¬(¬(a ∧ b)) = a ∧ b
-```
-
-#### Truth Table
-
-| a | b | out |
-| - | - | --- |
-| 0 | 0 | 0   |
-| 0 | 1 | 0   |
-| 1 | 0 | 0   |
-| 1 | 1 | 1   |
-
-
 ---
 
 ### OR — Combine Gate
 
+> **Also known as:** *Signal combiner*, *Logical merge*
+
 The **OR gate** aggregates multiple signal sources into a single logical result.
 
-It is commonly used for:
-
-* Flag reduction (`zr`, jump conditions)
-* Multi-source control logic
-* Signal merging in the datapath
-
-**Also known as:** *Signal combiner*, *Logical merge*
-
-#### Behavior
-
-```text
-¬(¬a ∧ ¬b) = a ∨ b
-```
+It is commonly used for: flag reduction (`zr`, jump conditions), multi-source control logic, and datapath signal 
+merging.
 
 *Note: Derived using De Morgan’s Law.*
 
-#### Truth Table
-
-| a | b | out |
-| - | - | --- |
-| 0 | 0 | 0   |
-| 0 | 1 | 1   |
-| 1 | 0 | 1   |
-| 1 | 1 | 1   |
-
-#### HDL
-
-```java
+::: details Definition
+```hdl
 CHIP Or {
-IN a, b;
-OUT out;
+    IN a, b;
+    OUT out;
 
     PARTS:
     Not(in=a, out=na);
@@ -150,6 +117,13 @@ OUT out;
     Nand(a=na, b=nb, out=out);
 }
 ```
+:::
+
+::: tip Logic
+
+<OrGate />
+
+:::
 
 ---
 

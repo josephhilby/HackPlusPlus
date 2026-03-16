@@ -20,13 +20,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-self: start;
     gap: 0.875rem;
 
     padding: 0.875rem;
     border: 1px solid var(--vp-c-divider);
     border-radius: 14px;
     background: var(--vp-c-bg-soft);
-    justify-self: start;
 }
 
 .gate-visual:hover {
@@ -44,22 +44,21 @@
     justify-content: center;
 }
 
-.nand-svg {
+.gate-svg {
     width: 92%;
     height: auto;
+    overflow: visible;
 }
 
 .gate-readout {
-    font-family: var(--vp-font-family-mono);
-    font-size: 0.9rem;
-
     padding: 0.35rem 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 25%, transparent);
     border-radius: 6px;
 
+    font-family: var(--vp-font-family-mono);
+    font-size: 0.9rem;
     color: var(--vp-c-text-1);
     background: color-mix(in srgb, var(--vp-c-brand-1) 14%, transparent);
-
-    border: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 25%, transparent);
 }
 
 /* ------------------------------------------------ */
@@ -67,15 +66,13 @@
 /* ------------------------------------------------ */
 
 .gate-body {
-    fill: var(--vp-c-bg-soft);
+    fill: transparent;
     stroke: var(--vp-c-text-1);
     stroke-width: 2.5;
 }
 
 .gate-bubble {
     fill: var(--vp-c-bg-soft);
-    stroke: var(--vp-c-text-1);
-    stroke-width: 2.5;
 }
 
 .gate-wire {
@@ -97,8 +94,8 @@
 
 .gate-text {
     fill: var(--vp-c-text-1);
-    font-size: 15px;
     font-family: var(--vp-font-family-mono);
+    font-size: 15px;
     dominant-baseline: middle;
 }
 
@@ -111,22 +108,10 @@
     text-anchor: start;
 }
 
-.nand-svg line,
-.nand-svg path,
-.nand-svg circle {
+.gate-svg line,
+.gate-svg path,
+.gate-svg circle {
     vector-effect: non-scaling-stroke;
-}
-
-.gate-shell {
-    fill: transparent;
-    stroke: var(--vp-c-text-1);
-    stroke-width: 2.5;
-}
-
-.gate-body {
-    fill: var(--vp-c-bg-soft);
-    stroke: var(--vp-c-text-1);
-    stroke-width: 2.2;
 }
 
 /* ------------------------------------------------ */

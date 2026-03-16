@@ -11,6 +11,6 @@ defineProps<{
       :cx="cx"
       :cy="cy"
       :r="r ?? 10"
-      class="gate-bubble"
+      class="gate-body gate-bubble"
   />
 </template>

@@ -1,32 +1,84 @@
-# Hack++ Hardware Reference
+# Hack++ Reference
 
-This section documents the complete Hack++ hardware stack, from primitive logic gates to the full computer system, and
-software toolchain. Each layer is built strictly from the layer below it, forming a complete abstraction ladder.
+## What is a computer or program?
+This section provides a structural overview of the complete Hack++ hardware and software stack, from primitive logic 
+gates, to subsystems, to fully programmable computer system and supporting software toolchain. Each layer is 
+constructed strictly from the layer beneath it, forming a continuous abstraction ladder that incrementally builds a 
+working machine.
 
-Hardware layers define execution semantics (signals, state transitions, and memory effects). While software layers
-define surface syntax and structure (formal grammars and program representations) that are deterministically lowered
-into machine behavior.
+**The core of a computer** can be best understood as five cooperating subsystems...
 
-## Abstraction Ladder (Construction vs. Conceptual Role)
-| Construction                                                 | Conceptual Role                                |
-|--------------------------------------------------------------|------------------------------------------------|
-| **NAND**                                                     | Physical primitive                             |
-| **Logic Gates** (`Not`, `And`, `Or`, `Xor`)                  | Boolean operations                             |
-| **Arithmetic & Routing** (`Add16`, `Inc16`, `Mux*`, `DMux*`) | **Datapath** (compute + select)                |
-| **Registers** (`Bit`, `Register`, `PC`)                      | **State** (clocked storage)                    |
-| **Memory** (`RAM*`, `Memory` / MMIO)                         | **Memory subsystem** (addressed storage + I/O) |
-| **ALU**                                                      | Datapath core (compute + flags)                |
-| **CPU**                                                      | Control + datapath integration                 |
-| **Computer**                                                 | System integration (CPU + ROM + RAM/MMIO)      |
-| **ISA**                                                      | Execution abstraction (ISA, linear)            |
-| **VM**                                                       | Runtime abstraction (VM, stack)                |
-| **High-Level Language**                                      | Compile-time abstraction (AST, tree)           |
+::: tip Computer Subsystems
+1. **Input** — receives programs, data, and user interaction from the external environment
+2. **Output** — displays computed results to the external environment
+3. **Memory** — stores program instructions and data (including user input)
+4. **Datapath** — moves data and performs arithmetic and logical operations, as instructed
+5. **Control Unit** — orchestrates instruction execution and program flow
+:::
 
-*Note:* The ladder is bidirectional. Hardware layers are constructed upward from NAND to Computer, while software
-layers are lowered downward from Compiler to machine code executed by the CPU.
+**A software toolchain** can similarly be understood through four cooperating abstractions that progressively 
+lower instructions toward machine execution...
 
-## Reading Guide
-- Start at **Primitive Gates-Memory Hierarchy** to understand the physical logic foundation
-- Jump to **Processor Components** to see how computation and control flow are implemented
-- Use **System Integration** to understand how the full machine executes programs
-- Refer to **Instruction Set Architecture** and the **EBNF grammars** to see how formal syntax maps onto concrete machine behavior.
+::: info Software Toolchain
+1. **Design-Time** — transforms an idea into structured high-level source code written by a human
+2. **Compile-Time** — analyzes and translates source code into increasingly lower-level intermediate representations (IR)
+3. **Run-Time** — models basic program execution through a standard virtual machine (VM) abstraction
+    - In Hack++, these runtime behaviors are compiled away through translation rather than executed by the VM itself.
+4. **Execution-Time** — executes machine instructions defined by the hardware instruction set architecture (ISA)
+:::
+
+These abstractions form the conceptual framework for Hack++, describing both how a computer is organized and 
+how software is transformed. Hardware and software approach the computer abstraction from opposite directions: hardware 
+builds upward from physical logic, while software lowers downward from human intent until both meet at the executing machine.
+
+## Software Abstractions
+
+Programs begin as structured source code and are gradually lowered into executable machine behavior:
+
+```yml
+                ┌── Human Idea (Design-time)
+                ▼
+           ┌── High-Level Language (Compile-time)
+           ▼
+      ┌── Virtual Machine (Runtime)
+      ▼
+ ┌── Instruction Set Architecture (Execution-time)
+ ▼
+The Computer
+```
+
+## The Computer
+
+These components collectively realize the five classical computer subsystems.
+
+| **Component**    | **Hack++ Realization**                     |
+|------------------|--------------------------------------------|
+| **Input**        | Program Select (ROM), Keyboard (Memory)    |
+| **Output**       | Screen (Memory)                            |
+| **Memory**       | RAM, ROM, Memory-mapped I/O                |
+| **Datapath**     | ALU, arithmetic circuits, routing circuits |
+| **Control Unit** | CPU instruction decoding and control logic |
+
+## Hardware Abstractions
+
+Hack++ is constructed through a strict hierarchy of increasingly capable structures.
+Each layer is built exclusively from the components defined below it, gradually assembling the
+subsystems required for a complete computer.
+
+At the base of this all is a single universal primitive: **NAND**.
+
+```yml
+The Computer
+ ▲
+ └── CPU + ALU (control logic + datapath)
+      ▲
+      └── Memory (RAM, ROM, Input, Output)
+           ▲
+           └── Registers (Bit, Register, Program Counter)
+                ▲
+                └── Arithmetic & Routing Circuits (Add, Inc, Mux, DMux)
+                     ▲
+                     └── Logic Gates (Not, And, Or, Xor)
+                          ▲
+                          └── Universal Gate (NAND)
+```

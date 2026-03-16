@@ -89,14 +89,14 @@ export default withMermaid(defineConfig({
                 items: [
                     { text: 'Home', link: '/' },
                     { text: 'Index', link: '/00_root.md' },
-                    { text: 'Logic Gates', link: '/01_primitives.md' },
-                    { text: 'Arithmetic & Routing', link: '/03_routing.md' },
-                    { text: 'Registers & Memory', link: '/06_memory.md' },
-                    { text: 'ALU & CPU', link: '/00_root.md' },
-                    { text: 'Computer', link: '/00_root.md' },
-                    { text: 'Instruction Set Architecture', link: '/00_root.md' },
-                    { text: 'Virtual Machine', link: '/00_root.md' },
-                    { text: 'High-Level Language', link: '/00_root.md' },
+                    { text: 'Primitive Logic Gates', link: '/01_primitives.md' },
+                    // { text: 'Arithmetic & Routing', link: '/03_routing.md' },
+                    // { text: 'Registers & Memory', link: '/06_memory.md' },
+                    // { text: 'ALU & CPU', link: '/00_root.md' },
+                    // { text: 'Computer', link: '/00_root.md' },
+                    // { text: 'Instruction Set Architecture', link: '/00_root.md' },
+                    // { text: 'Virtual Machine', link: '/00_root.md' },
+                    // { text: 'High-Level Language', link: '/00_root.md' },
                 ]
             }
         ]
