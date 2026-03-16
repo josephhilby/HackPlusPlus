@@ -2,17 +2,52 @@
 /* truth table */
 /* ------------------------------------------------ */
 
+.truth-table-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .truth-table {
     font-family: var(--vp-font-family-mono);
-    border-collapse: collapse;
     font-size: 0.95rem;
 
-    display: inline-table;
-    width: fit-content;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    width: auto;
+    display: table;
 
     border: 1px solid var(--vp-c-brand-2);
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
+    background: var(--vp-c-bg);
+}
+
+.gate-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.identity-label {
+    font-weight: 600;
+    color: var(--vp-c-text-2);
+}
+
+.identity-eq {
+    font-family: var(--vp-font-family-mono);
+    font-size: 0.9rem;
+
+    padding: 0.28rem 0.55rem;
+    border-radius: 6px;
+
+    border: 1px solid color-mix(in srgb, var(--vp-c-divider) 80%, transparent);
+    background: color-mix(in srgb, var(--vp-c-bg-soft) 90%, transparent);
+
+    display: inline-flex;
+    align-items: center;
 }
 
 /* ------------------------------------------------ */
@@ -22,7 +57,18 @@
 .truth-table th,
 .truth-table td {
     text-align: center;
-    border: 1px solid var(--vp-c-divider);
+    border-right: 1px solid var(--vp-c-divider);
+    border-bottom: 1px solid var(--vp-c-divider);
+}
+
+/* remove outer duplicate borders */
+.truth-table th:last-child,
+.truth-table td:last-child {
+    border-right: none;
+}
+
+.truth-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 /* tighter body rows */
@@ -47,22 +93,18 @@
 /* row coloring */
 /* ------------------------------------------------ */
 
-/* rows where output = 1 */
 .truth-table tbody tr.truth-true td {
     background: rgba(80, 200, 120, 0.08);
 }
 
-/* rows where output = 0 */
 .truth-table tbody tr.truth-false td {
     background: rgba(255, 120, 120, 0.05);
 }
 
-/* emphasize output column */
 .truth-table tbody td:last-child {
     font-weight: 700;
 }
 
-/* stronger highlight on output cell */
 .truth-table tbody tr.truth-true td:last-child {
     background: rgba(80, 200, 120, 0.18);
 }
@@ -89,4 +131,9 @@
 
 .truth-table tbody tr.truth-false:hover td:last-child {
     background: rgba(255, 120, 120, 0.16);
+}
+
+.truth-table tbody tr.hovered {
+    outline: 2px solid var(--vp-c-brand-1);
+    outline-offset: -2px;
 }

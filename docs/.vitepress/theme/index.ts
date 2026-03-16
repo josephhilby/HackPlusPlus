@@ -2,11 +2,13 @@ import DefaultTheme from 'vitepress/theme'
 import type { EnhanceAppContext } from 'vitepress'
 
 import './custom.css'
-import NandGate from '../components/NandGate.vue'
+import * as components from '../components/index.js'
 
 export default {
     ...DefaultTheme,
     enhanceApp({ app }: EnhanceAppContext) {
-        app.component('NandGate', NandGate)
+        Object.entries(components).forEach(([name, component]) => {
+            app.component(name, component)
+        })
     }
 }
