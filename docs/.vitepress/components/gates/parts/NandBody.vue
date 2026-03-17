@@ -21,7 +21,16 @@ withDefaults(defineProps<{
 
 <template>
   <g class="nand-symbol">
-    <AndBody :a-on="aOn" :b-on="bOn" :out-on="outOn" :outX2="outX2" />
-    <GateInversionBubble :cx="NAND_BUBBLE_CX" :cy="NAND_BUBBLE_CY" :r="NAND_BUBBLE_R" />
+    <AndBody
+        :a-on="aOn"
+        :b-on="bOn"
+        :out-on="outOn"
+        :out-x2="outX2"
+    />
+    <GateInversionBubble
+        :cx="NAND_BUBBLE_CX"
+        :cy="NAND_BUBBLE_CY"
+        :r="NAND_BUBBLE_R"
+    />
   </g>
 </template>

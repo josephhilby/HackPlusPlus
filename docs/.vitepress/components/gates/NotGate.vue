@@ -3,8 +3,18 @@ import './gate.css'
 import { ref } from 'vue'
 import TruthTable, { type TruthTableRow } from '../table/TruthTable.vue'
 
+import {
+  VIEW_H,
+  VIEW_W,
+  VIEW_GATE_OFFSET_X,
+  VIEW_GATE_OFFSET_Y,
+  LABEL_IN_X,
+  LABEL_OUT_X,
+  LABEL_OUT_Y
+} from './parts/gateGeometry'
+
 import GateLabel from './parts/GateLabel.vue'
-import GateWire from './parts/GateWire.vue'
+import Wire from './parts/Wire.vue'
 import NandBody from './parts/NandBody.vue'
 import NotBody from './parts/NotBody.vue'
 
@@ -51,18 +61,18 @@ function outputOn(row: NotRow | null) {
       <div class="gate-svg-wrap">
         <svg
             class="gate-svg"
-            viewBox="0 0 420 220"
+            :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
             role="img"
-            aria-label="NOT gate implemented with an internal NAND gate"
+            aria-label="NOT gate implemented with NAND gate"
         >
           <!-- labels -->
-          <GateLabel :x="34" :y="102" text="In" />
-          <GateLabel :x="338" :y="102" text="Out" class="gate-text-out" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_OUT_Y" text="In" />
+          <GateLabel :x="LABEL_OUT_X" :y="LABEL_OUT_Y" text="Out" class="gate-text-out" />
 
           <!-- internal NAND implementation -->
-          <g transform="translate(157 87) scale(0.22)">
+          <g transform="translate(165 96) scale(0.22)">
             <!-- wire input to nand -->
-            <GateWire
+            <Wire
                 :x1="-50"
                 :y1="65"
                 :x2="0"
@@ -71,7 +81,7 @@ function outputOn(row: NotRow | null) {
             />
 
             <!-- wire into both NAND inputs -->
-            <GateWire
+            <Wire
                 :x1="0"
                 :y1="38"
                 :x2="0"
@@ -88,11 +98,11 @@ function outputOn(row: NotRow | null) {
           </g>
 
           <!-- outer NOT shell -->
-          <g transform="translate(70 37)">
+          <g :transform="`translate(${VIEW_GATE_OFFSET_X} ${VIEW_GATE_OFFSET_Y})`">
             <NotBody
                 :in-on="inputOn(hovered)"
                 :out-on="outputOn(hovered)"
-                :out-x2="240"
+                :out-x2="300"
             />
           </g>
         </svg>

@@ -3,6 +3,18 @@ import './gate.css'
 import { ref } from 'vue'
 import TruthTable, { type TruthTableRow } from '../table/TruthTable.vue'
 
+import {
+  VIEW_H,
+  VIEW_W,
+  VIEW_GATE_OFFSET_X,
+  VIEW_GATE_OFFSET_Y,
+  LABEL_IN_X,
+  LABEL_A_Y,
+  LABEL_B_Y,
+  LABEL_OUT_X,
+  LABEL_OUT_Y
+} from './parts/gateGeometry'
+
 import AndBody from './parts/AndBody.vue'
 import GateLabel from './parts/GateLabel.vue'
 import WireElbow from './parts/WireElbow.vue'
@@ -64,31 +76,31 @@ function nandIntermediate(row: AndRow | null) {
       <div class="gate-svg-wrap">
         <svg
             class="gate-svg"
-            viewBox="0 0 450 220"
+            :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
             role="img"
-            aria-label="AND gate implemented with an internal NAND followed by NOT"
+            aria-label="AND gate implemented with NAND gate feeding a NOT"
         >
           <!-- labels -->
-          <GateLabel :x="28" :y="66" text="A" />
-          <GateLabel :x="28" :y="140" text="B" />
-          <GateLabel :x="380" :y="103" text="Out" class="gate-text-out" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_A_Y" text="A" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_B_Y" text="B" />
+          <GateLabel :x="LABEL_OUT_X" :y="LABEL_OUT_Y" text="Out" class="gate-text-out" />
 
           <!-- internal NAND, NOT implementation -->
-          <g transform="translate(100 60)">
+          <g transform="translate(200 96) scale(0.22)">
             <!-- NAND -->
-            <g transform="translate(82 32.45) scale(0.18)">
+            <g transform="translate(-100 0)">
               <!-- Input to NAND -->
               <WireElbow
-                  :x1="-130"
-                  :y1="-145"
+                  :x1="-100"
+                  :y1="-110"
                   :x2="0"
                   :y2="25"
                   :on="aOn(hovered)"
               />
 
               <WireElbow
-                  :x1="-130"
-                  :y1="275"
+                  :x1="-100"
+                  :y1="235"
                   :x2="0"
                   :y2="110"
                   :on="bOn(hovered)"
@@ -102,7 +114,7 @@ function nandIntermediate(row: AndRow | null) {
             </g>
 
             <!-- NOT -->
-            <g transform="translate(130 28.5) scale(0.24)">
+            <g transform="translate(150 0)">
               <NotBody
                   :in-on="nandIntermediate(hovered)"
                   :out-on="outOn(hovered)"
@@ -111,11 +123,12 @@ function nandIntermediate(row: AndRow | null) {
           </g>
 
           <!-- outer AND shell -->
-          <g transform="translate(80 40)">
+          <g :transform="`translate(${VIEW_GATE_OFFSET_X} ${VIEW_GATE_OFFSET_Y})`">
             <AndBody
                 :a-on="aOn(hovered)"
                 :b-on="bOn(hovered)"
                 :out-on="outOn(hovered)"
+                :outX2="300"
             />
           </g>
         </svg>

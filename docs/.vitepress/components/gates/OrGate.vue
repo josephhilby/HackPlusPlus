@@ -8,6 +8,16 @@ import WireElbow from './parts/WireElbow.vue'
 import OrBody from './parts/OrBody.vue'
 import NandBody from './parts/NandBody.vue'
 import NotBody from './parts/NotBody.vue'
+import {
+  LABEL_A_Y,
+  LABEL_B_Y,
+  LABEL_IN_X,
+  LABEL_OUT_X,
+  LABEL_OUT_Y,
+  VIEW_GATE_OFFSET_X, VIEW_GATE_OFFSET_Y,
+  VIEW_H,
+  VIEW_W
+} from "./parts/gateGeometry.js";
 
 type OrRow = TruthTableRow & {
   a: number
@@ -69,19 +79,19 @@ function notB(row: OrRow | null) {
       <div class="gate-svg-wrap">
         <svg
             class="gate-svg"
-            viewBox="0 0 450 220"
+            :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
             role="img"
             aria-label="OR gate implemented with two NOT gates feeding a NAND"
         >
           <!-- labels -->
-          <GateLabel :x="28" :y="66" text="A" />
-          <GateLabel :x="28" :y="140" text="B" />
-          <GateLabel :x="380" :y="103" text="Out" class="gate-text-out" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_A_Y" text="A" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_B_Y" text="B" />
+          <GateLabel :x="LABEL_OUT_X" :y="LABEL_OUT_Y" text="Out" class="gate-text-out" />
 
           <!-- internal NOT, NOT, NAND implementation -->
-          <g transform="translate(100 60)">
+          <g transform="translate(200 96) scale(0.22)">
             <!-- top NOT -->
-            <g transform="translate(70 -9) scale(0.24)">
+            <g transform="translate(-150 -174)">
               <NotBody
                   :in-on="aOn(hovered)"
                   :out-on="notA(hovered)"
@@ -89,30 +99,30 @@ function notB(row: OrRow | null) {
             </g>
 
             <!-- bottom NOT -->
-            <g transform="translate(70 67) scale(0.24)">
+            <g transform="translate(-150 174)">
               <NotBody
                   :in-on="bOn(hovered)"
                   :out-on="notB(hovered)"
               />
             </g>
 
-            <!-- NAND -->
-            <g transform="translate(155 32) scale(0.18)">
+            <!-- final NAND -->
+            <g transform="translate(150 0)">
               <!-- top NOT to NAND -->
               <WireElbow
-                  :x1="-110"
-                  :y1="-143"
+                  :x1="-90"
+                  :y1="-110"
                   :x2="0"
-                  :y2="26"
+                  :y2="25"
                   :on="notA(hovered)"
               />
 
               <!-- bottom NOT to NAND -->
               <WireElbow
-                  :x1="-110"
-                  :y1="280"
+                  :x1="-90"
+                  :y1="238"
                   :x2="0"
-                  :y2="102"
+                  :y2="110"
                   :on="notB(hovered)"
               />
 
@@ -126,12 +136,12 @@ function notB(row: OrRow | null) {
           </g>
 
           <!-- outer OR shell -->
-          <g transform="translate(80 40)">
+          <g :transform="`translate(${VIEW_GATE_OFFSET_X} ${VIEW_GATE_OFFSET_Y})`">
             <OrBody
                 :a-on="aOn(hovered)"
                 :b-on="bOn(hovered)"
                 :out-on="outOn(hovered)"
-                :out-x2="280"
+                :out-x2="300"
             />
           </g>
         </svg>

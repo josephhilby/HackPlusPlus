@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import GateWire from './GateWire.vue'
+import Wire from './Wire.vue'
 import {
   IN_X0,
-  IN_X1,
-  OUT_X0,
   OUT_X1,
   IN_TOP_Y,
   IN_BOTTOM_Y,
   MID_Y,
   BODY_X,
   GATE_H,
+  OR_IN_X1,
+  OR_OUT_X0,
   OR_BACK_CTRL_X,
   OR_LOBE_CTRL_X,
   OR_TIP_X,
   OR_TOP_CTRL_Y,
-  OR_BOTTOM_CTRL_Y,
-  OR_IN_X,
+  OR_BOTTOM_CTRL_Y
 } from './gateGeometry'
 
 withDefaults(defineProps<{
@@ -30,10 +29,33 @@ withDefaults(defineProps<{
 
 <template>
   <g class="or-symbol">
-    <GateWire :x1="IN_X0" :y1="IN_TOP_Y" :x2="IN_X1+OR_IN_X" :y2="IN_TOP_Y" :on="aOn" />
-    <GateWire :x1="IN_X0" :y1="IN_BOTTOM_Y" :x2="IN_X1+OR_IN_X" :y2="IN_BOTTOM_Y" :on="bOn" />
-    <GateWire :x1="OUT_X0+63" :y1="MID_Y" :x2="outX2" :y2="MID_Y" :on="outOn" />
+    <!-- inputs -->
+    <Wire
+        :x1="IN_X0"
+        :y1="IN_TOP_Y"
+        :x2="OR_IN_X1"
+        :y2="IN_TOP_Y"
+        :on="aOn"
+    />
 
+    <Wire
+        :x1="IN_X0"
+        :y1="IN_BOTTOM_Y"
+        :x2="OR_IN_X1"
+        :y2="IN_BOTTOM_Y"
+        :on="bOn"
+    />
+
+    <!-- output -->
+    <Wire
+        :x1="OR_OUT_X0"
+        :y1="MID_Y"
+        :x2="outX2"
+        :y2="MID_Y"
+        :on="outOn"
+    />
+
+    <!-- body -->
     <path
         :d="`
         M${BODY_X} 0
@@ -41,7 +63,7 @@ withDefaults(defineProps<{
         Q${OR_LOBE_CTRL_X} ${OR_BOTTOM_CTRL_Y} ${OR_TIP_X} ${MID_Y}
         Q${OR_LOBE_CTRL_X} ${OR_TOP_CTRL_Y} ${BODY_X} 0
         Z
-        `"
+      `"
         class="gate-body"
     />
   </g>

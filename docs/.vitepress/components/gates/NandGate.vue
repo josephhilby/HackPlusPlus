@@ -3,6 +3,18 @@ import './gate.css'
 import { ref } from 'vue'
 import TruthTable, { type TruthTableRow } from '../table/TruthTable.vue'
 
+import {
+  VIEW_H,
+  VIEW_W,
+  VIEW_GATE_OFFSET_X,
+  VIEW_GATE_OFFSET_Y,
+  LABEL_IN_X,
+  LABEL_A_Y,
+  LABEL_B_Y,
+  LABEL_OUT_X,
+  LABEL_OUT_Y
+} from './parts/gateGeometry'
+
 import GateLabel from './parts/GateLabel.vue'
 import NandBody from './parts/NandBody.vue'
 
@@ -43,20 +55,21 @@ const rows: NandRow[] = [
     <div class="gate-visual">
       <div class="gate-svg-wrap">
         <svg
-            class="nand-svg"
-            viewBox="0 0 420 220"
+            class="gate-svg"
+            :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
             role="img"
             aria-label="NAND gate visualization"
         >
-          <GateLabel :x="36" :y="66" text="A" />
-          <GateLabel :x="36" :y="140" text="B" />
-          <GateLabel :x="340" :y="103" text="Out" class="gate-text-out" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_A_Y" text="A" />
+          <GateLabel :x="LABEL_IN_X" :y="LABEL_B_Y" text="B" />
+          <GateLabel :x="LABEL_OUT_X" :y="LABEL_OUT_Y" text="Out" class="gate-text-out" />
 
-          <g transform="translate(62 38)">
+          <g :transform="`translate(${VIEW_GATE_OFFSET_X} ${VIEW_GATE_OFFSET_Y})`">
             <NandBody
                 :a-on="hovered?.a === 1"
                 :b-on="hovered?.b === 1"
                 :out-on="hovered?.out === 1"
+                :outX2="300"
             />
           </g>
         </svg>

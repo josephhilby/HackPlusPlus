@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import GateWire from './GateWire.vue'
+import Wire from './Wire.vue'
 import {
   IN_X0,
   IN_X1,
-  OUT_X0,
-  OUT_X1,
   IN_TOP_Y,
   IN_BOTTOM_Y,
   MID_Y,
   BODY_X,
-  BODY_RIGHT_X,
-  BODY_RADIUS,
-  GATE_H
+  GATE_H,
+  OUT_X1,
+  AND_BODY_RIGHT_X,
+  AND_BODY_RADIUS,
+  AND_OUT_X0
 } from './gateGeometry'
 
 withDefaults(defineProps<{
@@ -26,17 +26,18 @@ withDefaults(defineProps<{
 
 <template>
   <g class="and-symbol">
-    <GateWire :x1="IN_X0" :y1="IN_TOP_Y" :x2="IN_X1-1" :y2="IN_TOP_Y" :on="aOn" />
-    <GateWire :x1="IN_X0" :y1="IN_BOTTOM_Y" :x2="IN_X1-1" :y2="IN_BOTTOM_Y" :on="bOn" />
-    <GateWire :x1="OUT_X0+30" :y1="MID_Y" :x2="outX2" :y2="MID_Y" :on="outOn" />
+    <Wire :x1="IN_X0" :y1="IN_TOP_Y" :x2="IN_X1" :y2="IN_TOP_Y" :on="aOn" />
+    <Wire :x1="IN_X0" :y1="IN_BOTTOM_Y" :x2="IN_X1" :y2="IN_BOTTOM_Y" :on="bOn" />
+    <Wire :x1="AND_OUT_X0" :y1="MID_Y" :x2="outX2" :y2="MID_Y" :on="outOn" />
 
     <path
         :d="`
         M${BODY_X} 0
-        L${BODY_RIGHT_X} 0 A${BODY_RADIUS} ${BODY_RADIUS} 0 0 1
-        ${BODY_RIGHT_X} ${GATE_H} L${BODY_X} ${GATE_H}
+        L${AND_BODY_RIGHT_X} 0
+        A${AND_BODY_RADIUS} ${AND_BODY_RADIUS} 0 0 1 ${AND_BODY_RIGHT_X} ${GATE_H}
+        L${BODY_X} ${GATE_H}
         Z
-        `"
+      `"
         class="gate-body"
     />
   </g>

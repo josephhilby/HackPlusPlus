@@ -16,7 +16,7 @@ execution, stored to represent memory, manipulated to perform arithmetic, and pr
 Together, these gates represent the boundary where **boolean algebra becomes machine behavior**, enabling the construction 
 of a programmable computing system.
 
-## The Gates
+## The Primitive Gates
 
 ### NAND — Universal Gate
 
@@ -152,23 +152,31 @@ CHIP Xor {
 
 ::: tip Logic
 
-
+<XorGate />
 
 :::
 
-#### Behavior
+## The Wide Gates
 
-```text
-(a ∨ b) ∧ ¬(a ∧ b)
-```
+Now, with the primitive gates established, we can take our first step towards constructing datapaths. But first we have 
+to define what data is for the Hack++ platform, or perhaps more importantly how big it is. So, for this system, what is 
+the smallest amount of binary information that can make a complete CPU instruction, or encode a memory address...
 
-#### Truth Table
+For Hack++, that is a word size of 16-bits.
 
-| a | b | out |
-| - | - | --- |
-| 0 | 0 | 0   |
-| 0 | 1 | 1   |
-| 1 | 0 | 1   |
-| 1 | 1 | 0   |
+With that size established, the wide (multi-bit) combinational gates that operate on buses rather than single-bit signals.
+These components extend the primitive logic gates into 16-bit datapath elements and reduction logic used throughout
+the ALU, CPU, and memory system.
 
+They form the architectural bridge between **bit-level logic** and **word-level computation**.
 
+**Bit ordering (bus convention)**
+Signals use a fixed indexing convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This defines logical bit position, not memory endianness.
+
+**Hierarchical construction**
+All wide gates are constructed strictly from their single-bit equivalents, preserving the abstraction ladder:
+
+`Not → Not16`
+`And → And16`
+`Or → Or16 → Or8Way`
