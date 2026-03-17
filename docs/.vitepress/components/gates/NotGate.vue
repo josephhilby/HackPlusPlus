@@ -44,8 +44,8 @@ function outputOn(row: NotRow | null) {
 
 <template>
   <div class="gate-identity">
-    <span class="identity-label">Identity:</span>
-    <code class="identity-formula">NOT(in) := ¬(in ∧ in) = ¬in</code>
+    <div class="gate-identity-label">Boolean Identity</div>
+    <code class="gate-identity-formula">¬(in ∧ in) = ¬in</code>
   </div>
 
   <div class="gate-demo">

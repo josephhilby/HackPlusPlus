@@ -59,8 +59,8 @@ function nandIntermediate(row: AndRow | null) {
 
 <template>
   <div class="gate-identity">
-    <span class="identity-label">Identity:</span>
-    <code class="identity-formula">AND(a, b) := ¬(¬(a ∧ b)) = a ∧ b</code>
+    <div class="gate-identity-label">Boolean Identity</div>
+    <code class="gate-identity-formula">¬(¬(a ∧ b)) = a ∧ b</code>
   </div>
 
   <div class="gate-demo">

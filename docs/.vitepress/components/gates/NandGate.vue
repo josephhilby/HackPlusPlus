@@ -39,8 +39,8 @@ const rows: NandRow[] = [
 
 <template>
   <div class="gate-identity">
-    <span class="identity-label">Identity:</span>
-    <code class="identity-formula">NAND(a, b) := ¬(a ∧ b)</code>
+    <div class="gate-identity-label">Boolean Identity</div>
+    <code class="gate-identity-formula">¬(a ∧ b)</code>
   </div>
 
   <div class="gate-demo">

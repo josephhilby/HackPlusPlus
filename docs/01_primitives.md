@@ -28,7 +28,7 @@ Hack++ is constructed.
 It computes the logical AND of two inputs and then inverts the result. Because NAND is functionally 
 complete, every other gate in this system can be expressed as a composition of NAND gates.
 
-::: tip Logic
+::: tip NAND(a, b)
 
 <NandGate />
 
@@ -58,7 +58,7 @@ CHIP Not {
 ```
 :::
 
-::: tip Logic
+::: tip NOT(in)
 
 <NotGate />
 
@@ -86,7 +86,7 @@ CHIP And {
 ```
 :::
 
-::: tip Logic
+::: tip AND(a, b)
 
 <AndGate />
 
@@ -119,7 +119,7 @@ CHIP Or {
 ```
 :::
 
-::: tip Logic
+::: tip OR(a, b)
 
 <OrGate />
 
@@ -129,12 +129,12 @@ CHIP Or {
 
 ### XOR — Sum Gate
 
+> **Also known as:** *Sum gate*, *Difference detector*
+
 The **XOR gate** produces a high output when its inputs differ.
 
 It is the fundamental building block of **binary addition**, forming the sum path in half-adders, full-adders, 
 and the ALU’s arithmetic pipeline.
-
-**Also known as:** *Sum gate*, *Difference detector*
 
 ::: details Definition
 ```hdl
@@ -150,7 +150,7 @@ CHIP Xor {
 ```
 :::
 
-::: tip Logic
+::: tip XOR(a, b)
 
 <XorGate />
 
