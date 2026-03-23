@@ -32,7 +32,9 @@ a systems-level demonstration of the relationship between logic, hardware archit
 
 ::: warning Core terminology used throughout the documentation...
 
-- **Term:** Def.
+- **Gate:** Def.
+- **Circuit:** Def.
+- **Subsystem:** Def.
 
 :::
 

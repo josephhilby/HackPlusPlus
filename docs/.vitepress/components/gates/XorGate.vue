@@ -92,7 +92,7 @@ function nandIntermediate(row: XorRow | null) {
           <GateLabel :x="LABEL_OUT_X" :y="LABEL_OUT_Y" text="Out" class="gate-text-out" />
 
           <!-- internal OR, NAND, AND implementation -->
-          <g transform="translate(210 96) scale(0.22)">
+          <g transform="translate(207 96) scale(0.22)">
             <!-- input wires -->
             <WireC
                 :cx="-100"
@@ -186,7 +186,7 @@ function nandIntermediate(row: XorRow | null) {
       </div>
 
       <code class="gate-readout">
-        XOR({{ hovered?.a ?? "-" }}, {{ hovered?.b ?? "-" }}) = {{ hovered?.out ?? "-" }}
+        XOR({{ hovered?.a ?? "a" }}, {{ hovered?.b ?? "b" }}) = {{ hovered?.out ?? "-" }}
       </code>
     </div>
   </div>

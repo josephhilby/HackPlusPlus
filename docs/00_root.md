@@ -2,9 +2,9 @@
 
 ## What is a computer or program?
 This section provides a structural overview of the complete Hack++ hardware and software stack, from primitive logic 
-gates, to subsystems, to fully programmable computer system and supporting software toolchain. Each layer is 
-constructed strictly from the layer beneath it, forming a continuous abstraction ladder that incrementally builds a 
-working machine.
+gates, to components, to subsystems, to fully programmable computer system and supporting software toolchain. Each 
+layer is constructed strictly from the layer beneath it, forming a continuous abstraction ladder that incrementally 
+builds a working machine.
 
 **The core of a computer** can be best understood as five cooperating subsystems...
 
@@ -53,7 +53,7 @@ These components collectively realize the five classical computer subsystems.
 
 | **Component**    | **Hack++ Realization**                     |
 |------------------|--------------------------------------------|
-| **Input**        | Program Select (ROM), Keyboard (Memory)    |
+| **Input**        | Program (ROM), Keyboard (Memory)           |
 | **Output**       | Screen (Memory)                            |
 | **Memory**       | RAM, ROM, Memory-mapped I/O                |
 | **Datapath**     | ALU, arithmetic circuits, routing circuits |
@@ -76,7 +76,7 @@ The Computer
            ▲
            └── Registers (Bit, Register, Program Counter)
                 ▲
-                └── Arithmetic & Routing Circuits (Add, Inc, Mux, DMux)
+                └── Routing & Arithmetic Circuits (Mux, DMux, Add, Inc)
                      ▲
                      └── Logic Gates (Not, And, Or, Xor)
                           ▲

@@ -83,7 +83,7 @@ function outputOn(row: NotRow | null) {
             <!-- wire into both NAND inputs -->
             <Wire
                 :x1="0"
-                :y1="38"
+                :y1="30"
                 :x2="0"
                 :y2="100"
                 :on="inputOn(hovered)"
@@ -109,7 +109,7 @@ function outputOn(row: NotRow | null) {
       </div>
 
       <code class="gate-readout">
-        NOT({{ hovered?.in ?? "-" }}) = {{ hovered?.out ?? "-" }}
+        NOT({{ hovered?.in ?? "in" }}) = {{ hovered?.out ?? "-" }}
       </code>
     </div>
   </div>

@@ -89,8 +89,8 @@ export default withMermaid(defineConfig({
                 items: [
                     { text: 'Home', link: '/' },
                     { text: 'Index', link: '/00_root.md' },
-                    { text: 'Primitive Logic Gates', link: '/01_primitives.md' },
-                    // { text: 'Arithmetic & Routing', link: '/03_routing.md' },
+                    { text: 'Boolean Logic Gates', link: '/01_primitives.md' },
+                    { text: 'Routing & Arithmetic Circuits', link: '/02_routing_arithmetic.md' },
                     // { text: 'Registers & Memory', link: '/06_memory.md' },
                     // { text: 'ALU & CPU', link: '/00_root.md' },
                     // { text: 'Computer', link: '/00_root.md' },

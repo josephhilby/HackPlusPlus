@@ -131,6 +131,30 @@ export const OR_BOTTOM_CTRL_Y = GATE_H + 10
 export const XOR_BACK_OFFSET_X = 14
 
 /* ------------------------------------------------ */
+/* MUX / DEMUX family geometry                      */
+/* ------------------------------------------------ */
+
+// shared trapezoid body
+export const MUX_BODY_TOP_INSET_X = 34
+export const MUX_BODY_BOTTOM_INSET_X = 34
+export const MUX_BODY_RIGHT_X = 200
+
+// select line enters from bottom center
+export const MUX_SELECT_X = 143.5
+export const MUX_SELECT_Y1 = (-WIRE_LEN / 2) + 5
+export const MUX_SELECT_Y2 = 0
+
+// left/right wire anchors
+export const MUX_LEFT_X0 = IN_X0
+export const MUX_LEFT_X1 = BODY_X
+
+export const MUX_RIGHT_X0 = MUX_BODY_RIGHT_X
+export const MUX_RIGHT_X1 = OUT_X1
+
+// center input/output lane
+export const MUX_MID_IO_Y = MID_Y
+
+/* ------------------------------------------------ */
 /* top-level label positions (view space)           */
 /* ------------------------------------------------ */
 

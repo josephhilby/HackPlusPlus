@@ -135,7 +135,7 @@ function nandIntermediate(row: AndRow | null) {
       </div>
 
       <code class="gate-readout">
-        AND({{ hovered?.a ?? "-" }}, {{ hovered?.b ?? "-" }}) = {{ hovered?.out ?? "-" }}
+        AND({{ hovered?.a ?? "a" }}, {{ hovered?.b ?? "b" }}) = {{ hovered?.out ?? "-" }}
       </code>
     </div>
   </div>

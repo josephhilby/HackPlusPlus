@@ -76,7 +76,7 @@ const rows: NandRow[] = [
       </div>
 
       <code class="gate-readout">
-        NAND({{ hovered?.a ?? "-" }}, {{ hovered?.b ?? "-" }}) = {{ hovered?.out ?? "-" }}
+        NAND({{ hovered?.a ?? "a" }}, {{ hovered?.b ?? "b" }}) = {{ hovered?.out ?? "-" }}
       </code>
     </div>
   </div>

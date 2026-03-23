@@ -120,7 +120,7 @@ function notB(row: OrRow | null) {
               <!-- bottom NOT to NAND -->
               <WireElbow
                   :x1="-90"
-                  :y1="238"
+                  :y1="237.5"
                   :x2="0"
                   :y2="110"
                   :on="notB(hovered)"
@@ -148,7 +148,7 @@ function notB(row: OrRow | null) {
       </div>
 
       <code class="gate-readout">
-        OR({{ hovered?.a ?? "-" }}, {{ hovered?.b ?? "-" }}) = {{ hovered?.out ?? "-" }}
+        OR({{ hovered?.a ?? "a" }}, {{ hovered?.b ?? "b" }}) = {{ hovered?.out ?? "-" }}
       </code>
     </div>
   </div>
