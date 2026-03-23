@@ -105,105 +105,106 @@ function bottomAndOut(row: MuxRow | null) {
           <GateLabel :x="210" :y="-10" text="Sel" />
 
           <!-- internal NAND implementation -->
-          <g transform="translate(0 0)  scale(0.18)">
-            <!-- ¬(sel) -->
-            <g transform="translate(225 322)">
-              <NotBody
-                  :in-on="selOn(hovered)"
-                  :out-on="notSel(hovered)"
-              />
-            </g>
-
+          <g transform="translate(190 67)  scale(0.18)">
             <!-- top = (a ∧ ¬sel) -->
-            <g transform="translate(330 105)">
+            <g transform="translate(30 55)">
               <AndBody
                   :a-on="aOn(hovered)"
                   :b-on="notSel(hovered)"
                   :out-on="topAndOut(hovered)"
-                  :out-x2="180"
+                  :out-x2="250"
+              />
+            </g>
+
+            <!-- ¬(sel) -->
+            <g transform="translate(-90 110) scale(0.75)">
+              <NotBody
+                  :in-on="selOn(hovered)"
+                  :out-on="notSel(hovered)"
+                  :out-x2="200"
               />
             </g>
 
             <!-- bottom = (b ∧ sel) -->
-            <g transform="translate(330 245)">
+            <g transform="translate(30 295)">
               <AndBody
                   :a-on="bOn(hovered)"
                   :b-on="selOn(hovered)"
                   :out-on="bottomAndOut(hovered)"
-                  :out-x2="180"
+                  :out-x2="250"
               />
             </g>
 
             <!-- final OR of gated branches -->
-            <g transform="translate(520 175)">
+            <g transform="translate(300 175)">
               <OrBody
                   :a-on="topAndOut(hovered)"
                   :b-on="bottomAndOut(hovered)"
                   :out-on="outOn(hovered)"
-                  :out-x2="165"
+                  :out-x2="300"
               />
             </g>
 
-            <!-- A into top NAND -->
+            <!-- A into top AND -->
             <WireElbow
-                :x1="96"
-                :y1="120"
-                :x2="330"
-                :y2="160"
+                :x1="-210"
+                :y1="26"
+                :x2="30"
+                :y2="80"
                 :on="aOn(hovered)"
             />
 
-            <!-- B into bottom NAND -->
-            <WireElbow
-                :x1="96"
-                :y1="250"
-                :x2="330"
-                :y2="300"
-                :on="bOn(hovered)"
-            />
+<!--            &lt;!&ndash; B into bottom AND &ndash;&gt;-->
+<!--            <WireElbow-->
+<!--                :x1="96"-->
+<!--                :y1="250"-->
+<!--                :x2="330"-->
+<!--                :y2="300"-->
+<!--                :on="bOn(hovered)"-->
+<!--            />-->
 
-            <!-- Sel into NOT -->
-            <WireElbow
-                :x1="245"
-                :y1="390"
-                :x2="225"
-                :y2="345"
-                :on="selOn(hovered)"
-            />
+<!--            &lt;!&ndash; Sel into NOT &ndash;&gt;-->
+<!--            <WireElbow-->
+<!--                :x1="245"-->
+<!--                :y1="390"-->
+<!--                :x2="225"-->
+<!--                :y2="345"-->
+<!--                :on="selOn(hovered)"-->
+<!--            />-->
 
-            <!-- NOT(sel) into top NAND -->
-            <WireElbow
-                :x1="300"
-                :y1="345"
-                :x2="330"
-                :y2="205"
-                :on="notSel(hovered)"
-            />
+<!--            &lt;!&ndash; NOT(sel) into top NAND &ndash;&gt;-->
+<!--            <WireElbow-->
+<!--                :x1="300"-->
+<!--                :y1="345"-->
+<!--                :x2="330"-->
+<!--                :y2="205"-->
+<!--                :on="notSel(hovered)"-->
+<!--            />-->
 
-            <!-- Sel directly into bottom NAND -->
-            <WireElbow
-                :x1="255"
-                :y1="390"
-                :x2="330"
-                :y2="345"
-                :on="selOn(hovered)"
-            />
+<!--            &lt;!&ndash; Sel directly into bottom NAND &ndash;&gt;-->
+<!--            <WireElbow-->
+<!--                :x1="255"-->
+<!--                :y1="390"-->
+<!--                :x2="330"-->
+<!--                :y2="345"-->
+<!--                :on="selOn(hovered)"-->
+<!--            />-->
 
-            <!-- top NAND into final NAND -->
+            <!-- top AND into final OR -->
             <WireElbow
-                :x1="505"
-                :y1="160"
-                :x2="520"
-                :y2="230"
+                :x1="290"
+                :y1="120"
+                :x2="300"
+                :y2="203"
                 :on="topAndOut(hovered)"
             />
 
-            <!-- bottom NAND into final NAND -->
+            <!-- bottom AND into final OR -->
             <WireElbow
-                :x1="505"
-                :y1="300"
-                :x2="520"
-                :y2="315"
+                :x1="300"
+                :y1="277"
+                :x2="290"
+                :y2="360"
                 :on="bottomAndOut(hovered)"
             />
           </g>

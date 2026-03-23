@@ -134,19 +134,25 @@ export const XOR_BACK_OFFSET_X = 14
 /* MUX / DEMUX family geometry                      */
 /* ------------------------------------------------ */
 
-// shared trapezoid body
-export const MUX_BODY_TOP_INSET_X = 34
-export const MUX_BODY_BOTTOM_INSET_X = 34
-export const MUX_BODY_RIGHT_X = 200
+// visible body bounds
+export const MUX_BODY_LEFT_X = BODY_X - 28
+export const MUX_BODY_RIGHT_X = 218
 
-// select line enters from bottom center
+// make the mux visually taller than the shared gate frame
+export const MUX_BODY_TOP_Y = -18
+export const MUX_BODY_BOTTOM_Y = GATE_H + 18
+
+// slant depth
+export const MUX_BODY_SLOPE_INSET = 22
+
+// select line enters from top center of the mux body
 export const MUX_SELECT_X = 143.5
 export const MUX_SELECT_Y1 = (-WIRE_LEN / 2) + 5
-export const MUX_SELECT_Y2 = 0
+export const MUX_SELECT_Y2 = MUX_BODY_TOP_Y + 9
 
-// left/right wire anchors
+// left/right wire anchors remain based on logic connection points
 export const MUX_LEFT_X0 = IN_X0
-export const MUX_LEFT_X1 = BODY_X
+export const MUX_LEFT_X1 = BODY_X - 8
 
 export const MUX_RIGHT_X0 = MUX_BODY_RIGHT_X
 export const MUX_RIGHT_X1 = OUT_X1

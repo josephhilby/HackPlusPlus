@@ -158,16 +158,16 @@ CHIP Xor {
 
 ## The Word
 With the above primitive gates established, the first abstraction layer is almost complete. The system now has the means
-to move and process a single fundamental unit of 'data', a binary (`1` or `0`); however, moving any substantial amount 
-of data this way is extremely restrictive. So, if a single binary is not enough, how many is enough? How many binaries 
-should the system group together to form a more workable fundamental unit of 'data'?
+to move and process a single fundamental unit of 'data', a binary (`1` or `0`); however, processing any useful amount 
+of data this way is extremely restrictive. So, if a single binary is not enough, how many binaries should the system 
+group together to form a more workable fundamental unit of 'data'?
 
 Ultimately, this becomes a compromise between capability and complexity. To keep things reasonably functional but still
 (relatively) easily understandable, Hack++ will group 16 binaries to form what is called a **'word'**. This is now the limit
 to how much information can move through the system at any one time. 
 
 ## The Wide Gates
-With the word size set, the system can now widen the primitive gates and create appropriately sized wide (multi-bit) 
+With the word size set, the system can now expand its primitive gates and create appropriately sized wide (multi-bit) 
 combinational gates. These will operate on buses rather than single-bit signals and form the architectural bridge 
 between bit-level logic and word-level computation.
 
