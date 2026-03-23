@@ -18,6 +18,7 @@ import {
   VIEW_GATE_OFFSET_X,
   VIEW_GATE_OFFSET_Y
 } from './parts/gateGeometry.js'
+import Wire from "./parts/Wire.vue";
 
 type MuxRow = TruthTableRow & {
   a: number
@@ -154,41 +155,33 @@ function bottomAndOut(row: MuxRow | null) {
                 :on="aOn(hovered)"
             />
 
-<!--            &lt;!&ndash; B into bottom AND &ndash;&gt;-->
-<!--            <WireElbow-->
-<!--                :x1="96"-->
-<!--                :y1="250"-->
-<!--                :x2="330"-->
-<!--                :y2="300"-->
-<!--                :on="bOn(hovered)"-->
-<!--            />-->
+            <!-- B into bottom AND -->
+            <WireElbow
+                :x1="-210"
+                :y1="450"
+                :x2="-30"
+                :y2="330"
+                :on="bOn(hovered)"
+            />
+            <Wire :x1="-30" :y1="320" :x2="20" :y2="320" :on="bOn(hovered)" />
 
-<!--            &lt;!&ndash; Sel into NOT &ndash;&gt;-->
-<!--            <WireElbow-->
-<!--                :x1="245"-->
-<!--                :y1="390"-->
-<!--                :x2="225"-->
-<!--                :y2="345"-->
-<!--                :on="selOn(hovered)"-->
-<!--            />-->
+            <!-- Sel into Feeder -->
+            <WireElbow
+                :x1="-100"
+                :y1="-100"
+                :x2="185"
+                :y2="-200"
+                :on="selOn(hovered)"
+            />
 
-<!--            &lt;!&ndash; NOT(sel) into top NAND &ndash;&gt;-->
-<!--            <WireElbow-->
-<!--                :x1="300"-->
-<!--                :y1="345"-->
-<!--                :x2="330"-->
-<!--                :y2="205"-->
-<!--                :on="notSel(hovered)"-->
-<!--            />-->
-
-<!--            &lt;!&ndash; Sel directly into bottom NAND &ndash;&gt;-->
-<!--            <WireElbow-->
-<!--                :x1="255"-->
-<!--                :y1="390"-->
-<!--                :x2="330"-->
-<!--                :y2="345"-->
-<!--                :on="selOn(hovered)"-->
-<!--            />-->
+            <!-- Feeder into top/btm AND -->
+            <WireElbow
+                :x1="30"
+                :y1="397"
+                :x2="-100"
+                :y2="-100"
+                :on="selOn(hovered)"
+            />
 
             <!-- top AND into final OR -->
             <WireElbow
