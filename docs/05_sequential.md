@@ -1,4 +1,4 @@
-# Sequential Building Blocks
+# Sequential Chips
 
 This section documents the stateful (clocked) building blocks of the Hack++ hardware stack.
 

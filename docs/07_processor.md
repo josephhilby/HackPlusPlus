@@ -1,8 +1,11 @@
 # 07 — Processor Components
 
-This section documents the computational and control units that integrate datapath, state, and memory into an executing processor. Together, the **ALU** and **CPU** form the boundary between *pure computation* and *architectural control flow*.
+This section documents the computational and control units that integrate datapath, state, and memory into an 
+executing processor. Together, the **ALU** and **CPU** form the boundary between *pure computation* and 
+*architectural control flow*.
 
-At this layer, signals become **instructions**: bits are interpreted as operations, destinations, and jumps that shape program execution over time.
+At this layer, signals become **instructions**: bits are interpreted as operations, destinations, and jumps that 
+shape program execution over time.
 
 
 
@@ -225,7 +228,7 @@ flowchart TD
 
 ### HDL
 
-```java
+```hdl
 CHIP CPU {
    IN  inM[16], instruction[16], reset;
    OUT outM[16], writeM, addressM[15], pc[15];
