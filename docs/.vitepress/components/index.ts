@@ -14,6 +14,7 @@ export { default as XorBody } from './gates/parts/XorBody.vue'
 
 // Gates
 export { default as AndGate } from './gates/AndGate.vue'
+export { default as DMuxCircuit } from './gates/DMuxCircuit.vue'
 export { default as MuxCircuit } from './gates/MuxCircuit.vue'
 export { default as NandGate } from './gates/NandGate.vue'
 export { default as NotGate } from './gates/NotGate.vue'

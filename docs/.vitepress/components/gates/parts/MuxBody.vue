@@ -108,10 +108,10 @@ withDefaults(defineProps<{
 
       <path
           :d="`
-          M${MUX_BODY_LEFT_X} ${MUX_BODY_TOP_Y + MUX_BODY_SLOPE_INSET}
-          L${MUX_BODY_RIGHT_X - MUX_BODY_SLOPE_INSET} ${MUX_BODY_TOP_Y}
-          L${MUX_BODY_RIGHT_X - MUX_BODY_SLOPE_INSET} ${MUX_BODY_BOTTOM_Y}
-          L${MUX_BODY_LEFT_X} ${MUX_BODY_BOTTOM_Y - MUX_BODY_SLOPE_INSET}
+          M${MUX_BODY_LEFT_X + MUX_BODY_SLOPE_INSET} ${MUX_BODY_TOP_Y + MUX_BODY_SLOPE_INSET}
+          L${MUX_BODY_RIGHT_X } ${MUX_BODY_TOP_Y}
+          L${MUX_BODY_RIGHT_X } ${MUX_BODY_BOTTOM_Y}
+          L${MUX_BODY_LEFT_X + MUX_BODY_SLOPE_INSET} ${MUX_BODY_BOTTOM_Y - MUX_BODY_SLOPE_INSET}
           Z
         `"
           class="gate-body"

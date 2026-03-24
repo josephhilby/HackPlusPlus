@@ -26,39 +26,14 @@ register loading, memory writes, and control flow.
 
 The **Multiplexer (MUX)** selects exactly one of two inputs based on a single control signal.
 
-It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
-
-::: tip MUX(a, b, sel)
-<MuxCircuit />
-:::
-
-#### Behavior
-
 ```text
 If sel = 0 → out = a
 If sel = 1 → out = b
 ```
 
-#### Truth Table
+It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
 
-| a | b | sel | out |
-| - | - | --- | --- |
-| 0 | 0 | 0   | 0   |
-| 0 | 1 | 0   | 0   |
-| 1 | 0 | 0   | 1   |
-| 1 | 1 | 0   | 1   |
-| 0 | 0 | 1   | 0   |
-| 0 | 1 | 1   | 1   |
-| 1 | 0 | 1   | 0   |
-| 1 | 1 | 1   | 1   |
-
-#### Logic
-
-```text
-out = (a ∧ ¬sel) ∨ (b ∧ sel)
-```
-
-#### HDL
+::: details Definition
 
 ```hdl
 CHIP Mux {
@@ -72,6 +47,11 @@ CHIP Mux {
     Or(a=and0, b=and1, out=out);
 }
 ```
+:::
+
+::: tip MUX(a, b, sel)
+<MuxCircuit />
+:::
 
 ---
 
@@ -81,16 +61,15 @@ CHIP Mux {
 
 The **Demultiplexer (DMUX)** routes a single input to exactly one of two outputs based on a control signal.
 
-It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
-
-#### Behavior
-
 ```text
-If sel = 0 → a = in, b = 0
-If sel = 1 → a = 0,  b = in
+If sel = 0 → { a = in, b = 0  }
+If sel = 1 → { a = 0 , b = in }
 ```
 
-#### HDL
+It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
+
+
+::: details Definition
 
 ```hdl
 CHIP DMux {
@@ -103,6 +82,11 @@ CHIP DMux {
     And(a=sel, b=in, out=b);
 }
 ```
+:::
+
+::: tip DMUX(sel)
+<DMuxCircuit />
+:::
 
 ## Arithmetic Circuits
 This section documents the combinational arithmetic building blocks used to implement integer addition and increment

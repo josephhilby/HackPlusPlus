@@ -1,10 +1,11 @@
 # Hack++ Reference
 
-## What is a computer or program?
 This section provides a structural overview of the complete Hack++ hardware and software stack, from primitive logic 
-gates, to components, to subsystems, to fully programmable computer system and supporting software toolchain. Each 
+gates, to components, to subsystems, to fully programmable computer system, and supporting software toolchain. Each 
 layer is constructed strictly from the layer beneath it, forming a continuous abstraction ladder that incrementally 
 builds a working machine.
+
+## What is a computer?
 
 **The core of a computer** can be best understood as five cooperating subsystems...
 
@@ -16,8 +17,10 @@ builds a working machine.
 5. **Control Unit** — orchestrates instruction execution and program flow
 :::
 
-**A software toolchain** can similarly be understood through four cooperating abstractions that progressively 
-lower instructions toward machine execution...
+## What is a program?
+
+**A program** can be understood as a set of instructions that lowered through four cooperating abstractions that get
+progressively closer to machine execution over time...
 
 ::: info Software Toolchain
 1. **Design-Time** — transforms an idea into structured high-level source code written by a human
@@ -27,11 +30,13 @@ lower instructions toward machine execution...
 4. **Execution-Time** — executes machine instructions defined by the hardware instruction set architecture (ISA)
 :::
 
+## The Abstractions
+
 These abstractions form the conceptual framework for Hack++, describing both how a computer is organized and 
 how software is transformed. Hardware and software approach the computer abstraction from opposite directions: hardware 
 builds upward from physical logic, while software lowers downward from human intent until both meet at the executing machine.
 
-## Software Abstractions
+### Software Abstractions
 
 Programs begin as structured source code and are gradually lowered into executable machine behavior:
 
@@ -47,7 +52,7 @@ Programs begin as structured source code and are gradually lowered into executab
 The Computer
 ```
 
-## The Computer
+### The Computer Abstraction
 
 These components collectively realize the five classical computer subsystems.
 
@@ -59,7 +64,7 @@ These components collectively realize the five classical computer subsystems.
 | **Datapath**     | ALU, arithmetic circuits, routing circuits |
 | **Control Unit** | CPU instruction decoding and control logic |
 
-## Hardware Abstractions
+### Hardware Abstractions
 
 Hack++ is constructed through a strict hierarchy of increasingly capable structures.
 Each layer is built exclusively from the components defined below it, gradually assembling the
@@ -70,15 +75,13 @@ At the base of this all is a single universal primitive: **NAND**.
 ```yml
 The Computer
  ▲
- └── CPU + ALU (control logic + datapath)
+ └── Control Unit, Datapath, Memory, Input, and Output Subsystems
       ▲
-      └── Memory (RAM, ROM, Input, Output)
+      └── Sequential Chips (Bit, Register, Program Counter)
            ▲
-           └── Registers (Bit, Register, Program Counter)
+           └── Routing & Arithmetic Circuits (Mux, DMux, Add, Inc)
                 ▲
-                └── Routing & Arithmetic Circuits (Mux, DMux, Add, Inc)
+                └── Boolean Logic Gates (Not, And, Or, Xor)
                      ▲
-                     └── Logic Gates (Not, And, Or, Xor)
-                          ▲
-                          └── Universal Gate (NAND)
+                     └── Universal Gate (NAND)
 ```

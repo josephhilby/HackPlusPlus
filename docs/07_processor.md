@@ -20,13 +20,15 @@ The processor is cleanly split into two conceptual planes:
 * State updates (`A`, `D`, `pc`, RAM writes) commit on the clock edge and become visible at `t+1`
 
 **Single-cycle execution model**
-Each instruction completes its compute, optional store, and jump decision in one cycle. Only architectural state (registers, PC, memory) is delayed to the next tick.
+Each instruction completes its compute, optional store, and jump decision in one cycle. Only architectural state 
+(registers, PC, memory) is delayed to the next tick.
 
 ---
 
 ## Arithmetic Logic Unit (ALU)
 
-The **ALU** is the computational core of Hack++. It implements all arithmetic and bitwise operations required by the ISA using a minimal, normalized pipeline driven by six control bits.
+The **ALU** is the computational core of Hack++. It implements all arithmetic and bitwise operations required by the 
+ISA using a minimal, normalized pipeline driven by six control bits.
 
 **Also known as:** *execution unit*, *datapath core*
 
@@ -68,14 +70,12 @@ These flags feed directly into the CPU’s jump logic.
 
 ### HDL
 
-```java
+```hdl
 CHIP ALU {
-IN  
-x[16], y[16],
-zx, nx, zy, ny, f, no;
+   IN  x[16], y[16],
+       zx, nx, zy, ny, f, no;
 
-OUT
-out[16], zr, ng;
+   OUT out[16], zr, ng;
 
     PARTS:
     // Normalize X
@@ -227,15 +227,8 @@ flowchart TD
 
 ```java
 CHIP CPU {
-
-IN  inM[16],
-    instruction[16],
-    reset;
-
-OUT outM[16],
-    writeM,
-    addressM[15],
-    pc[15];
+   IN  inM[16], instruction[16], reset;
+   OUT outM[16], writeM, addressM[15], pc[15];
 
     PARTS:
     // Instruction class

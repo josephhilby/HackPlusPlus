@@ -1,15 +1,20 @@
 # 08 — System Integration
 
-This section documents the top-level composition of Hack++ into a complete, executing computer. At this layer, the processor, instruction memory, and data / I/O memory are unified into a closed execution loop that continuously fetches, decodes, executes, and commits program state.
+This section documents the top-level composition of Hack++ into a complete, executing computer. At this layer, 
+the processor, instruction memory, and data / I/O memory are unified into a closed execution loop that continuously 
+fetches, decodes, executes, and commits program state.
 
 
 ## Design Notes
 
 **Modified von Neumann (Modified Harvard) Architecture**
-Instruction memory (ROM) and data memory (RAM / MMIO) are physically separate subsystems, but logically unified through the CPU interface. This preserves simple control flow while allowing instruction fetch and data access to be reasoned about independently.
+Instruction memory (ROM) and data memory (RAM / MMIO) are physically separate subsystems, but logically unified 
+through the CPU interface. This preserves simple control flow while allowing instruction fetch and data access to 
+be reasoned about independently.
 
 **Memory-mapped I/O**
-All interaction with the external environment (screen, keyboard) occurs through ordinary memory reads and writes. No special I/O instructions exist at the ISA level.
+All interaction with the external environment (screen, keyboard) occurs through ordinary memory reads and writes. No 
+special I/O instructions exist at the ISA level.
 
 **Deterministic execution**
 The system’s behavior is fully determined by:
@@ -75,7 +80,8 @@ ROM → CPU → Memory → CPU → PC → ROM
 
 ## Execution Cycle
 
-Hack++ follows a simple, single-cycle conceptual model. Each instruction completes its work within one clock interval, and architectural state is committed on the clock edge.
+Hack++ follows a simple, single-cycle conceptual model. Each instruction completes its work within one clock interval, 
+and architectural state is committed on the clock edge.
 
 ### Phases
 
@@ -117,7 +123,8 @@ Fetch → Decode → Execute → Memory → Commit → Next PC
 
 ## Memory Map (System View)
 
-From the system perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is hidden behind the Memory subsystem.
+From the system perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is 
+hidden behind the Memory subsystem.
 
 | Address Range (Hex) | Size   | Region   | Function                    |
 | ------------------- | ------ | -------- | --------------------------- |
@@ -126,7 +133,8 @@ From the system perspective, the CPU observes a **single, flat, 15-bit address s
 | `0x6000`            | 1 word | Keyboard | Input register              |
 | `> 0x6000`          | —      | Invalid  | Ignored / reads return `0`  |
 
-This map enables programs to treat I/O as ordinary memory access, preserving a uniform programming model across the ISA and VM layers.
+This map enables programs to treat I/O as ordinary memory access, preserving a uniform programming model across the 
+ISA and VM layers.
 
 ---
 
@@ -159,6 +167,7 @@ This layer closes the full **abstraction ladder**:
 * **Hardware** builds upward from NAND → Gates → ALU → CPU → Computer
 * **Software** lowers downward from High-Level Language → VM → ISA → Machine Code
 
-The **Computer** is the meeting point: where symbolic programs become physical signal transitions, and where computation becomes observable behavior.
+The **Computer** is the meeting point: where symbolic programs become physical signal transitions, and where 
+computation becomes observable behavior.
 
 Together with the ISA, this defines the complete contract between *program* and *machine*.

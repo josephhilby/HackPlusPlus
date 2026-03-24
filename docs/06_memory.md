@@ -96,10 +96,10 @@ The `Memory` chip implements routing in three steps:
 
 ## Implementation
 
-```java
+```hdl
 CHIP Memory {
-IN in[16], load, address[15];
-OUT out[16];
+   IN in[16], load, address[15];
+   OUT out[16];
 
     PARTS:
     // Decode the write-enable into one-hot region enables
