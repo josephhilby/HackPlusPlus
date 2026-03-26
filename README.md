@@ -143,7 +143,7 @@ class ROM rom;
 ```
 
 ## The /docs
-link TBD
+Read the [docs](https://hackplusplus-docs.onrender.com/) to get a better understanding of the project.
 
 ## Acknowledgments
 
