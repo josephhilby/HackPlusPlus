@@ -1,6 +1,6 @@
-# Routing & Arithmetic Circuits
+# Combinational Circuits
 
-This section documents the circuits used for routing, control, and arithmetic operations.
+This section documents the combinational circuits used for routing, control, and arithmetic operations.
 
 This section documents the combinational arithmetic building blocks used to implement integer addition and increment
 operations in Hack++. These components define the **carry-propagation backbone** of the datapath and are used directly
