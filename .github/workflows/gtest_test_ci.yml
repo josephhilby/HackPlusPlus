@@ -1,0 +1,75 @@
+name: GTEST Tests (CI)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.component }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - component: assembler
+            working-directory: toolchain/assembler
+          - component: vm
+            working-directory: toolchain/vm
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.working-directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            llvm \
+            libgtest-dev \
+            googletest \
+            cmake
+
+      - name: Show tool versions
+        run: |
+          cc --version
+          c++ --version
+          clang --version
+          make --version
+
+      - name: Clean
+        run: make clean
+
+      - name: Run unit tests
+        run: |
+          make test \
+            GTEST_INC=/usr/include \
+            GTEST_LIB=/usr/lib/x86_64-linux-gnu
+
+      - name: Run sanitizer tests
+        run: |
+          make leak \
+            GTEST_INC=/usr/include \
+            GTEST_LIB=/usr/lib/x86_64-linux-gnu \
+            LLVM_BINDIR=/usr/bin
+
+      - name: Upload build artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.component }}-build
+          path: |
+            ${{ matrix.working-directory }}/build
+          if-no-files-found: ignore
