@@ -11,8 +11,8 @@ LIB_A         := $(OBJ_DIR)/libassembler.a
 TEST_DIR      := test/unit
 TEST_BIN      := $(OBJ_DIR)/assembler_tests
 
-GTEST_INC     := /opt/homebrew/include
-GTEST_LIB     := /opt/homebrew/lib
+GTEST_INC     ?= /opt/homebrew/include
+GTEST_LIB     ?= /opt/homebrew/lib
 GTEST_LIBS    := -lgtest -lgtest_main
 
 CFLAGS        := -std=c2x -Wall -Wextra -Wpedantic -I$(INC_DIR) -I$(SRC_DIR)
@@ -24,7 +24,7 @@ OBJS          := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 SAN_CFLAGS    := -g -O0 -fno-omit-frame-pointer
 SAN_LDFLAGS   :=
 
-LLVM_BINDIR   := /opt/homebrew/opt/llvm/bin
+LLVM_BINDIR   ?= /opt/homebrew/opt/llvm/bin
 CLANG         := $(LLVM_BINDIR)/clang
 CLANGXX       := $(LLVM_BINDIR)/clang++
 
