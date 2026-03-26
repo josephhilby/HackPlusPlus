@@ -1,17 +1,12 @@
 # Arithmetic Units
 
-This section documents the combinational arithmetic building blocks used to implement integer addition and increment operations in Hack++. These components define the **carry-propagation backbone** of the datapath and are used directly in the ALU (`f=1` path), address sequencing, and loop/control constructs.
+This section documents the combinational arithmetic building blocks used to implement integer addition and increment 
+operations in Hack++. These components define the **carry-propagation backbone** of the datapath and are used directly 
+in the ALU (`f=1` path), address sequencing, and loop/control constructs.
 
-Arithmetic units sit above primitive logic and routing: they introduce *cross-bit coupling* via carry signals, turning independent bitwise operations into true word-level arithmetic.
+Arithmetic units sit above primitive logic and routing: they introduce *cross-bit coupling* via carry signals, turning 
+independent bitwise operations into true word-level arithmetic.
 
-**Related:**
-
-* [Primitive Gates](./01_primitives.md)
-* [Wide Combinational Gates](./02_wide_gates.md)
-* [Routing & Control Gates](./03_routing.md)
-* [Processor Components](./07_processor.md)
-
----
 
 ## Design Notes
 

@@ -10,6 +10,10 @@
 vm_tests
 assembler_tests
 
+# Node / Vite (web app / docs)
+node_modules/
+docs/old/
+
 # C/C++ tooling
 *.dSYM/
 

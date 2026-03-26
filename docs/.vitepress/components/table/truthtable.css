@@ -1,0 +1,142 @@
+/* ------------------------------------------------ */
+/* truth table */
+/* ------------------------------------------------ */
+
+.truth-table-wrap {
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.truth-table {
+    font-family: var(--vp-font-family-mono);
+    font-size: 0.95rem;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    width: auto;
+    display: table;
+
+    border: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 75%, var(--vp-c-divider));
+    border-radius: 10px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--vp-c-bg) 92%, var(--vp-c-bg-soft));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--vp-c-brand-1) 10%, transparent);
+}
+
+/* ------------------------------------------------ */
+/* base cells */
+/* ------------------------------------------------ */
+
+.truth-table th,
+.truth-table td {
+    text-align: center;
+    border-right: 1px solid var(--vp-c-divider);
+    border-bottom: 1px solid var(--vp-c-divider);
+    min-width: 2.8rem;
+}
+
+/* remove outer duplicate borders */
+.truth-table th:last-child,
+.truth-table td:last-child {
+    border-right: none;
+}
+
+.truth-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* tighter body rows */
+.truth-table td {
+    padding: 0.7rem 0.8rem;
+}
+
+/* ------------------------------------------------ */
+/* header styling */
+/* ------------------------------------------------ */
+
+.truth-table thead th {
+    padding: 0.8rem 0.85rem;
+    background: color-mix(in srgb, var(--vp-c-bg-soft) 86%, var(--vp-c-bg));
+    font-weight: 700;
+    color: var(--vp-c-text-1);
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 45%, var(--vp-c-divider));
+}
+
+/* ------------------------------------------------ */
+/* row coloring */
+/* ------------------------------------------------ */
+
+.truth-table tbody tr.truth-true td {
+    background: rgba(80, 200, 120, 0.07);
+}
+
+.truth-table tbody tr.truth-false td {
+    background: rgba(255, 120, 120, 0.045);
+}
+
+.truth-table tbody td:last-child {
+    font-weight: 700;
+}
+
+.truth-table tbody tr.truth-true td:last-child {
+    background: rgba(80, 200, 120, 0.14);
+}
+
+.truth-table tbody tr.truth-false td:last-child {
+    background: rgba(255, 120, 120, 0.10);
+}
+
+/* ------------------------------------------------ */
+/* hover states */
+/* ------------------------------------------------ */
+
+.truth-table tbody tr.truth-true:hover td {
+    background: rgba(80, 200, 120, 0.11);
+}
+
+.truth-table tbody tr.truth-false:hover td {
+    background: rgba(255, 120, 120, 0.07);
+}
+
+.truth-table tbody tr.truth-true:hover td:last-child {
+    background: rgba(80, 200, 120, 0.20);
+}
+
+.truth-table tbody tr.truth-false:hover td:last-child {
+    background: rgba(255, 120, 120, 0.14);
+}
+
+.truth-table tbody tr.hovered {
+    outline: 2px solid var(--vp-c-brand-1);
+    outline-offset: -2px;
+}
+
+/* ------------------------------------------------ */
+/* mobile */
+/* ------------------------------------------------ */
+
+@media (max-width: 768px) {
+    .truth-table-wrap {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .truth-table {
+        margin: 0 auto;
+    }
+
+    .truth-table th,
+    .truth-table td {
+        min-width: 2.5rem;
+    }
+
+    .truth-table thead th,
+    .truth-table td {
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
+    }
+}

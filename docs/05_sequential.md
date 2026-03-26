@@ -1,22 +1,18 @@
-# Sequential Building Blocks
+# Sequential Circuits
 
 This section documents the stateful (clocked) building blocks of the Hack++ hardware stack.
 
-Unlike combinational logic—which maps inputs to outputs within the same cycle—sequential components **store state across cycles**. This introduces the notion of time (`t`, `t+1`) and enables architectural state such as registers, counters, and addressable memory.
+Unlike combinational logic—which maps inputs to outputs within the same cycle—sequential components 
+**store state across cycles**. This introduces the notion of time (`t`, `t+1`) and enables architectural state 
+such as registers, counters, and addressable memory.
 
 **Related:**
-
-* [Routing & Control Gates](./03_routing.md)
-* [Arithmetic Units](./04_arithmetic.md)
-* [Memory Hierarchy](./06_memory.md)
-* [Processor Components](./07_processor.md)
-
----
 
 ## Design Notes
 
 **Cycle semantics (`t` → `t+1`)**
-In nand2tetris timing, combinational outputs reflect signals in the *current* cycle (`t`), while state updates commit on the clock edge and become visible in the *next* cycle (`t+1`).
+In nand2tetris timing, combinational outputs reflect signals in the *current* cycle (`t`), while state updates 
+commit on the clock edge and become visible in the *next* cycle (`t+1`).
 
 **Load / enable discipline**
 All state elements follow the same pattern:
@@ -50,7 +46,8 @@ As elsewhere, `in[0]` is the LSB and `in[15]` is the MSB.
 
 The **Program Counter (PC)** is a 16-bit stateful counter that tracks the address of the next instruction to execute.
 
-It supports three control behaviors—reset, load, and increment—with a defined priority order. The PC updates on the next clock tick; its output reflects the stored value for the current cycle.
+It supports three control behaviors—reset, load, and increment—with a defined priority order. The PC updates on 
+the next clock tick; its output reflects the stored value for the current cycle.
 
 **Also known as:** *instruction pointer*, *PC register*
 
@@ -73,10 +70,10 @@ This priority ordering guarantees deterministic behavior when multiple control s
 
 #### HDL
 
-```java
+```hdl
 CHIP PC {
-IN in[16], reset, load, inc;
-OUT out[16];
+    IN in[16], reset, load, inc;
+    OUT out[16];
 
     PARTS:
     // State (t)
@@ -112,10 +109,10 @@ Else:            out(t+1) = out(t)
 
 #### HDL
 
-```java
+```hdl
 CHIP Bit {
-IN in, load;
-OUT out;
+    IN in, load;
+    OUT out;
 
     PARTS:
     Mux(a=dff, b=in, sel=load, out=mux);
@@ -142,10 +139,10 @@ Else:            out(t+1) = out(t)
 
 #### HDL
 
-```java
+```hdl
 CHIP Register {
-IN in[16], load;
-OUT out[16];
+    IN in[16], load;
+    OUT out[16];
 
     PARTS:
     Bit(in=in[0],  load=load, out=out[0]);
@@ -171,7 +168,8 @@ OUT out[16];
 
 ## RAM Hierarchy
 
-Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by composing **eight** instances of the previous level.
+Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by composing 
+**eight** instances of the previous level.
 
 ### Structural pattern (reused at every level)
 
@@ -197,7 +195,7 @@ This pattern is identical for `RAM8 → RAM16K`; only the address slicing change
 
 ---
 
-### RAM8 — 8-word Register Bank
+### RAM8 — 8-Word Register Bank
 
 The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3-bit address.
 
@@ -205,10 +203,10 @@ The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3
 
 #### HDL
 
-```java
+```hdl
 CHIP RAM8 {
-IN in[16], load, address[3];
-OUT out[16];
+    IN in[16], load, address[3];
+    OUT out[16];
 
     PARTS:
     DMux8Way(in=load, sel=address, a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
@@ -237,10 +235,10 @@ To keep this reference readable, their full HDL is included below in collapsible
 <details>
 <summary><strong>RAM64 — 64-word memory (8× RAM8)</strong></summary>
 
-```java
+```hdl
 CHIP RAM64 {
-IN in[16], load, address[6];
-OUT out[16];
+    IN in[16], load, address[6];
+    OUT out[16];
 
     PARTS:
     DMux8Way(in=load, sel=address[3..5], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
@@ -263,10 +261,10 @@ OUT out[16];
 <details>
 <summary><strong>RAM512 — 512-word memory (8× RAM64)</strong></summary>
 
-```java
+```hdl
 CHIP RAM512 {
-IN in[16], load, address[9];
-OUT out[16];
+    IN in[16], load, address[9];
+    OUT out[16];
 
     PARTS:
     DMux8Way(in=load, sel=address[6..8], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
@@ -289,10 +287,10 @@ OUT out[16];
 <details>
 <summary><strong>RAM4K — 4096-word memory (8× RAM512)</strong></summary>
 
-```java
+```hdl
 CHIP RAM4K {
-IN in[16], load, address[12];
-OUT out[16];
+    IN in[16], load, address[12];
+    OUT out[16];
 
     PARTS:
     DMux8Way(in=load, sel=address[9..11], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
@@ -315,10 +313,10 @@ OUT out[16];
 <details>
 <summary><strong>RAM16K — 16384-word memory (8× RAM4K)</strong></summary>
 
-```java
+```hdl
 CHIP RAM16K {
-IN in[16], load, address[14];
-OUT out[16];
+    IN in[16], load, address[14];
+    OUT out[16];
 
     PARTS:
     DMux8Way(in=load, sel=address[11..13], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
