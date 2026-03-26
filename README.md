@@ -171,7 +171,7 @@ Christian, V. (2020-06-03). bnf.tmLanguage.json — File used in Hack documentat
 <!-- MARKDOWN LINKS & IMAGES -->
 
 <!-- Tests Shield -->
-[test-shield]: https://github.com/josephhilby/HackPlusPlus/actions/workflows/gradle_test_ci.yml/badge.svg
+[test-shield]: https://github.com/josephhilby/HackPlusPlus/actions/workflows/gtest_test_ci.yml/badge.svg
 [test-url]: https://github.com/josephhilby/HackPlusPlus/actions/workflows/gradle_test_ci.yml
 
 <!-- Issues Shield -->
