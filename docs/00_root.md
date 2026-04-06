@@ -1,21 +1,22 @@
 # Hack++ Reference
 
 This section provides a quick structural overview of the Hack++ hardware and software systems. From logic 
-gates, to circuits, to subsystems, to fully programmable computer system, and supporting software toolchain, these
-systems work synchronously in to constitute the Hack++ Computer. 
+gates, to circuits, to subsystems, to a fully programmable computer system, and supporting software toolchain, these
+elements work synchronously in order to constitute the Hack++ Computer. 
 
 But, before getting into the specifics of the Hack++ computer and programs, there are a few important terms to clarify...
 
 ## What is a computer?
 
-**A computer** can be best understood as five cooperating subsystems...
+**A computer** can be best understood as five cooperating subsystems that operate on program instructions and data — 
+encoded, quantifiable values representing, user input, intermediate state, and computed results.
 
 ::: tip Computer Subsystems
-1. **Input** — receives programs, data, and user interaction from the external environment
-2. **Output** — displays computed results to the external environment
-3. **Memory** — stores program instructions and data (including user input)
-4. **Datapath** — moves data and performs arithmetic and logical operations, as instructed
-5. **Control Unit** — orchestrates instruction execution and program flow
+1. **Input** — receives data from the external environment (program instructions, user input)
+2. **Output** — returns data to the external environment (computed results, state)
+3. **Memory** — stores program instructions and data
+4. **Datapath** — moves and performs arithmetic and logical operations on data
+5. **Control Unit** — interprets instruction data and orchestrates the required operations
 :::
 
 ## What is a program?
@@ -31,7 +32,7 @@ abstractions inorder to get progressively closer to machine execution...
 4. **Execution-Time** — executes machine instructions defined by the hardware instruction set architecture (ISA)
 :::
 
-## The Abstractions
+## The Abstraction Ladder
 
 These abstractions form the conceptual framework for Hack++, describing both how a computer is organized and 
 how software is transformed. Hardware and software approach the computer abstraction from opposite directions: hardware 
@@ -64,13 +65,13 @@ Programs begin as structured source code and are gradually lowered into executab
                     ▼
           ┌──────────────────────┐
           │   Machine Program    │
-          │   (Compiled Output)  │
+          │  (Compiled Output)   │
           └──────────────────────┘
-                   │
-            (Execution-Time)
-                   ▼
+                    │
+             (Execution-Time)
+                    ▼
           ┌──────────────────────┐
-          │    The Computer      │
+          │     The Computer     │
           └──────────────────────┘
 ```
 

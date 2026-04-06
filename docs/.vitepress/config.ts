@@ -90,7 +90,7 @@ export default withMermaid(defineConfig({
                     { text: 'Home', link: '/' },
                     { text: 'Index', link: '/00_root.md' },
                     { text: 'Boolean Logic Gates', link: '/01_primitives.md' },
-                    { text: 'Combinational Circuits', link: '/02_routing_arithmetic.md' },
+                    { text: 'Combinational Circuits', link: '/02_combinationals.md' },
                     { text: 'Sequential Circuits', link: '/05_sequential.md' },
                     { text: 'Memory Subsystem', link: '/06_memory.md' },
                     { text: 'ALU & CPU Subsystem', link: '/07_processor.md' },

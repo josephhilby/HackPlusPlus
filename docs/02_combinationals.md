@@ -1,19 +1,16 @@
 # Combinational Circuits
 
-This section documents the combinational circuits used for routing, control, and arithmetic operations.
+This section documents the combinational circuits used by Hack++ for data routing and arithmetic operations. Unlike 
+the previous sections primitive gates, which implement individual boolean operations, these components exist to perform 
+specific tasks required by higher levels of the abstraction ladder.
 
-This section documents the combinational arithmetic building blocks used to implement integer addition and increment
-operations in Hack++. These components define the **carry-propagation backbone** of the datapath and are used directly
-in the ALU (`f=1` path), address sequencing, and loop/control constructs.
-
-Arithmetic units sit above primitive logic and routing: they introduce *cross-bit coupling* via carry signals, turning
-independent bitwise operations into true word-level arithmetic.
+Combinational circuits operate only on their current inputs and produce outputs without depending on any previous state, 
+forming the building blocks for datapaths, control logic, and instruction decoding.
 
 ## Routing Circuits
-This section documents the circuits used for routing, control, and arithmetic operations that direct data
-flow and control signals across the Hack++ datapath. These components do not compute new values; instead,
-they **select**, **fan in/out**, and **qualify** existing signals, forming the backbone of instruction decoding, 
-register loading, memory writes, and control flow.
+
+These components do not compute new values; instead, they **select**, **fan in/out**, and **qualify** 
+existing signals, forming the backbone of instruction decoding, register loading, memory writes, and control flow.
 
 ::: warning Fan-in and Fan-out
 - **Multiplexers (MUX)** implement *fan-in*: many sources → one destination
