@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: Read the Docs
-      link: /00_root
+      link: /introduction
 #    - theme: alt
 #      text: Try the Live Computer
 #      link: ...
