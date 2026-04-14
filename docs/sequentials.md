@@ -6,13 +6,9 @@ Unlike combinational logic—which maps inputs to outputs within the same cycle�
 **store state across cycles**. This introduces the notion of time (`t`, `t+1`) and enables architectural state 
 such as registers, counters, and addressable memory.
 
-**Related:**
-
-## Design Notes
-
 **Cycle semantics (`t` → `t+1`)**
-In nand2tetris timing, combinational outputs reflect signals in the *current* cycle (`t`), while state updates 
-commit on the clock edge and become visible in the *next* cycle (`t+1`).
+Borrowing the nand2tetris timing schema, combinational outputs reflect signals in the *current* cycle (`t`), while state 
+updates commit on the clock edge and become visible in the *next* cycle (`t+1`).
 
 **Load / enable discipline**
 All state elements follow the same pattern:
