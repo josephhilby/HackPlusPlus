@@ -1,56 +1,13 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Hack WebEmu</title>
-    <link rel="stylesheet" href="/style.css" />
-</head>
-<body>
-<main class="stage">
-    <div class="mac128k" role="application" aria-label="Hack WebEmu Macintosh-style frame">
-        <div class="mac-top">
-
-            <div class="mac-screen">
-                <div class="mac-crt">
-                    <canvas id="screen" width="512" height="256"></canvas>
-                    <div class="crt-overlay" aria-hidden="true"></div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="mac-bottom">
-
-            <div class="mac-emboss">
-                <div class="mac-logo">
-                    <div class="bars">
-                        <i></i><i></i><i></i><i></i><i></i><i></i>
-                    </div>
-                    <div class="mac-model">
-                        HACK++ <br> 128K
-                    </div>
-                </div>
-            </div>
-
-            <div class="mac-floppy">
-                <div class="slot" aria-hidden="true"></div>
-                <div class="label" id="status">Static site served from Docker.</div>
-            </div>
-
-            <div class="mac-controls">
-                <button id="btn-test" class="btn">WebSocket Test</button>
-                <span id="result" class="hint"></span>
-            </div>
-
-        </div>
-    </div>
-
-    <p class="footer-hint">
-        Project info here.
-    </p>
-</main>
-
-<script src="/app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="src/assets/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>web</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
