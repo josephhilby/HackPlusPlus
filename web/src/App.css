@@ -1,311 +1,110 @@
-/* ==========================================================================
-   Hack WebEmu — Macintosh 128K-style frame (Flexbox-only)
-   ========================================================================== */
+/* ---------------------------------- */
+/* Global reset */
+/* ---------------------------------- */
 
-/* --------------------------------------------------------------------------
-   Design tokens
-   -------------------------------------------------------------------------- */
-:root {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-
-  /* App background */
-  --bg: #141414;
-
-  /* Case colors (Macintosh-ish beige) */
-  --case: #d6cfbf;
-  --case-mid: #cfc6b5;
-  --case-dark: #b9b19f;
-
-  /* Common surfaces */
-  --edge: rgba(0, 0, 0, 0.18);
-  --shine: rgba(255, 255, 255, 0.30);
-  --shadow: rgba(0, 0, 0, 0.45);
-
-  /* Screen */
-  --screen-bezel: #bdb5a4;
-  --screen-inner: #0b0f0b;
-  --screen-glow: rgba(100, 255, 170, 0.08);
-
-  /* Text on beige surfaces */
-  --text-dark: rgba(0, 0, 0, 0.60);
-  --text-darker: rgba(0, 0, 0, 0.70);
-}
-
-/* --------------------------------------------------------------------------
-   Global base
-   -------------------------------------------------------------------------- */
 * {
   box-sizing: border-box;
 }
 
-body {
+html,
+body,
+:root {
+  min-height: 100%;
   margin: 0;
-  color: #eee;
-  background: radial-gradient(1200px 700px at 50% 30%, #222 0%, var(--bg) 55%, #0e0e0e 100%);
+
+  /* app background */
+  --app-bg-center: #222;
+  --app-bg-mid: #141414;
+  --app-bg-edge: #0e0e0e;
+  --app-text: #eee;
+  --app-text-muted: #aaa;
+
+  /* computer shell */
+  --shell-outer-top: #cfc7b7;
+  --shell-outer-bottom: #c8c0af;
+  --shell-inner-top: #cbc3b2;
+  --shell-inner-bottom: #c5bcaa;
+  --shell-panel-top: #d2c9b8;
+  --shell-panel-bottom: #bfb5a3;
+
+  /* shared borders / lines */
+  --edge-soft: #a99f8e;
+  --edge-light: rgba(255, 255, 255, 0.12);
+  --edge-highlight: rgba(255, 255, 255, 0.25);
+  --edge-highlight-strong: rgba(255, 255, 255, 0.35);
+  --edge-shadow-soft: rgba(0, 0, 0, 0.08);
+  --edge-shadow-mid: rgba(0, 0, 0, 0.12);
+  --edge-shadow-strong: rgba(0, 0, 0, 0.45);
+
+  /* shared panel surface */
+  --panel-bg: rgba(255, 255, 255, 0.08);
+
+  /* text on shell */
+  --text-primary: #4b463d;
+  --text-status: #4f4a42;
+  --text-secondary: #696356;
+
+  /* slot */
+  --slot-bg: #5c564d;
+
+  /* screen / crt */
+  --crt-border: #223127;
+  --crt-bg-top: #08110c;
+  --crt-bg-bottom: #021008;
+  --crt-glow: rgba(0, 120, 40, 0.25);
+  --crt-glow-inner: rgba(14, 96, 34, 0.4);
+  --crt-shadow: rgba(0, 0, 0, 0.85);
+  --crt-text: rgba(201, 235, 205, 0.65);
+
+  /* badge rainbow */
+  --badge-red: #ff4d4d;
+  --badge-orange: #ffb84d;
+  --badge-yellow: #ffe44d;
+  --badge-green: #63d96b;
+  --badge-blue: #4da3ff;
+  --badge-purple: #b84dff;
 }
 
-/* Centers the device and footer text */
-.stage {
+/* ---------------------------------- */
+/* Page background */
+/* ---------------------------------- */
+
+body {
+  min-height: 100vh;
+  background:
+          radial-gradient(
+                  1200px 700px at 50% 30%,
+                  var(--app-bg-center) 0%,
+                  var(--app-bg-mid) 55%,
+                  var(--app-bg-edge) 100%
+          );
+  color: var(--app-text);
+}
+
+/* ---------------------------------- */
+/* App layout */
+/* ---------------------------------- */
+
+.app-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 28px 16px;
-  gap: 14px;
+  padding-bottom: 60px;
 }
+
+.app-shell > * {
+  transform: translateY(-4vh);
+}
+
+/* ---------------------------------- */
+/* Optional footer */
+/* ---------------------------------- */
 
 .footer-hint {
-  margin: 0;
-  color: #aaa;
+  margin-top: 18px;
+  color: var(--app-text-muted);
   font-size: 0.95rem;
   text-align: center;
-}
-
-/* --------------------------------------------------------------------------
-   Macintosh chassis
-   -------------------------------------------------------------------------- */
-.mac128k {
-  width: min(980px, 95vw);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-
-  background: linear-gradient(180deg, var(--case) 0%, var(--case-mid) 50%, var(--case-dark) 100%);
-  border-radius: 26px;
-  border: 2px solid rgba(255, 255, 255, 0.10);
-  box-shadow:
-          0 28px 60px var(--shadow),
-          inset 0 2px 0 var(--shine),
-          inset 0 -10px 0 rgba(0, 0, 0, 0.08);
-}
-
-/* --------------------------------------------------------------------------
-   Top section (screen area)
-   -------------------------------------------------------------------------- */
-.mac-top {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 22px 22px 10px 22px;
-}
-
-/* Outer bezel (plastic around the glass) */
-.mac-screen {
-  width: min(72vw, 720px);
-  padding: 18px;
-  border-radius: 14px;
-
-  background: linear-gradient(180deg, #c9c0ae 0%, var(--screen-bezel) 45%, #b1a895 100%);
-  border: 1px solid var(--edge);
-  box-shadow:
-          inset 0 2px 0 rgba(255, 255, 255, 0.35),
-          inset 0 -8px 0 rgba(0, 0, 0, 0.10),
-          0 10px 18px rgba(0, 0, 0, 0.22);
-}
-
-/* Glass well: clips the canvas + overlay (rounded corners always apply) */
-.mac-crt {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-
-  background: linear-gradient(180deg, #0b130e 0%, var(--screen-inner) 100%);
-  border: 2px solid rgba(0, 0, 0, 0.65);
-  box-shadow:
-          inset 0 0 0 2px rgba(255, 255, 255, 0.06),
-          inset 0 0 40px var(--screen-glow);
-}
-
-/* Canvas: the raw 512×256 pixel buffer (phosphor layer) */
-#screen {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: transparent;
-  image-rendering: pixelated;
-}
-
-/* CRT overlay: persistent glare + bloom + vignette (always on top) */
-.crt-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 1;
-
-  background:
-          radial-gradient(
-                  600px 360px at 50% 45%,
-                  rgba(80, 255, 160, 0.12) 0%,
-                  rgba(0, 0, 0, 0.00) 55%
-          ),
-          radial-gradient(
-                  120% 100% at 50% 50%,
-                  rgba(0, 0, 0, 0.00) 45%,
-                  rgba(0, 0, 0, 0.35) 100%
-          ),
-          linear-gradient(
-                  135deg,
-                  rgba(255, 255, 255, 0.10) 0%,
-                  rgba(255, 255, 255, 0.00) 45%
-          );
-
-  box-shadow:
-          inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-          inset 0 0 22px rgba(80, 255, 160, 0.06);
-}
-
-/* --------------------------------------------------------------------------
-   Bottom section (badge, floppy, controls)
-   -------------------------------------------------------------------------- */
-.mac-bottom {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-
-  padding: 10px 22px 18px 22px;
-  border-top: 2px solid rgba(0, 0, 0, 0.12);
-  box-shadow: inset 0 10px 0 rgba(255, 255, 255, 0.12);
-}
-
-/* Badge / emboss */
-.mac-emboss {
-  min-width: 160px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--edge);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.18);
-}
-
-.mac-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Rainbow bars */
-.mac-logo .bars {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  overflow: hidden;
-
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-.mac-logo .bars i {
-  flex: 1;
-  display: block;
-}
-
-.mac-logo .bars i:nth-child(1) { background: #ff4d4d; }
-.mac-logo .bars i:nth-child(2) { background: #ffb84d; }
-.mac-logo .bars i:nth-child(3) { background: #ffe44d; }
-.mac-logo .bars i:nth-child(4) { background: #63d96b; }
-.mac-logo .bars i:nth-child(5) { background: #4da3ff; }
-.mac-logo .bars i:nth-child(6) { background: #b84dff; }
-
-.mac-model {
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text-dark);
-  line-height: 1.1;
-}
-
-/* Floppy slot */
-.mac-floppy {
-  flex: 1 1 320px;
-  min-width: 260px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  padding: 14px 14px 12px 14px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--edge);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.18);
-}
-
-.mac-floppy .slot {
-  height: 10px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.55);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08);
-}
-
-.mac-floppy .label {
-  color: var(--text-dark);
-  font-weight: 600;
-  font-size: 0.95rem;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Controls */
-.mac-controls {
-  min-width: 180px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-.btn {
-  appearance: none;
-  cursor: pointer;
-
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-weight: 700;
-
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 0.20);
-  color: var(--text-darker);
-
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.22);
-}
-
-.btn:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-
-.hint {
-  color: var(--text-dark);
-  font-weight: 600;
-}
-
-/* --------------------------------------------------------------------------
-   Responsive adjustments
-   -------------------------------------------------------------------------- */
-@media (max-width: 640px) {
-  .mac-screen {
-    width: 92vw;
-    padding: 14px;
-  }
-
-  .mac-bottom {
-    justify-content: center;
-  }
-
-  .mac-controls {
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .btn {
-    width: 100%;
-  }
 }
