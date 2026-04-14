@@ -126,12 +126,11 @@ It is typically used in:
 
 #### Behavior
 
-```text
-If sel = 00 → out = a
-If sel = 01 → out = b
-If sel = 10 → out = c
-If sel = 11 → out = d
-```
+* If `sel = 00`, then `out = a`
+* If `sel = 01`, then `out = b`
+* If `sel = 10`, then `out = c`
+* If `sel = 11`, then `out = d`
+
 
 ::: details Definition
 
@@ -158,16 +157,15 @@ It forms the basis of hierarchical bus selection and large fan-in datapaths.
 
 #### Behavior
 
-```text
-If sel = 000 → out = a
-If sel = 001 → out = b
-If sel = 010 → out = c
-If sel = 011 → out = d
-If sel = 100 → out = e
-If sel = 101 → out = f
-If sel = 110 → out = g
-If sel = 111 → out = h
-```
+* If `sel = 000`, then `out = a`
+* If `sel = 001`, then `out = b`
+* If `sel = 010`, then `out = c`
+* If `sel = 011`, then `out = d`
+* If `sel = 100`, then `out = e`
+* If `sel = 101`, then `out = f`
+* If `sel = 110`, then `out = g`
+* If `sel = 111`, then `out = h`
+
 
 ::: details Definition
 
@@ -232,12 +230,11 @@ It is used in:
 
 #### Behavior
 
-```text
-If sel = 00 → [a, b, c, d] = [in, 0, 0, 0]
-If sel = 01 → [a, b, c, d] = [0, in, 0, 0]
-If sel = 10 → [a, b, c, d] = [0, 0, in, 0]
-If sel = 11 → [a, b, c, d] = [0, 0, 0, in]
-```
+* If `sel = 00`, then `{ a = in, b = 0, c = 0, d = 0 }`
+* If `sel = 01`, then `{ a = 0, b = in, c = 0, d = 0 }`
+* If `sel = 10`, then `{ a = 0, b = 0, c = in, d = 0 }`
+* If `sel = 11`, then `{ a = 0, b = 0, c = 0, d = in }`
+
 
 ::: details Definition
 
@@ -265,16 +262,14 @@ It forms the basis of hierarchical write decoding for large memory blocks and re
 
 #### Behavior
 
-```text
-If sel = 000 → [a, b, c, d, e, f, g, h] = [in, 0, 0, 0, 0, 0, 0, 0]
-If sel = 001 → [a, b, c, d, e, f, g, h] = [0, in, 0, 0, 0, 0, 0, 0]
-If sel = 010 → [a, b, c, d, e, f, g, h] = [0, 0, in, 0, 0, 0, 0, 0]
-If sel = 011 → [a, b, c, d, e, f, g, h] = [0, 0, 0, in, 0, 0, 0, 0]
-If sel = 100 → [a, b, c, d, e, f, g, h] = [0, 0, 0, 0, in, 0, 0, 0]
-If sel = 101 → [a, b, c, d, e, f, g, h] = [0, 0, 0, 0, 0, in, 0, 0]
-If sel = 110 → [a, b, c, d, e, f, g, h] = [0, 0, 0, 0, 0, 0, in, 0]
-If sel = 111 → [a, b, c, d, e, f, g, h] = [0, 0, 0, 0, 0, 0, 0, in]
-```
+* `sel = 000` → `{ a = in, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
+* `sel = 001` → `{ a = 0, b = in, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
+* `sel = 010` → `{ a = 0, b = 0, c = in, d = 0, e = 0, f = 0, g = 0, h = 0 }`
+* `sel = 011` → `{ a = 0, b = 0, c = 0, d = in, e = 0, f = 0, g = 0, h = 0 }`
+* `sel = 100` → `{ a = 0, b = 0, c = 0, d = 0, e = in, f = 0, g = 0, h = 0 }`
+* `sel = 101` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = in, g = 0, h = 0 }`
+* `sel = 110` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = in, h = 0 }`
+* `sel = 111` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = in }`
 
 ::: details Definition
 
@@ -292,6 +287,19 @@ CHIP DMux8Way {
 :::
 
 ## Arithmetic Circuits
+Consider the sum of two single bits. Depending on their values, the operation produces one of four outcomes:
+
+* `0 + 0 =  0`
+* `1 + 0 =  1`
+* `0 + 1 =  1`
+* `1 + 1 = 10`
+
+The first three cases match the `OR` truth table exactly. The final case, however, introduces a new requirement: the 
+result produces **two bits**. We will call these the `sum` and `carry`.
+
+* the `sum` bit contains the least significant bit (LSB)
+* the `carry` bit contains the most significant bit (MSB), and is propagated to the next position
+
 These components define the **carry-propagation backbone**. Allowing them to be combined to handle a binary number the
 size of our word. This is then used in the ALU (`x + y`) and address sequencing.
 
@@ -301,8 +309,8 @@ size of our word. This is then used in the ALU (`x + y`) and address sequencing.
 
 The **HalfAdder** computes the sum of two one-bit inputs, producing:
 
-* `sum`: the low bit of `a + b`
-* `carry`: the high bit of `a + b`
+* `sum`: the LSB `a + b`
+* `carry`: the MSB of `a + b`
 
 It is the base primitive of multi-bit addition.
 
@@ -336,8 +344,8 @@ CHIP HalfAdder {
 
 The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-in `c`), producing:
 
-* `sum`: the low bit of `a + b + c`
-* `carry`: the high bit of `a + b + c`
+* `sum`: the LSB of `a + b + c`
+* `carry`: the MSB of `a + b + c`
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 

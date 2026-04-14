@@ -11,10 +11,12 @@ independent bitwise operations into true word-level arithmetic.
 ## Design Notes
 
 **Two’s complement arithmetic**
-All arithmetic is performed on 16-bit two’s complement values. Overflow beyond bit 15 is ignored (wraparound modulo 2¹⁶), matching the Hack ALU specification.
+All arithmetic is performed on 16-bit two’s complement values. Overflow beyond bit 15 is ignored 
+(wraparound modulo 2¹⁶), matching the Hack ALU specification.
 
 **Carry propagation**
-Unlike wide gates (which operate bitwise in parallel), adders must propagate carry from lower bits to higher bits. This introduces a deterministic dependency chain that defines the critical path of addition.
+Unlike wide gates (which operate bitwise in parallel), adders must propagate carry from lower bits to higher bits. 
+This introduces a deterministic dependency chain that defines the critical path of addition.
 
 **Hierarchical construction**
 Arithmetic units are built strictly from lower-level components:
@@ -25,7 +27,8 @@ Arithmetic units are built strictly from lower-level components:
 `Add16 (+ constant 1) → Inc16`
 
 **Bit ordering (bus convention)**
-Arithmetic uses the standard bus convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most significant bit (MSB).
+Arithmetic uses the standard bus convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most 
+significant bit (MSB).
 
 ---
 
@@ -103,7 +106,8 @@ OUT sum,       // LSB of a + b + c
 
 The **Add16** unit adds two 16-bit two’s complement values.
 
-Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored, matching the Hack arithmetic model.
+Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored, 
+matching the Hack arithmetic model.
 
 **Also known as:** *ripple-carry adder*, *word adder*
 
@@ -147,7 +151,8 @@ OUT out[16];
 
 The **Inc16** unit increments a 16-bit input by 1.
 
-It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential address generation (e.g., `PC+1`) and loop/index increments.
+It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential 
+address generation (e.g., `PC+1`) and loop/index increments.
 
 **Also known as:** *PC incrementer*, *+1 unit*
 

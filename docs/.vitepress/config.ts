@@ -91,9 +91,10 @@ export default withMermaid(defineConfig({
                     { text: 'Introduction', link: '/introduction.md' },
                     { text: 'Boolean Logic Gates', link: '/primitives.md' },
                     { text: 'Combinational Circuits', link: '/combinationals.md' },
-                    { text: 'Sequential Circuits', link: '/05_sequential.md' },
-                    { text: 'Memory Subsystem', link: '/06_memory.md' },
-                    { text: 'ALU & CPU Subsystem', link: '/07_processor.md' },
+                    { text: 'Sequential Circuits', link: '/sequentials.md' },
+                    { text: 'ALU Module', link: '/logic.md' },
+                    { text: 'CPU Module', link: '/processor.md' },
+                    { text: 'Memory Subsystem', link: '/06_memory.md' }
                     // { text: 'Computer', link: '/introduction.md' },
                     // { text: 'Instruction Set Architecture', link: '/introduction.md' },
                     // { text: 'Virtual Machine', link: '/introduction.md' },
