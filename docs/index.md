@@ -3,13 +3,13 @@
 layout: home
 
 hero:
-  name: "Hack++"
+  name: "Hack++, (in progress)"
   text: "Software & Hardware Reference"
   tagline: A First Principles Computer, Assembler, VM, and Operating System
   actions:
     - theme: brand
       text: Read the Docs
-      link: /00_root
+      link: /introduction
 #    - theme: alt
 #      text: Try the Live Computer
 #      link: ...
@@ -17,6 +17,10 @@ hero:
 ---
 
 ## About the Project
+
+**Note:** This project is currently incomplete. It has been published in an attempt at learning in public. It 
+represents my current understanding of the subject and not the finished state. I hope publishing this serves as a
+benefit to others in their learning journey.
 
 Hack++ is an extended computer platform that explores how to build a complete programmable machine from 
 a single primitive digital logic gate (NAND). Beginning with the construction of basic logic gates, the project 

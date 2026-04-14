@@ -1,22 +1,38 @@
 # Boolean Logic Gates
 
-This section documents the boolean logic gates that form the foundation of the Hack++. Every 
-higher-level hardware circuits, or subsystem, of the computer — **the datapath, control unit, memory system, 
-input devices, and output interfaces** — is ultimately a construction of various combinations of these gates. Signals 
-are combined to datapaths, stored to represent memory, manipulated to perform arithmetic, and propagated 
-to input and output devices.
+This section documents the boolean logic gates that form the foundation of the Hack++ hardware suite. Every other hardware
+abstraction — circuits, modules, or subsystems — is ultimately just a combination of these gates, which in turn are just
+a combination of the universal primitive NAND. At a high-level these gates come in two distinct types, based on the unit of
+data that they operate on.
+
+* **Primitive Gates** — operates on bits
+* **Wide Gates** — operates on words
+
+## The Word
+Imagine a system with only primitive gates, such a system would only have the ability to move and process a single 
+bit (`1` or `0`) of data at any given time. This limitation would be extremely restrictive for any meaningful 
+computation.
+
+Instead, computers group multiple bits together into a **word**, a wider fundamental unit of data. The size of a word is
+a design choice, balancing capability against implementation complexity. For Hack++, a word consists of 16 bits.
+
+This word size sets the width of the datapath: at most 16 bits of data can move through the system in a single operation.
+This decision will propagate throughout the design, determining the size of registers, ALU data limits, memory values,
+total addressable space, and primitive data types. In this way, the word size shapes the overall architecture of the 
+machine.
 
 ## The Primitive Gates
 
-While the primitives get used throughout increasingly complex circuits. They also retain their own distinct roles 
-across the system:
+While the primitives get used throughout increasingly complex circuits. They also retain their own distinct conceptual
+roles across the system. At a high level, they can be viewed as implementing the following tasks:
 
 * **NAND** establishes the universal basis from which all other digital logic can be constructed
-* **NOT, AND, OR** implement the decision logic used throughout datapath routing
+* **NOT, AND, OR** implement decision and routing logic used throughout the datapath and control unit
 * **XOR** enables binary arithmetic, forming the core of the control unit
 
-Together, these five gates represent the boundary where **boolean algebra becomes machine behavior**, enabling 
-the construction of a programmable computing system.
+Together, these gates — in conjunction with the data flip-flop (DFF) discussed in *Sequential Circuits* — represent 
+the boundary where boolean algebra becomes machine behavior, enabling the construction of a programmable 
+computing system.
 
 ### NAND — Universal Gate
 
@@ -155,16 +171,6 @@ CHIP Xor {
 <XorGate />
 
 :::
-
-## The Word
-With the above primitive gates established, the first abstraction layer is almost complete. The system now has the means
-to move and process a single fundamental unit of 'data', a binary (`1` or `0`); however, processing any useful amount 
-of data this way is extremely restrictive. So, if a single binary is not enough, how many binaries should the system 
-group together to form a more workable fundamental unit of 'data'?
-
-Ultimately, this becomes a compromise between capability and complexity. To keep things reasonably functional but still
-(relatively) easily understandable, Hack++ will group 16 binaries to form what is called a **'word'**. This is now the limit
-to how much information can move through the system at any one time. 
 
 ## The Wide Gates
 With the word size set, the system can now expand its primitive gates and create appropriately sized wide (multi-bit) 
