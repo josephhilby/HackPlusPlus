@@ -98,6 +98,12 @@ body {
   transform: translateY(-4vh);
 }
 
+.console-stack {
+  width: min(980px, 100%);
+  display: grid;
+  gap: 20px;
+}
+
 /* ---------------------------------- */
 /* Optional footer */
 /* ---------------------------------- */
