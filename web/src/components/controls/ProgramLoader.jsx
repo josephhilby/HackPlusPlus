@@ -21,7 +21,7 @@ export default function ProgramLoader({
                     >
                         {programs.map((program) => (
                             <option key={program.id} value={program.id}>
-                                {program.name}
+                                {program.id}
                             </option>
                         ))}
                     </select>

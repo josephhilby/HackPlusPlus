@@ -30,11 +30,6 @@
     gap: 10px;
 }
 
-/*.program-loader-label {*/
-/*    font-size: 0.9rem;*/
-/*    color: var(--text-status);*/
-/*}*/
-
 .program-loader-row {
     display: grid;
     grid-template-columns: 1fr auto;

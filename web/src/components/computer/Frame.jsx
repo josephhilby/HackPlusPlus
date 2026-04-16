@@ -3,7 +3,7 @@ import Screen from './Screen'
 import StatusBar from './StatusBar'
 import Badge from './Badge.jsx'
 
-export default function Frame({ status, subtitle }) {
+export default function Frame({status}) {
     return (
         <div className="console-frame">
             <div className="console-top">
@@ -12,7 +12,7 @@ export default function Frame({ status, subtitle }) {
 
             <div className="console-bottom">
                 <Badge />
-                <StatusBar status={status} subtitle={subtitle} />
+                <StatusBar status={status} />
             </div>
         </div>
     )

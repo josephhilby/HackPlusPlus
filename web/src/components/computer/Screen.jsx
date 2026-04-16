@@ -6,7 +6,7 @@ export default function Screen() {
             <div className="console-screen-bezel">
                 <div className="console-crt">
                     <div className="console-screen-placeholder">
-                        <span>Hack++ Display</span>
+                        <span>Hack++</span>
                     </div>
                     <div className="console-crt-overlay" aria-hidden="true"></div>
                 </div>

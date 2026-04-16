@@ -1,44 +1,66 @@
+import MockMachine from './mockMachine'
+
 export default class MachineClient {
     constructor() {
-        this.initialized = false
+        this.machine = new MockMachine()
     }
 
     async init() {
-        // Later:
-        // - load wasm module
-        // - initialize machine memory/state
-        this.initialized = true
+        await this.machine.init()
     }
 
     isReady() {
-        return this.initialized
+        return this.machine.isReady()
     }
 
-    async getFramebuffer() {
-        if (!this.initialized) {
-            throw new Error('Machine is not initialized.')
-        }
+    async load(program) {
+        const response = await fetch(program.bin)
+        const text = await response.text()
 
-        // Placeholder framebuffer:
-        // 512 * 256 bits = 131072 bits = 16384 bytes
-        return new ArrayBuffer(16384)
+        const romWords = text
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((line) => parseInt(line, 2))
+
+        await this.machine.load({
+            id: program.id,
+            rom: Uint16Array.from(romWords),
+        })
+
+        return this.machine.getState()
     }
 
-    async reset() {
-        if (!this.initialized) {
-            throw new Error('Machine is not initialized.')
-        }
+    async run() {
+        this.machine.run()
+        return this.machine.getState()
+    }
+
+    async stop() {
+        this.machine.stop()
+        return this.machine.getState()
     }
 
     async step() {
-        if (!this.initialized) {
-            throw new Error('Machine is not initialized.')
-        }
+        this.machine.step()
+        return this.machine.getState()
     }
 
-    async runCycles(_count) {
-        if (!this.initialized) {
-            throw new Error('Machine is not initialized.')
-        }
+    async reset() {
+        this.machine.reset()
+        return this.machine.getState()
+    }
+
+    async setKeyboard(value) {
+        this.machine.setKeyboard(value)
+        return this.machine.getState()
+    }
+
+    async getState() {
+        return this.machine.getState()
+    }
+
+    async getFramebuffer() {
+        return this.machine.getFramebuffer()
     }
 }

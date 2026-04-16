@@ -1,0 +1,92 @@
+.assembly-panel {
+    width: 100%;
+    border-radius: 20px;
+    border: 1px solid var(--edge-light);
+
+    background: linear-gradient(
+            180deg,
+            var(--shell-outer-top) 0%,
+            var(--shell-outer-bottom) 100%
+    );
+
+    box-shadow:
+            0 12px 28px var(--edge-shadow-mid),
+            inset 0 1px 0 var(--edge-highlight);
+
+    overflow: hidden;
+}
+
+.assembly-panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--edge-light);
+}
+
+.assembly-panel-title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.assembly-list {
+    height: 60vh;
+    max-height: 700px;
+    overflow: auto;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: min-content;
+    align-content: start;
+    gap: 8px 12px;
+
+    padding: 8px;
+
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.assembly-row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 6px;
+    align-items: center;
+
+    min-width: 0;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.assembly-label {
+    grid-column: 1 / -1; /* span full width */
+    padding: 2px 10px 2px 82px; /* align with instruction text */
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.assembly-row--active {
+    background: rgba(77, 163, 255, 0.16);
+    outline: 1px solid rgba(77, 163, 255, 0.24);
+    outline-offset: -1px;
+}
+
+.assembly-address {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.assembly-text {
+    color: #ffffff;;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.assembly-empty {
+    padding: 18px 16px;
+    color: var(--text-secondary);
+    font-style: italic;
+}

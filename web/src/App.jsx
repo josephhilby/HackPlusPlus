@@ -1,83 +1,143 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 import Frame from './components/computer/Frame'
 import ProgramLoader from './components/controls/ProgramLoader'
 import MachineControls from './components/controls/MachineControls'
+import MachineStatus from './components/controls/MachineStatus'
+import AssemblyPanel from './components/inspector/AssemblyPanel'
+
 import useMachine from './hooks/machineHook'
 import { renderFramebufferToCanvas } from './lib/framebuffer'
+import { asmLoader } from './lib/asmLoader'
 
-const mockPrograms = [
-    { id: 'fill', name: 'Fill.asm' },
-    { id: 'mult', name: 'Mult.asm' },
-    { id: 'rect', name: 'Rect.asm' },
-]
+import { programCatalog } from './config/programCatalog.js'
+import { formatMachineState } from './lib/machineState'
 
 export default function App() {
     const canvasRef = useRef(null)
-    const [selectedProgramId, setSelectedProgramId] = useState('fill')
-    const [loadedProgramId, setLoadedProgramId] = useState(null)
-    const [machineState, setMachineState] = useState('idle')
+    const [selectedProgramId, setSelectedProgramId] = useState(programCatalog[0]?.id ?? '')
+    const [assemblyLines, setAssemblyLines] = useState([])
 
-    const { status } = useMachine({
+    const {
+        runtimeStatus,
+        machineState,
+        load,
+        run,
+        stop,
+        step,
+        reset,
+    } = useMachine({
         onFramebuffer: (buffer) => {
             renderFramebufferToCanvas(canvasRef.current, buffer)
         },
     })
 
+    const selectedProgram =
+        programCatalog.find((program) => program.id === selectedProgramId) ?? null
+
     const loadedProgram =
-        mockPrograms.find((program) => program.id === loadedProgramId) ?? null
+        programCatalog.find((program) => program.id === machineState.programId) ?? null
+
+    useEffect(() => {
+        let cancelled = false
+
+        async function syncAssemblySource() {
+            if (!loadedProgram) {
+                setAssemblyLines([])
+                return
+            }
+
+            try {
+                const lines = await asmLoader(loadedProgram)
+                if (!cancelled) {
+                    setAssemblyLines(lines)
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    setAssemblyLines([`// Failed to load ASM source: ${error.message}`])
+                }
+            }
+        }
+
+        syncAssemblySource()
+
+        return () => {
+            cancelled = true
+        }
+    }, [loadedProgram])
 
     function handleLoadProgram() {
-        setLoadedProgramId(selectedProgramId)
-        setMachineState('loaded')
-        console.log('Load program:', selectedProgramId)
+        if (!selectedProgram) return
+        load(selectedProgram)
     }
 
     function handleRun() {
-        if (!loadedProgramId) return
-        setMachineState('running')
-        console.log('Run program:', loadedProgramId)
+        run()
     }
 
     function handleStop() {
-        if (!loadedProgramId) return
-        setMachineState('stopped')
-        console.log('Stop program:', loadedProgramId)
+        stop()
+    }
+
+    function handleStep() {
+        step()
     }
 
     function handleReset() {
-        if (!loadedProgramId) return
-        setMachineState('loaded')
-        console.log('Reset program:', loadedProgramId)
+        reset()
     }
+
+    const hasLoadedProgram = !!machineState.programId
+    const isRunning = machineState.status === 'running'
+    const canStep = hasLoadedProgram && !isRunning
+    const canReset =
+        hasLoadedProgram &&
+        (machineState.status === 'loaded' || machineState.status === 'stopped')
 
     return (
         <main className="app-shell">
             <div className="console-stack">
                 <Frame
-                    status={status || 'Ready'}
-                    subtitle={
-                        loadedProgram
-                            ? `${loadedProgram.name} • ${machineState}`
-                            : 'No program loaded.'
-                    }
+                    canvasRef={canvasRef}
+                    status={runtimeStatus || 'Ready'}
                 />
 
-                <MachineControls
-                    onRun={handleRun}
-                    onStop={handleStop}
-                    onReset={handleReset}
-                    canRun={!!loadedProgramId && machineState !== 'running'}
-                    canStop={!!loadedProgramId && machineState === 'running'}
-                    canReset={!!loadedProgramId && machineState === 'stopped'}
-                />
+                <div className="control-dock">
+                    <div className="control-dock-main">
+                        <ProgramLoader
+                            programs={programCatalog}
+                            selectedProgramId={selectedProgramId}
+                            onProgramChange={setSelectedProgramId}
+                            onLoad={handleLoadProgram}
+                        />
 
-                <ProgramLoader
-                    programs={mockPrograms}
-                    selectedProgramId={selectedProgramId}
-                    onProgramChange={setSelectedProgramId}
-                    onLoad={handleLoadProgram}
+                        <MachineControls
+                            machineState={machineState.status}
+                            onRun={handleRun}
+                            onStop={handleStop}
+                            onStep={handleStep}
+                            onReset={handleReset}
+                            canToggleRun={hasLoadedProgram}
+                            canStep={canStep}
+                            canReset={canReset}
+                        />
+                    </div>
+
+                    <div className="control-dock-side">
+                        <MachineStatus
+                            state={formatMachineState(machineState.status)}
+                            programName={loadedProgram ? loadedProgram.id : 'None'}
+                            pc={machineState.pc}
+                            cycles={machineState.cycles}
+                        />
+                    </div>
+                </div>
+
+                <AssemblyPanel
+                    title="Assembly"
+                    instructions={assemblyLines}
+                    currentPc={loadedProgram ? machineState.pc : null}
                 />
             </div>
         </main>

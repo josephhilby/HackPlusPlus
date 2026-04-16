@@ -1,30 +1,41 @@
+import './MachineControls.css'
+
 export default function MachineControls({
+                                            machineState,
                                             onRun,
                                             onStop,
+                                            onStep,
                                             onReset,
-                                            canRun,
-                                            canStop,
+                                            canStep,
                                             canReset,
+                                            canToggleRun,
                                         }) {
+    const isRunning = machineState === 'running'
+    const primaryLabel = isRunning ? 'Stop' : 'Run'
+    const primaryAction = isRunning ? onStop : onRun
+    const primaryClass = isRunning
+        ? 'control-btn control-btn--stop'
+        : 'control-btn control-btn--run'
+
     return (
         <section className="control-card">
             <h2 className="control-card-title">Controls</h2>
 
-            <div className="machine-controls-row">
+            <div className="machine-controls-row machine-controls-row--compact">
                 <button
-                    className="control-btn control-btn--run"
-                    onClick={onRun}
-                    disabled={!canRun}
+                    className={primaryClass}
+                    onClick={primaryAction}
+                    disabled={!canToggleRun}
                 >
-                    Run
+                    {primaryLabel}
                 </button>
 
                 <button
-                    className="control-btn control-btn--stop"
-                    onClick={onStop}
-                    disabled={!canStop}
+                    className="control-btn control-btn--step"
+                    onClick={onStep}
+                    disabled={!canStep}
                 >
-                    Stop
+                    Step
                 </button>
 
                 <button
