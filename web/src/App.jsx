@@ -8,16 +8,19 @@ import MachineStatus from './components/controls/MachineStatus'
 import AssemblyPanel from './components/inspector/AssemblyPanel'
 
 import useMachine from './hooks/machineHook'
+
 import { renderFramebufferToCanvas } from './lib/framebuffer'
+import { formatMachineState } from './lib/machineState'
 import { asmLoader } from './lib/asmLoader'
 
 import { programCatalog } from './config/programCatalog.js'
-import { formatMachineState } from './lib/machineState'
 
 export default function App() {
     const canvasRef = useRef(null)
     const [selectedProgramId, setSelectedProgramId] = useState(programCatalog[0]?.id ?? '')
     const [assemblyLines, setAssemblyLines] = useState([])
+    const [isAssemblyOpen, setIsAssemblyOpen] = useState(false)
+    const [isLoadingProgram, setIsLoadingProgram] = useState(false)
 
     const {
         runtimeStatus,
@@ -67,9 +70,15 @@ export default function App() {
         }
     }, [loadedProgram])
 
-    function handleLoadProgram() {
+    async function handleLoadProgram() {
         if (!selectedProgram) return
-        load(selectedProgram)
+
+        try {
+            setIsLoadingProgram(true)
+            await load(selectedProgram)
+        } finally {
+            setIsLoadingProgram(false)
+        }
     }
 
     function handleRun() {
@@ -88,19 +97,28 @@ export default function App() {
         reset()
     }
 
+    function handleOpenAssemblyModal() {
+        setIsAssemblyOpen(true)
+    }
+
+    function handleCloseAssemblyModal() {
+        setIsAssemblyOpen(false)
+    }
+
     const hasLoadedProgram = !!machineState.programId
     const isRunning = machineState.status === 'running'
-    const canStep = hasLoadedProgram && !isRunning
+    const canStep = hasLoadedProgram && !isRunning && !isLoadingProgram
     const canReset =
         hasLoadedProgram &&
-        (machineState.status === 'loaded' || machineState.status === 'stopped')
+        (machineState.status === 'loaded' || machineState.status === 'stopped') &&
+        !isLoadingProgram
 
     return (
         <main className="app-shell">
             <div className="console-stack">
                 <Frame
                     canvasRef={canvasRef}
-                    status={runtimeStatus || 'Ready'}
+                    status={isLoadingProgram ? 'Loading program...' : (runtimeStatus || 'Ready')}
                 />
 
                 <div className="control-dock">
@@ -110,6 +128,9 @@ export default function App() {
                             selectedProgramId={selectedProgramId}
                             onProgramChange={setSelectedProgramId}
                             onLoad={handleLoadProgram}
+                            onView={handleOpenAssemblyModal}
+                            canView={hasLoadedProgram && !isLoadingProgram}
+                            isLoading={isLoadingProgram}
                         />
 
                         <MachineControls
@@ -118,7 +139,7 @@ export default function App() {
                             onStop={handleStop}
                             onStep={handleStep}
                             onReset={handleReset}
-                            canToggleRun={hasLoadedProgram}
+                            canToggleRun={hasLoadedProgram && !isLoadingProgram}
                             canStep={canStep}
                             canReset={canReset}
                         />
@@ -126,20 +147,35 @@ export default function App() {
 
                     <div className="control-dock-side">
                         <MachineStatus
-                            state={formatMachineState(machineState.status)}
+                            state={isLoadingProgram ? 'LOADING' : formatMachineState(machineState.status)}
                             programName={loadedProgram ? loadedProgram.id : 'None'}
                             pc={machineState.pc}
                             cycles={machineState.cycles}
                         />
                     </div>
                 </div>
-
-                <AssemblyPanel
-                    title="Assembly"
-                    instructions={assemblyLines}
-                    currentPc={loadedProgram ? machineState.pc : null}
-                />
             </div>
+
+            {isAssemblyOpen && (
+                <div
+                    className="modal-overlay"
+                    onClick={handleCloseAssemblyModal}
+                >
+                    <div
+                        className="modal-dialog"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <AssemblyPanel
+                            title="Assembly"
+                            instructions={assemblyLines}
+                            currentPc={loadedProgram ? machineState.pc : null}
+                            onStep={handleStep}
+                            onClose={handleCloseAssemblyModal}
+                            canStep={canStep}
+                        />
+                    </div>
+                </div>
+            )}
         </main>
     )
 }

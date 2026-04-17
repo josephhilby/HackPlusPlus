@@ -134,3 +134,28 @@ body {
   font-size: 0.95rem;
   text-align: center;
 }
+
+/* ---------------------------------- */
+/* Modal */
+/* ---------------------------------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.modal-dialog {
+  width: min(1200px, 95vw);
+  max-height: 90vh;
+  overflow: hidden;
+}

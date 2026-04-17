@@ -11,7 +11,7 @@ export default function Badge() {
 
             <div className="console-badge-copy">
                 <span className="console-badge-title">HACK++</span>
-                <span className="console-badge-model">128K</span>
+                <span className="console-badge-model">16-bit</span>
             </div>
         </div>
     )

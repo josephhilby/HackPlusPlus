@@ -9,11 +9,10 @@ function normalizeInstructions(instructions) {
 
         if (!trimmed) continue
 
-        // label: (LOOP)
         if (/^\(.*\)$/.test(trimmed)) {
             result.push({
                 type: 'label',
-                label: trimmed.slice(1, -1), // remove ()
+                label: trimmed.slice(1, -1),
             })
         } else {
             result.push({
@@ -32,6 +31,9 @@ export default function AssemblyPanel({
                                           title = 'Assembly Inspector',
                                           instructions = [],
                                           currentPc = null,
+                                          onStep,
+                                          onClose,
+                                          canStep = false,
                                       }) {
     const rows = normalizeInstructions(instructions)
 
@@ -39,6 +41,25 @@ export default function AssemblyPanel({
         <section className="assembly-panel">
             <div className="assembly-panel-header">
                 <h2 className="assembly-panel-title">{title}</h2>
+
+                <div className="assembly-panel-actions">
+                    <button
+                        className="assembly-panel-btn"
+                        type="button"
+                        onClick={onStep}
+                        disabled={!canStep}
+                    >
+                        Step
+                    </button>
+
+                    <button
+                        className="assembly-panel-btn assembly-panel-btn--close"
+                        type="button"
+                        onClick={onClose}
+                    >
+                        Close
+                    </button>
+                </div>
             </div>
 
             <div className="assembly-list">
@@ -61,13 +82,10 @@ export default function AssemblyPanel({
                                 key={`inst-${row.address}`}
                                 className={`assembly-row ${isActive ? 'assembly-row--active' : ''}`}
                             >
-                                <span className="assembly-address">
-                                    <span className="assembly-address-prefix">0x</span>
-                                    {row.address
-                                        .toString(16)
-                                        .toUpperCase()
-                                        .padStart(4, '0')}
-                                </span>
+                <span className="assembly-address">
+                  <span className="assembly-address-prefix">0x</span>
+                    {row.address.toString(16).toUpperCase().padStart(4, '0')}
+                </span>
 
                                 <code className="assembly-text">{row.text}</code>
                             </div>
