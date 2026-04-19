@@ -60,87 +60,111 @@ This project represents a full re-implementation and extension of the baseline H
 
 ### Roadmap
 - [x] Complete Nand2Tetris baseline implementation
-- [x] Create front end web UI
-    - [x] Create app.js, style.css, index.html
-    - [x] Create server.h/c to provide updates for screen and keyboard MMIO
-    - [x] Connect mem.c to app.js via websocket to allow MMIO
-      - app.js ⇄ (HTTP/WS) ⇄ server.c ⇄ mem.c
-    - [x] Update README
-- [ ] Emulate HACK CPU, and MEMORY.
+
+#### Core Architecture
+- [ ] Implement Hack++ hardware simulation Core in C
+    - [ ] CPU (ALU, registers, control logic)
+    - [ ] Memory model (RAM + MMIO)
+        - ROM loading interface
+    - [ ] Framebuffer MMIO
+    - [ ] Keyboard MMIO
+- [ ] Define Core types
+    - [ ] `machine_status_t`
+        - `enum` containing execution state  
+          (`0: idle, 1: loaded, 2: running, 3: stopped, 4: error`)
+    - [ ] `machine_state_t`
+        - `struct` containing current execution state  
+          (`status`, `pc`, `cycles`)
+- [ ] Define Core ABI
+    - [ ] `void machine_init(void)`
+    - [ ] `void machine_load_rom(const uint16_t* program, size_t length)`
+    - [ ] `void machine_run(void)`
+    - [ ] `void machine_stop(void)`
+    - [ ] `void machine_step(void)`
+    - [ ] `void machine_reset(void)`
+    - [ ] `void machine_set_keyboard(uint16_t value)`
+    - [ ] `machine_state_t machine_get_state(void)`
+    - [ ] `const uint16_t* machine_get_framebuffer_ptr(void)`
+
+#### Runtime Integration (JS ↔ WASM)
+- [x] Decide on primary datatype: `uint16_t`
+    - To match 16-bit word size
+- [ ] Compile C core to WebAssembly
+- [ ] Implement `machineClient`
+    - [x] Mock machine implementation
+    - [ ] WASM-backed implementation
+    - [ ] Binary (ROM) loader
+    - [ ] Memory bridge (TypedArray ↔ WASM)
+- [ ] Implement `machineHook`
+    - [x] State management (pc, cycles, status)
+    - [x] Control interface (run/stop/step/reset)
+    - [ ] Polling / execution loop for `run()`
+    - [ ] Framebuffer sync strategy
+
+#### Frontend UI (React)
+- [x] Console frame + CRT display
+- [x] Program loader
+- [x] Machine controls (run/stop/step/reset)
+- [x] Machine status panel
+- [x] Assembly inspector (modal)
+- [ ] Keyboard input → MMIO bridge
+- [ ] Runtime performance tuning (large programs like `Pong`)
+
+#### Program Pipeline
+- [x] Program catalog
+- [x] ASM loader (for inspection)
+- [x] Binary loader (.hack → Uint16Array)
+- [ ] Ensure 1:1 ASM ↔ ROM mapping
+    - Track assembler optimization
+- [ ] Stretch: in-browser toolchain
+    - [ ] In-browser editor (merge with FreshlyGround...)
+    - [ ] Compilation chain (Jack → VM → ASM → binary)
+
+#### Testing & Validation
+- [ ] Unit tests for C Core (GoogleTest)
+    - [ ] Framebuffer
+    - [ ] Memory
     - [ ] CPU
-    - [x] MEM
-    - [ ] Update README
-- [ ] Rework baseline implementation from Python to C
-    - [x] Assembler
-    - [x] VM
-    - [ ] Compiler
-    - [ ] OS
-    - [ ] Update README
-- [ ] Test with Google Test (unit/golden) and LLVM (leak)
-    - [x] Assembler
-    - [x] VM
-    - [ ] Compiler
-    - [ ] OS
+    - [ ] API / ABI boundry
+- [ ] Golden Tests for instruction correctness (GoogleTest)
     - [ ] CPU
-    - [ ] MEM
-    - [ ] Update README
+    - [ ] Software toolchain
+- [ ] Leak checks (LLVM)
+- [ ] Integration tests (Vitest)
+    - [ ] Client for Core boundry ABI
+    - [ ] App for runtime behavior
+
+#### Documentation
+- [ ] Maintain Hack++ reference (NAND → Computer → Runtime)
+    - [ ] Hardware abstractions (gates → circuits → modules → subsystems)
+    - [ ] Software abstractions (source → IR → machine code → execution)
+- [ ] Maintain VitePress documentation site
+    - [ ] Structured navigation across hardware and software layers
+    - [ ] Diagrams (gates/circuits, datapath, memory map, control flow)
+- [ ] Document Core ABI (C ↔ WASM)
+    - [ ] Function interface and machine state
+    - [ ] Framebuffer and keyboard MMIO
+- [ ] Document system model
+    - [ ] Memory map (RAM, screen, keyboard)
+    - [ ] Execution model (step vs run)
+- [ ] Include high-level architecture diagram in README
 
 ## Project Architecture
 
 ### Components
-| Component   | Description                                                                                   |
-|-------------|-----------------------------------------------------------------------------------------------|
-| compiler.c  | Stack based compiler that produces VM bytecode code from Jack code.                           |
-| vm.c        | Stack based vm that produces assembly for the Hack CPU from VM bytecode code.                 |
-| assembler.c | Two-pass assembler that produces binary code and resolves symbols, labels, and variables.     |
-| mem.c       | Software emulation of the Hack ROM, RAM, screen buffer, and last press keyboard interface.    |
-| cpu.c       | Software emulation of the Hack CPU.                                                           |
-| server.c    | Bridges emulator state to the web UI using the Mongoose WebSocket.                            |
-| app.js      | Sends screen output to `index.html` for rendering and collects last key pressed user input.   |
+| Component         | Description                                                                |
+|-------------------|----------------------------------------------------------------------------|
+| core (C)          | Hardware simulation of the Hack++ computer (CPU, memory, MMIO, execution). |
+| assembler.c       | Converts assembly into binary (ROM image) loaded into the core.            |
+| vm.c              | Translates VM bytecode into Hack assembly.                                 |
+| compiler.c        | Compiles Jack programs into VM bytecode.                                   |
+| machineClient.js  | Runtime bridge that loads binaries and communicates with the core.         |
+| machineHook.js    | React hook that manages machine state and exposes control operations.      |
+| app.jsx           | Main UI layer that wires machine state to visual components.               |
+| Frame / CRT       | Renders framebuffer output from the core to the screen.                    |
+| Controls          | UI for program loading and execution (run, step, reset).                   |
+| AssemblyPanel     | Debug view for inspecting program source and execution state.              |
 
-### Diagram
-```mermaid
-flowchart TD
-%% Hack++ Emulator / Toolchain Architecture
-
-subgraph Core["Core"]
-SRV["server.c - I/O Bridge"]
-CPU["cpu.c - Hack++ CPU"]
-ROM["mem.c - ROM"]
-MEM["mem.c - RAM / MMIO"]
-end
-
-subgraph Web["Web"]
-    UI["app.js - I/O User Interface"]
-end
-
-subgraph Toolchain["Toolchain"]
-    JACK["compiler.c - JACK -> VM"]
-    VM["vm.c - VM -> ASM"]
-    ASM["assembler.c - ASM -> HACK"]
-end
-
-JACK -->|.vm| VM
-VM   -->|.asm| ASM
-
-ASM  -->|.hack| ROM
-
-ROM  -->|Instruction Bus| CPU
-CPU <-->|Data Bus| MEM
-SRV <-->|MMIO| MEM
-
-UI  <-->|WebSocket| SRV
-
-classDef ui fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
-classDef core fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20;
-classDef tool fill:#F5F5F5,stroke:#757575,stroke-width:1.5px,color:#424242;
-classDef rom fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#5D4037;
-
-class UI ui;
-class SRV,CPU,MEM core;
-class JACK,VM,ASM tool;
-class ROM rom;
-```
 
 ## The /docs
 Read the [docs](https://hackplusplus-docs.onrender.com/) to get a better understanding of the project.
