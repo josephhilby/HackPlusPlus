@@ -10,9 +10,9 @@ export default function useMachine({ onFramebuffer }) {
     const [machineState, setMachineState] = useState({
         status: 'idle',
         pc: 0,
+        flags: 0,
         cycles: 0,
         programId: null,
-        keyboard: 0,
     })
 
     useEffect(() => {
@@ -30,7 +30,10 @@ export default function useMachine({ onFramebuffer }) {
 
                 const initialState = await machine.getState()
                 if (!cancelled) {
-                    setMachineState(initialState)
+                    setMachineState((prev) => ({
+                        ...prev,
+                        ...initialState,
+                    }))
                 }
             } catch (error) {
                 if (cancelled) return
@@ -71,7 +74,10 @@ export default function useMachine({ onFramebuffer }) {
             }
 
             const nextState = await machine.load(program)
-            setMachineState(nextState)
+            setMachineState({
+                ...nextState,
+                programId: program.id,
+            })
             await refreshScreen()
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')
@@ -87,7 +93,10 @@ export default function useMachine({ onFramebuffer }) {
             }
 
             const nextState = await machine.run()
-            setMachineState(nextState)
+            setMachineState((prev) => ({
+                ...prev,
+                ...nextState,
+            }))
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')
         }
@@ -102,7 +111,10 @@ export default function useMachine({ onFramebuffer }) {
             }
 
             const nextState = await machine.stop()
-            setMachineState(nextState)
+            setMachineState((prev) => ({
+                ...prev,
+                ...nextState,
+            }))
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')
         }
@@ -117,7 +129,10 @@ export default function useMachine({ onFramebuffer }) {
             }
 
             const nextState = await machine.step()
-            setMachineState(nextState)
+            setMachineState((prev) => ({
+                ...prev,
+                ...nextState,
+            }))
             await refreshScreen()
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')
@@ -133,7 +148,10 @@ export default function useMachine({ onFramebuffer }) {
             }
 
             const nextState = await machine.reset()
-            setMachineState(nextState)
+            setMachineState((prev) => ({
+                ...prev,
+                ...nextState,
+            }))
             await refreshScreen()
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')
@@ -149,7 +167,10 @@ export default function useMachine({ onFramebuffer }) {
             }
 
             const nextState = await machine.setKeyboard(value)
-            setMachineState(nextState)
+            setMachineState((prev) => ({
+                ...prev,
+                ...nextState,
+            }))
             await refreshScreen()
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')

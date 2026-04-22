@@ -1,16 +1,22 @@
-import MockMachine from './mockMachine'
+import computerModuleUrl from './wasm/computer.js?url'
 
 export default class MachineClient {
     constructor() {
-        this.machine = new MockMachine()
+        this.module = null
+        this.instance = null
     }
 
     async init() {
-        await this.machine.init()
+        const createModule = (await import(/* @vite-ignore */ computerModuleUrl)).default
+
+        this.module = await createModule()
+        this.instance = this.module
+
+        this.instance._init()
     }
 
     isReady() {
-        return this.machine.isReady()
+        return !!this.instance
     }
 
     async load(program) {
@@ -23,44 +29,85 @@ export default class MachineClient {
             .filter(Boolean)
             .map((line) => parseInt(line, 2))
 
-        await this.machine.load({
-            id: program.id,
-            rom: Uint16Array.from(romWords),
-        })
+        const rom = Uint16Array.from(romWords)
 
-        return this.machine.getState()
+        if (rom.length > 32768) {
+            throw new Error('Program too large for ROM')
+        }
+
+        // Get pointer to machine-owned ROM
+        const ptr = this.instance._get_rom_ptr()
+
+        // Write directly into Wasm memory
+        const heapU16 = new Uint16Array(
+            this.instance.HEAPU8.buffer,
+            ptr,
+            rom.length
+        )
+        heapU16.set(rom)
+
+        // Tell core how many words are valid
+        this.instance._commit_rom(rom.length)
+
+        return this.getState()
     }
 
     async run() {
-        this.machine.run()
-        return this.machine.getState()
+        this.instance._run()
+        return this.getState()
     }
 
     async stop() {
-        this.machine.stop()
-        return this.machine.getState()
+        this.instance._stop()
+        return this.getState()
     }
 
     async step() {
-        this.machine.step()
-        return this.machine.getState()
+        this.instance._step()
+        return this.getState()
     }
 
     async reset() {
-        this.machine.reset()
-        return this.machine.getState()
+        this.instance._reset()
+        return this.getState()
     }
 
     async setKeyboard(value) {
-        this.machine.setKeyboard(value)
-        return this.machine.getState()
+        this.instance._set_keyboard(value)
+        return this.getState()
     }
 
     async getState() {
-        return this.machine.getState()
+        const ptr = this.instance._get_state_ptr()
+        const view = new DataView(this.instance.HEAPU8.buffer)
+
+        const pc = view.getUint16(ptr + 0, true)
+        const flags = view.getUint16(ptr + 2, true)
+        const cycles = view.getUint32(ptr + 4, true)
+
+        const isRunning = (flags & 0x0001) !== 0
+        const isLoaded = (flags & 0x0002) !== 0
+        const isError = (flags & 0x0004) !== 0
+
+        let status = 'idle'
+        if (isError) status = 'error'
+        else if (isRunning) status = 'running'
+        else if (isLoaded && pc === 0 && cycles === 0) status = 'loaded'
+        else if (isLoaded) status = 'stopped'
+
+        return {
+            pc,
+            flags,
+            cycles,
+            status,
+        }
     }
 
     async getFramebuffer() {
-        return this.machine.getFramebuffer()
+        const ptr = this.instance._get_framebuffer_ptr()
+        const length = 8192
+
+        const view = new Uint16Array(this.instance.HEAPU8.buffer, ptr, length)
+        return new Uint16Array(view)
     }
 }

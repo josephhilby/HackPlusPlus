@@ -69,22 +69,22 @@ This project represents a full re-implementation and extension of the baseline H
     - [ ] Framebuffer MMIO
     - [ ] Keyboard MMIO
 - [ ] Define Core types
-    - [ ] `machine_status_t`
+    - [ ] `status_t`
         - `enum` containing execution state  
           (`0: idle, 1: loaded, 2: running, 3: stopped, 4: error`)
-    - [ ] `machine_state_t`
+    - [ ] `state_t`
         - `struct` containing current execution state  
           (`status`, `pc`, `cycles`)
 - [ ] Define Core ABI
-    - [ ] `void machine_init(void)`
-    - [ ] `void machine_load_rom(const uint16_t* program, size_t length)`
-    - [ ] `void machine_run(void)`
-    - [ ] `void machine_stop(void)`
-    - [ ] `void machine_step(void)`
-    - [ ] `void machine_reset(void)`
-    - [ ] `void machine_set_keyboard(uint16_t value)`
-    - [ ] `machine_state_t machine_get_state(void)`
-    - [ ] `const uint16_t* machine_get_framebuffer_ptr(void)`
+    - [ ] `void init(void)`
+    - [ ] `void load_rom(const uint16_t* program, size_t length)`
+    - [ ] `void run(void)`
+    - [ ] `void stop(void)`
+    - [ ] `void step(void)`
+    - [ ] `void reset(void)`
+    - [ ] `void set_keyboard(uint16_t value)`
+    - [ ] `state_t get_state(void)`
+    - [ ] `const uint16_t* get_framebuffer_ptr(void)`
 
 #### Runtime Integration (JS ↔ WASM)
 - [x] Decide on primary datatype: `uint16_t`
