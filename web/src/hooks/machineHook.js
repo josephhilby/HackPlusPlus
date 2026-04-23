@@ -48,13 +48,21 @@ export default function useMachine({ onFramebuffer }) {
         }
     }, [])
 
+    function getReadyMachine() {
+        const machine = machineRef.current
+
+        if (!machine || !machine.isReady()) {
+            setResult('Machine not ready.')
+            return null
+        }
+
+        return machine
+    }
+
     async function refreshScreen() {
         try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
+            const machine = getReadyMachine()
+            if (!machine) return
 
             const buffer = await machine.getFramebuffer()
             onFramebuffer?.(buffer)
@@ -64,116 +72,66 @@ export default function useMachine({ onFramebuffer }) {
         }
     }
 
-    async function load(program) {
+    async function applyMachineUpdate(action, options = {}) {
         try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
+            const machine = getReadyMachine()
+            if (!machine) return
 
-            const nextState = await machine.load(program)
-            setMachineState({
+            const nextState = await action(machine)
+
+            setMachineState((prev) => ({
+                ...prev,
                 ...nextState,
-                programId: program.id,
-            })
-            await refreshScreen()
+                ...(options.programId !== undefined
+                    ? { programId: options.programId }
+                    : {}),
+            }))
+
+            if (options.refreshScreen) {
+                await refreshScreen()
+            }
         } catch (error) {
             setResult(error instanceof Error ? error.message : 'Unknown error.')
         }
+    }
+
+    async function load(program) {
+        await applyMachineUpdate(
+            (machine) => machine.load(program),
+            {
+                programId: program.id,
+                refreshScreen: true,
+            }
+        )
     }
 
     async function run() {
-        try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
-
-            const nextState = await machine.run()
-            setMachineState((prev) => ({
-                ...prev,
-                ...nextState,
-            }))
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+        await applyMachineUpdate((machine) => machine.run())
     }
 
     async function stop() {
-        try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
-
-            const nextState = await machine.stop()
-            setMachineState((prev) => ({
-                ...prev,
-                ...nextState,
-            }))
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+        await applyMachineUpdate((machine) => machine.stop())
     }
 
     async function step() {
-        try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
-
-            const nextState = await machine.step()
-            setMachineState((prev) => ({
-                ...prev,
-                ...nextState,
-            }))
-            await refreshScreen()
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+        await applyMachineUpdate(
+            (machine) => machine.step(),
+            { refreshScreen: true }
+        )
     }
 
     async function reset() {
-        try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
-
-            const nextState = await machine.reset()
-            setMachineState((prev) => ({
-                ...prev,
-                ...nextState,
-            }))
-            await refreshScreen()
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+        await applyMachineUpdate(
+            (machine) => machine.reset(),
+            { refreshScreen: true }
+        )
     }
 
     async function setKeyboard(value) {
-        try {
-            const machine = machineRef.current
-            if (!machine || !machine.isReady()) {
-                setResult('Machine not ready.')
-                return
-            }
-
-            const nextState = await machine.setKeyboard(value)
-            setMachineState((prev) => ({
-                ...prev,
-                ...nextState,
-            }))
-            await refreshScreen()
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+        await applyMachineUpdate(
+            (machine) => machine.setKeyboard(value),
+            { refreshScreen: true }
+        )
     }
 
     return {

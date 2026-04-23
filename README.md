@@ -26,7 +26,7 @@ This project represents a full re-implementation and extension of the baseline H
 
 ### Requirements
 - Node.js
-  npm
+- npm
 
 ### Quick Start
 1. Clone this repository
@@ -75,8 +75,8 @@ This project represents a full re-implementation and extension of the baseline H
     - [ ] Keyboard MMIO
 - [x] Define State Object for UI
     - [x] `state_t`
-        - Byte 0, 1: for PC
-        - Byte 2, 3: for flags
+        - Byte 0..1: for PC
+        - Byte 2..3: for flags
         - Byte 4..7: for cycle count
     - [x] Flags
         - Bit 0: 1 running, 0 stopped
@@ -97,10 +97,10 @@ This project represents a full re-implementation and extension of the baseline H
 
 #### Runtime Integration (JS ↔ WASM)
 - [x] Compile C core to WebAssembly
-- [ ] Implement `machineClient`
-    - [x] WASM-backed implementation
+- [x] Implement `machineClient`
+    - [x] WASM implementation
     - [x] Binary (ROM) loader
-    - [ ] Memory bridge (TypedArray ↔ WASM)
+    - [x] State flag mapping
 - [ ] Implement `machineHook`
     - [x] State management (pc, cycles, status)
     - [x] Control interface (run/stop/step/reset)
@@ -154,18 +154,6 @@ This project represents a full re-implementation and extension of the baseline H
     - [ ] Memory map (RAM, screen, keyboard)
     - [ ] Execution model (step vs run)
 - [ ] Include high-level architecture diagram in README
-
-## Project Architecture
-
-### Components
-| Component        | Description                                                                  |
-|------------------|------------------------------------------------------------------------------|
-| core             | Hardware simulation of the Hack++ computer (CPU, memory, MMIO, execution).   |
-| toolchain        | Software toolchain of the Hack++ computer (assembler, compiler, vm).         |
-| web              | Web UI of the Hack++ computer.                                               | 
-| machineClient.js | Runtime bridge that loads binaries and communicates between web UI and core. |
-| machineHook.js   | React hook that manages machine state and exposes control operations.        |
-| app.jsx          | Main web UI layer that wires machine state to visual components.             |
 
 
 ## The /docs

@@ -85,21 +85,10 @@ export default class MachineClient {
         const flags = view.getUint16(ptr + 2, true)
         const cycles = view.getUint32(ptr + 4, true)
 
-        const isRunning = (flags & 0x0001) !== 0
-        const isLoaded = (flags & 0x0002) !== 0
-        const isError = (flags & 0x0004) !== 0
-
-        let status = 'idle'
-        if (isError) status = 'error'
-        else if (isRunning) status = 'running'
-        else if (isLoaded && pc === 0 && cycles === 0) status = 'loaded'
-        else if (isLoaded) status = 'stopped'
-
         return {
             pc,
             flags,
             cycles,
-            status,
         }
     }
 
