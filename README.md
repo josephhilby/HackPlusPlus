@@ -62,38 +62,44 @@ This project represents a full re-implementation and extension of the baseline H
 - [x] Complete Nand2Tetris baseline implementation
 
 #### Core Architecture
+- [x] Use WASM and Emscripten
+- [x] Decide on primary datatype: `uint16_t`, `Heap8`
+    - To match 16-bit word size
+    - Allow for bit manipulation
 - [ ] Implement Hack++ hardware simulation Core in C
+    - [x] Computer API
     - [ ] CPU (ALU, registers, control logic)
     - [ ] Memory model (RAM + MMIO)
         - ROM loading interface
     - [ ] Framebuffer MMIO
     - [ ] Keyboard MMIO
-- [ ] Define Core types
-    - [ ] `status_t`
-        - `enum` containing execution state  
-          (`0: idle, 1: loaded, 2: running, 3: stopped, 4: error`)
-    - [ ] `state_t`
-        - `struct` containing current execution state  
-          (`status`, `pc`, `cycles`)
-- [ ] Define Core ABI
-    - [ ] `void init(void)`
-    - [ ] `void load_rom(const uint16_t* program, size_t length)`
-    - [ ] `void run(void)`
-    - [ ] `void stop(void)`
-    - [ ] `void step(void)`
-    - [ ] `void reset(void)`
-    - [ ] `void set_keyboard(uint16_t value)`
-    - [ ] `state_t get_state(void)`
-    - [ ] `const uint16_t* get_framebuffer_ptr(void)`
+- [x] Define State Object for UI
+    - [x] `state_t`
+        - Byte 0, 1: for PC
+        - Byte 2, 3: for flags
+        - Byte 4..7: for cycle count
+    - [x] Flags
+        - Bit 0: 1 running, 0 stopped
+        - Bit 1: 1 program in rom, 0 rom empty
+        - Bit 2: 1 error, 0 normal
+        - Bit 4..15 TBD
+- [x] Define Core API / Emscripten ABI
+    - [x] `void init(void)`
+    - [x] `uint16_t* get_rom_ptr(void)`
+    - [x] `void commit_rom(size_t length)`
+    - [x] `void run(void)`
+    - [x] `void stop(void)`
+    - [x] `void step(void)`
+    - [x] `void reset(void)`
+    - [x] `void set_keyboard(uint16_t value)`
+    - [x] `const state_t* get_state_ptr(void)`
+    - [x] `const uint16_t* get_framebuffer_ptr(void)`
 
 #### Runtime Integration (JS ↔ WASM)
-- [x] Decide on primary datatype: `uint16_t`
-    - To match 16-bit word size
-- [ ] Compile C core to WebAssembly
+- [x] Compile C core to WebAssembly
 - [ ] Implement `machineClient`
-    - [x] Mock machine implementation
-    - [ ] WASM-backed implementation
-    - [ ] Binary (ROM) loader
+    - [x] WASM-backed implementation
+    - [x] Binary (ROM) loader
     - [ ] Memory bridge (TypedArray ↔ WASM)
 - [ ] Implement `machineHook`
     - [x] State management (pc, cycles, status)

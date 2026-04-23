@@ -359,7 +359,7 @@ function updateMemoryViews() {
   HEAP8 = new Int8Array(b);
   HEAP16 = new Int16Array(b);
   Module['HEAPU8'] = HEAPU8 = new Uint8Array(b);
-  Module['HEAPU16'] = HEAPU16 = new Uint16Array(b);
+  HEAPU16 = new Uint16Array(b);
   HEAP32 = new Int32Array(b);
   HEAPU32 = new Uint32Array(b);
   HEAPF32 = new Float32Array(b);
@@ -744,7 +744,6 @@ async function createWasm() {
 
   
 
-
 // End JS library code
 
 // include: postlibrary.js
@@ -1004,6 +1003,7 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'INT53_MIN',
   'HEAP8',
   'HEAP16',
+  'HEAPU16',
   'HEAP32',
   'HEAPU32',
   'HEAPF32',

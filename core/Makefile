@@ -24,7 +24,7 @@ LDFLAGS := \
   -s ENVIRONMENT=web \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORTED_FUNCTIONS='["_init","_get_rom_ptr","_commit_rom","_run","_stop","_step","_reset","_set_keyboard","_get_state_ptr","_get_framebuffer_ptr"]' \
-  -s EXPORTED_RUNTIME_METHODS='["HEAPU8","HEAPU16"]'
+  -s EXPORTED_RUNTIME_METHODS='["HEAPU8"]'
 
 .PHONY: all wasm clean
 
