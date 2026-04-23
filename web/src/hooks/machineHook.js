@@ -8,7 +8,6 @@ export default function useMachine({ onFramebuffer }) {
     const [result, setResult] = useState('')
 
     const [machineState, setMachineState] = useState({
-        status: 'idle',
         pc: 0,
         flags: 0,
         cycles: 0,

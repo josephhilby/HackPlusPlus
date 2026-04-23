@@ -105,13 +105,13 @@ export default function App() {
         setIsAssemblyOpen(false)
     }
 
+    const machineStatus = formatMachineState(machineState)
     const hasLoadedProgram = !!machineState.programId
-    const isRunning = machineState.status === 'running'
+    const isRunning = (machineState.flags & 0x0001) !== 0
+    const isLoaded = (machineState.flags & 0x0002) !== 0
+
     const canStep = hasLoadedProgram && !isRunning && !isLoadingProgram
-    const canReset =
-        hasLoadedProgram &&
-        (machineState.status === 'loaded' || machineState.status === 'stopped') &&
-        !isLoadingProgram
+    const canReset = hasLoadedProgram && isLoaded && !isLoadingProgram
 
     return (
         <main className="app-shell">
@@ -134,7 +134,7 @@ export default function App() {
                         />
 
                         <MachineControls
-                            machineState={machineState.status}
+                            machineState={machineStatus}
                             onRun={handleRun}
                             onStop={handleStop}
                             onStep={handleStep}
