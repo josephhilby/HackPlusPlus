@@ -6,9 +6,9 @@
 
 // 8 byte struct
 typedef struct state_t {
-  uint16_t pc;      // 2 bytes for PC
-  uint16_t flags;   // 2 bytes for flags
-  uint32_t cycles;  // 4 bytes for cycles
+  uint16_t pc;      // +0 offset for PC
+  uint16_t flags;   // +2 offset for flags
+  uint32_t cycles;  // +4 offset for cycles
 } state_t;
 
 /*

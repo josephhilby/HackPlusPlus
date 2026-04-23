@@ -1,7 +1,7 @@
 #include "computer.h"
 
 #define SCREEN_WORDS 8192
-#define RAM_WORDS 24577
+//#define RAM_WORDS 24577
 #define ROM_WORDS 32768
 
 static state_t STATE = {
@@ -11,9 +11,10 @@ static state_t STATE = {
 };
 
 // Refactor to mem.c
+// 0: white, 1: black
 static uint16_t FRAMEBUFFER[SCREEN_WORDS] = {0};
 static uint16_t ROM[ROM_WORDS] = {0};
-static uint16_t RAM[RAM_WORDS] = {0};
+//static uint16_t RAM[RAM_WORDS] = {0};
 static size_t ROM_SIZE = 0;
 
 void init(void) {

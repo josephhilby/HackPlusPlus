@@ -42,6 +42,14 @@ export default function App() {
     const loadedProgram =
         programCatalog.find((program) => program.id === machineState.programId) ?? null
 
+    const machineStatus = formatMachineState(machineState)
+    const hasLoadedProgram = !!machineState.programId
+    const isRunning = (machineState.flags & 0x0001) !== 0
+    const isLoaded = (machineState.flags & 0x0002) !== 0
+
+    const canStep = hasLoadedProgram && !isRunning && !isLoadingProgram
+    const canReset = hasLoadedProgram && isLoaded && !isLoadingProgram
+
     useEffect(() => {
         let cancelled = false
 
@@ -104,14 +112,6 @@ export default function App() {
     function handleCloseAssemblyModal() {
         setIsAssemblyOpen(false)
     }
-
-    const machineStatus = formatMachineState(machineState)
-    const hasLoadedProgram = !!machineState.programId
-    const isRunning = (machineState.flags & 0x0001) !== 0
-    const isLoaded = (machineState.flags & 0x0002) !== 0
-
-    const canStep = hasLoadedProgram && !isRunning && !isLoadingProgram
-    const canReset = hasLoadedProgram && isLoaded && !isLoadingProgram
 
     return (
         <main className="app-shell">

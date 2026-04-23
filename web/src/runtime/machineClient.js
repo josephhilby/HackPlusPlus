@@ -81,8 +81,8 @@ export default class MachineClient {
         const ptr = this.instance._get_state_ptr()
         const view = new DataView(this.instance.HEAPU8.buffer)
 
-        const pc = view.getUint16(ptr + 0, true)
-        const flags = view.getUint16(ptr + 2, true)
+        const pc     = view.getUint16(ptr + 0, true)
+        const flags  = view.getUint16(ptr + 2, true)
         const cycles = view.getUint32(ptr + 4, true)
 
         return {

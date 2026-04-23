@@ -1,13 +1,13 @@
 import './Frame.css'
 import Screen from './Screen'
+import Badge from './Badge'
 import StatusBar from './StatusBar'
-import Badge from './Badge.jsx'
 
-export default function Frame({status}) {
+export default function Frame({ canvasRef, status }) {
     return (
         <div className="console-frame">
             <div className="console-top">
-                <Screen />
+                <Screen canvasRef={canvasRef} />
             </div>
 
             <div className="console-bottom">

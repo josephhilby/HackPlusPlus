@@ -1,13 +1,16 @@
 import './Screen.css'
 
-export default function Screen() {
+export default function Screen({ canvasRef }) {
     return (
         <div className="console-screen-shell">
             <div className="console-screen-bezel">
                 <div className="console-crt">
-                    <div className="console-screen-placeholder">
-                        <span>Hack++</span>
-                    </div>
+                    <canvas
+                        ref={canvasRef}
+                        className="console-screen-canvas"
+                        width={512}
+                        height={256}
+                    />
                     <div className="console-crt-overlay" aria-hidden="true"></div>
                 </div>
             </div>
