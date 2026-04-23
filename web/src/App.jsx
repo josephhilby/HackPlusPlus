@@ -147,7 +147,7 @@ export default function App() {
 
                     <div className="control-dock-side">
                         <MachineStatus
-                            state={isLoadingProgram ? 'LOADING' : formatMachineState(machineState.status)}
+                            state={isLoadingProgram ? 'LOADING' : machineStatus}
                             programName={loadedProgram ? loadedProgram.id : 'None'}
                             pc={machineState.pc}
                             cycles={machineState.cycles}
