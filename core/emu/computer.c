@@ -10,9 +10,10 @@ static state_t STATE = {
   .cycles = 0
 };
 
-// Machine-owned memory
+// Refactor to mem.c
 static uint16_t FRAMEBUFFER[SCREEN_WORDS] = {0};
 static uint16_t ROM[ROM_WORDS] = {0};
+static uint16_t RAM[RAM_WORDS] = {0};
 static size_t ROM_SIZE = 0;
 
 void init(void) {

@@ -25,23 +25,24 @@ This project represents a full re-implementation and extension of the baseline H
 > Full technical reference (HDL, ISA, VM grammar, memory maps, and processor internals) lives in `/docs`.
 
 ### Requirements
-- Docker
+- Node.js
+  npm
 
 ### Quick Start
-1. Ensure you meet the given requirements, see above
-2. Clone this repository
-3. Navigate to root
-4. Build and start the container:
+1. Clone this repository
+2. Navigate to web app:
 >```shell
-> docker build -t hack-webemu-static -f Dockerfile .
-> docker run --name hack-webemu --rm -p 8080:8080 hack-webemu-static
+> cd web
 >```
-5. Open your browser to `http://localhost:8080`
-6. Stop the container:
->```bash
-> docker stop hack-webemu
+3. Install dependencies:
+>```shell
+> npm install
 >```
-
+4. Start the development server:
+>```shell
+> npm run dev
+>```
+5. Visit http://localhost:5173/
 
 ### Repository Structure
 ```text
@@ -49,7 +50,6 @@ This project represents a full re-implementation and extension of the baseline H
  ├─ assets/         # Repo/docs Images
  ├─ core/           # C/C++ Hardware Emulator
  ├─ docs/           # Technical Reference
- ├─ programs/       # Hack++ Programs
  ├─ toolchain/
  │   ├─ compiler/   # Compiler   (file.jack → file.vm)
  │   ├─ vm/         # Translator (file.vm   → file.asm)
@@ -158,18 +158,14 @@ This project represents a full re-implementation and extension of the baseline H
 ## Project Architecture
 
 ### Components
-| Component         | Description                                                                |
-|-------------------|----------------------------------------------------------------------------|
-| core (C)          | Hardware simulation of the Hack++ computer (CPU, memory, MMIO, execution). |
-| assembler.c       | Converts assembly into binary (ROM image) loaded into the core.            |
-| vm.c              | Translates VM bytecode into Hack assembly.                                 |
-| compiler.c        | Compiles Jack programs into VM bytecode.                                   |
-| machineClient.js  | Runtime bridge that loads binaries and communicates with the core.         |
-| machineHook.js    | React hook that manages machine state and exposes control operations.      |
-| app.jsx           | Main UI layer that wires machine state to visual components.               |
-| Frame / CRT       | Renders framebuffer output from the core to the screen.                    |
-| Controls          | UI for program loading and execution (run, step, reset).                   |
-| AssemblyPanel     | Debug view for inspecting program source and execution state.              |
+| Component        | Description                                                                  |
+|------------------|------------------------------------------------------------------------------|
+| core             | Hardware simulation of the Hack++ computer (CPU, memory, MMIO, execution).   |
+| toolchain        | Software toolchain of the Hack++ computer (assembler, compiler, vm).         |
+| web              | Web UI of the Hack++ computer.                                               | 
+| machineClient.js | Runtime bridge that loads binaries and communicates between web UI and core. |
+| machineHook.js   | React hook that manages machine state and exposes control operations.        |
+| app.jsx          | Main web UI layer that wires machine state to visual components.             |
 
 
 ## The /docs
