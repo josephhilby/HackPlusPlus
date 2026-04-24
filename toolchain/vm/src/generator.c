@@ -380,10 +380,10 @@ void emit_neg(FILE* out, const char* segment, const char* data) {
 
 // todo: can improve emit_and by just overwirting SP-1
 // @SP
-// AM=M-1
-// D=M
-// A=A-1
-// M=D&M
+// AM=M-1  // SP--, A=SP -> y
+// D=M     // D=y
+// A=A-1   // A=SP-1     -> x
+// M=D&M   // x=x&y
 void emit_and(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
