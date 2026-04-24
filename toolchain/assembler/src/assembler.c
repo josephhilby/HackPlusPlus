@@ -1,6 +1,3 @@
-#include "structs.h"
-#include "parser.h"
-#include "generator.h"
 #include "assembler.h"
 
 int assemble_txt(const char* in, const char* out) {

@@ -1,19 +1,24 @@
 #include "generator.h"
 
-char filename[256];
-long return_id = 1;
+static char filename[256];
+static long return_id = 1;
 
-void set_filename(const char* path) {
-    // this will break on windows (linux and mac only)
-    const char* slash = strrchr(path, '/');
-    const char* name = slash ? slash + 1 : path;
+// Memory
+void emit_push(FILE* out, const char* segment, const char* data);
+void emit_pop(FILE* out, const char* segment, const char* data);
 
-    strncpy(filename, name, sizeof(filename));
-    filename[sizeof(filename) - 1] = '\0';
+// Arithmetic
+void emit_add(FILE* out, const char* segment, const char* data);
+void emit_sub(FILE* out, const char* segment, const char* data);
+void emit_eq(FILE* out, const char* segment, const char* data);
+void emit_lt(FILE* out, const char* segment, const char* data);
+void emit_gt(FILE* out, const char* segment, const char* data);
+void emit_neg(FILE* out, const char* segment, const char* data);
+void emit_and(FILE* out, const char* segment, const char* data);
+void emit_or(FILE* out, const char* segment, const char* data);
+void emit_not(FILE* out, const char* segment, const char* data);
 
-    char* dot = strrchr(filename, '.');
-    if (dot) *dot = '\0';
-}
+static const Command* find_vm_command(const char* mnemonic);
 
 // Dispatch table
 static const Command vm_table[] = {
@@ -31,6 +36,26 @@ static const Command vm_table[] = {
     {NULL,   NULL}
 };
 
+void set_filename(const char* path) {
+    if (!path) {
+        filename[0] = '\0';
+        return;
+    }
+
+    const char* slash = strrchr(path, '/');
+    const char* backslash = strrchr(path, '\\');
+
+    const char* sep = slash > backslash ? slash : backslash;
+    const char* name = sep ? sep + 1 : path;
+
+    snprintf(filename, sizeof(filename), "%s", name);
+
+    char* dot = strrchr(filename, '.');
+    if (dot) {
+        *dot = '\0';
+    }
+}
+
 // Operation := Command Segment Data
 void generate(FILE* dest, Operation* op) {
     if (!op) {
@@ -41,15 +66,6 @@ void generate(FILE* dest, Operation* op) {
         fprintf(dest, "error: command not found\n");
     }
     command->emit(dest, op->segment, op->data);
-}
-
-const Command* find_vm_command(const char* mnemonic) {
-    for (size_t i = 0; vm_table[i].mnemonic; i++) {
-        if (strcmp(vm_table[i].mnemonic, mnemonic) == 0) {
-            return &vm_table[i];
-        }
-    }
-    return NULL;
 }
 
 // true = -1, false = 0, use R15 as RA
@@ -74,6 +90,15 @@ void emit_builtins(FILE* out) {
         "@RETURN\n"
         "0;JMP\n"
         "(START)\n");
+}
+
+static const Command* find_vm_command(const char* mnemonic) {
+    for (size_t i = 0; vm_table[i].mnemonic; i++) {
+        if (strcmp(vm_table[i].mnemonic, mnemonic) == 0) {
+            return &vm_table[i];
+        }
+    }
+    return NULL;
 }
 
 // push:
@@ -233,6 +258,9 @@ void emit_pop(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_add(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -245,6 +273,9 @@ void emit_add(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_sub(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -257,6 +288,9 @@ void emit_sub(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_eq(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -280,6 +314,9 @@ void emit_eq(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_lt(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -303,6 +340,9 @@ void emit_lt(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_gt(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -326,6 +366,9 @@ void emit_gt(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_neg(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -337,11 +380,14 @@ void emit_neg(FILE* out, const char* segment, const char* data) {
 
 // todo: can improve emit_and by just overwirting SP-1
 // @SP
-// AM=M-1
-// D=M
-// A=A-1
-// M=D&M
+// AM=M-1  // SP--, A=SP -> y
+// D=M     // D=y
+// A=A-1   // A=SP-1     -> x
+// M=D&M   // x=x&y
 void emit_and(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -354,6 +400,9 @@ void emit_and(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_or(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -366,6 +415,9 @@ void emit_or(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_not(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
