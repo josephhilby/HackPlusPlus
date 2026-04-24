@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include "../../shared/line.h"
 
 // assumptions: correct code, max line 128 chars
 Instruction* lex_line(char* line, const size_t line_num) {

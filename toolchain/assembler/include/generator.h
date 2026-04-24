@@ -2,7 +2,9 @@
 #define GENERATOR_H
 
 #include<ctype.h>
-#include "structs.h"
+#include "instruction.h"
+#include "symbol_table.h"
+#include "tables.h"
 
 void second_pass(FILE* dist, const Instruction* curr, SystemTable* stbl);
 uint16_t decode_a_inst(const Instruction* inst, SystemTable* stbl);
