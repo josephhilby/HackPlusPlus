@@ -1,6 +1,8 @@
 # IDE and OS files
 .idea/
 .DS_Store
+.vscode/*
+!.vscode/extensions.json
 
 # Compiled artifacts / binaries
 *.o
@@ -28,3 +30,20 @@ toolchain/vm/build/
 # Golden test outputs (generated)
 toolchain/assembler/test/golden/actual/
 toolchain/vm/test/golden/actual/
+
+# Node / Vite (React frontend)
+node_modules/
+
+dist/
+dist-ssr/
+
+*.local
+
+# Logs (Node tooling)
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

@@ -1,0 +1,34 @@
+.console-status-bar {
+    display: grid;
+    gap: 4px;
+
+    min-height: 80px;
+    padding: 16px 18px;
+
+    border-radius: 16px;
+    border: 1px solid var(--edge-soft);
+
+    background: var(--panel-bg);
+
+    box-shadow:
+            inset 0 1px 0 var(--edge-highlight),
+            0 4px 10px var(--edge-shadow-soft);
+}
+
+/* main message */
+.console-status {
+    margin: 0;
+
+    font-size: 1.15rem;
+    font-weight: 800;
+
+    color: var(--text-status);
+}
+
+/* secondary message */
+.console-subtitle {
+    margin: 0;
+
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}

@@ -1,0 +1,161 @@
+/* ---------------------------------- */
+/* Global reset */
+/* ---------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+:root {
+  min-height: 100%;
+  margin: 0;
+
+  /* app background */
+  --app-bg-center: #222;
+  --app-bg-mid: #141414;
+  --app-bg-edge: #0e0e0e;
+  --app-text: #eee;
+  --app-text-muted: #aaa;
+
+  /* computer shell */
+  --shell-outer-top: #cfc7b7;
+  --shell-outer-bottom: #c8c0af;
+  --shell-inner-top: #cbc3b2;
+  --shell-inner-bottom: #c5bcaa;
+  --shell-panel-top: #d2c9b8;
+  --shell-panel-bottom: #bfb5a3;
+
+  /* shared borders / lines */
+  --edge-soft: #a99f8e;
+  --edge-light: rgba(255, 255, 255, 0.12);
+  --edge-highlight: rgba(255, 255, 255, 0.25);
+  --edge-highlight-strong: rgba(255, 255, 255, 0.35);
+  --edge-shadow-soft: rgba(0, 0, 0, 0.08);
+  --edge-shadow-mid: rgba(0, 0, 0, 0.12);
+  --edge-shadow-strong: rgba(0, 0, 0, 0.45);
+
+  /* shared panel surface */
+  --panel-bg: rgba(255, 255, 255, 0.08);
+
+  /* text on shell */
+  --text-primary: #4b463d;
+  --text-status: #4f4a42;
+  --text-secondary: #696356;
+
+  /* slot */
+  --slot-bg: #5c564d;
+
+  /* screen / crt */
+  --crt-border: #223127;
+  --crt-bg-top: #08110c;
+  --crt-bg-bottom: #021008;
+  --crt-glow: rgba(0, 120, 40, 0.25);
+  --crt-glow-inner: rgba(14, 96, 34, 0.4);
+  --crt-shadow: rgba(0, 0, 0, 0.85);
+  --crt-text: rgba(201, 235, 205, 0.65);
+
+  /* badge rainbow */
+  --badge-red: #ff4d4d;
+  --badge-orange: #ffb84d;
+  --badge-yellow: #ffe44d;
+  --badge-green: #63d96b;
+  --badge-blue: #4da3ff;
+  --badge-purple: #b84dff;
+}
+
+/* ---------------------------------- */
+/* Page background */
+/* ---------------------------------- */
+
+body {
+  min-height: 100vh;
+  background:
+          radial-gradient(
+                  1200px 700px at 50% 30%,
+                  var(--app-bg-center) 0%,
+                  var(--app-bg-mid) 55%,
+                  var(--app-bg-edge) 100%
+          );
+  color: var(--app-text);
+}
+
+/* ---------------------------------- */
+/* App layout */
+/* ---------------------------------- */
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 60px;
+}
+
+.console-stack {
+  width: min(1100px, 100%);
+  display: grid;
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.control-dock {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.control-dock-main {
+  display: grid;
+  gap: 16px;
+}
+
+.control-dock-side {
+  display: grid;
+}
+
+@media (max-width: 900px) {
+  .control-dock {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------- */
+/* Optional footer */
+/* ---------------------------------- */
+
+.footer-hint {
+  margin-top: 18px;
+  color: var(--app-text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ---------------------------------- */
+/* Modal */
+/* ---------------------------------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.modal-dialog {
+  width: min(1200px, 95vw);
+  max-height: 90vh;
+  overflow: hidden;
+}

@@ -1,37 +1,46 @@
-CC      := cc
-TARGET  := hackemu
-OBJ_DIR := build
+EMCC        := emcc
 
-# Source files (relative to src/)
+SRC_DIR     := emu
+UTIL_DIR    := util
+BUILD_DIR   := build
+WASM_DIR    := ../web/src/runtime/wasm
+
+TARGET_NAME := computer
+WASM_JS     := $(WASM_DIR)/$(TARGET_NAME).js
+
 SRCS := \
-  main.c \
-  server/server.c \
-  emu/mem.c \
-  vendor/mongoose.c
+  $(SRC_DIR)/computer.c
 
-# Map foo/bar.c -> build/foo/bar.o
-OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS))
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
 CFLAGS := -std=c2x -Wall -Wextra -Wpedantic \
-  -D_POSIX_C_SOURCE=200809L \
-  -D_DEFAULT_SOURCE \
-  -D_GNU_SOURCE \
-  -I. \
-  -Iemu \
-  -Iserver \
-  -Iutil \
-  -Ivendor
+  -I$(SRC_DIR) \
+  -I$(UTIL_DIR)
 
-.PHONY: all clean
+LDFLAGS := \
+  -s WASM=1 \
+  -s MODULARIZE=1 \
+  -s EXPORT_ES6=1 \
+  -s ENVIRONMENT=web \
+  -s ALLOW_MEMORY_GROWTH=1 \
+  -s EXPORTED_FUNCTIONS='["_init","_get_rom_ptr","_commit_rom","_run","_stop","_step","_reset","_set_keyboard","_get_state_ptr","_get_framebuffer_ptr"]' \
+  -s EXPORTED_RUNTIME_METHODS='["HEAPU8"]'
 
-all: $(TARGET)
+.PHONY: all wasm clean
 
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $@
+all: wasm
 
-$(OBJ_DIR)/%.o: %.c
+wasm: $(WASM_JS)
+
+$(WASM_JS): $(OBJS)
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(EMCC) $(OBJS) $(LDFLAGS) -o $@
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(dir $@)
+	$(EMCC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	rm -rf $(BUILD_DIR) \
+	       $(WASM_DIR)/$(TARGET_NAME).js \
+	       $(WASM_DIR)/$(TARGET_NAME).wasm
