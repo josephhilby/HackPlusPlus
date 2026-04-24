@@ -1,7 +1,4 @@
-#include "structs.h"
-#include "lexer.h"
-#include "parser.h"
-#include "generator.h"
+#include "vm.h"
 
 int translate_asm(const char* in, const char* out) {
     // Open Source File

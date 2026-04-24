@@ -233,6 +233,9 @@ void emit_pop(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_add(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -245,6 +248,9 @@ void emit_add(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_sub(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -257,6 +263,9 @@ void emit_sub(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_eq(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -280,6 +289,9 @@ void emit_eq(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_lt(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -303,6 +315,9 @@ void emit_lt(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_gt(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@RET_POINT_%ld\n"
         "D=A\n"
@@ -326,6 +341,9 @@ void emit_gt(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_neg(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -342,6 +360,9 @@ void emit_neg(FILE* out, const char* segment, const char* data) {
 // A=A-1
 // M=D&M
 void emit_and(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -354,6 +375,9 @@ void emit_and(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_or(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
@@ -366,6 +390,9 @@ void emit_or(FILE* out, const char* segment, const char* data) {
 }
 
 void emit_not(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
     fprintf(out,
         "@SP\n"
         "AM=M-1\n"
