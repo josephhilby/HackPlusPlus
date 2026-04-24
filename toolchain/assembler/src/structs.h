@@ -7,7 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_LENGTH 128
+#include "../../shared/common.h"
+
 #define N_BUCKETS 128
 #define N_REG 15
 

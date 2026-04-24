@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_LENGTH 128
+#include "../../shared/common.h"
 
 typedef struct {
     char ltrl[MAX_LENGTH];
