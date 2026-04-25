@@ -15,6 +15,7 @@ assembler_tests
 # Node / Vite (web app / docs)
 node_modules/
 docs/old/
+.vite/
 
 # C/C++ tooling
 *.dSYM/
