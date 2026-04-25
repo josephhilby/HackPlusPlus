@@ -11,7 +11,7 @@ static state_t STATE = {
 };
 
 // Refactor to mem.c
-// 0: white, 1: black
+// 0: white (black), 1: black (green)
 static uint16_t FRAMEBUFFER[SCREEN_WORDS] = {0};
 static uint16_t ROM[ROM_WORDS] = {0};
 //static uint16_t RAM[RAM_WORDS] = {0};

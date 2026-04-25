@@ -100,7 +100,7 @@ static void run_golden_case(const std::string& stem) {
     ASSERT_TRUE(fs::exists(in))  << "Missing input: "    << in.string();
     ASSERT_TRUE(fs::exists(exp)) << "Missing expected: " << exp.string();
 
-    int rc = translate_asm(in.c_str(), out.c_str());
+    int rc = translate_vm(in.c_str(), out.c_str());
     ASSERT_EQ(rc, 0) << "Translate failed: " << in.string();
 
     auto a = normalize_eol(read_all(out));
@@ -129,4 +129,8 @@ TEST(Golden, Pointer)  {
 
 TEST(Golden, Static) {
     run_golden_case("Static");
+}
+
+TEST(Golden, SimpleFunction) {
+    run_golden_case("SimpleFunction");
 }

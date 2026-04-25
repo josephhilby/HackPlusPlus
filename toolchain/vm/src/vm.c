@@ -1,6 +1,6 @@
 #include "vm.h"
 
-int translate_asm(const char* in, const char* out) {
+int translate_vm(const char* in, const char* out) {
     // Open Source File
     FILE* src = fopen(in, "r");
     if (!src) {

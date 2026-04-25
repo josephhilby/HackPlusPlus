@@ -191,7 +191,7 @@ void emit_push(FILE* out, const char* segment, const char* data) {
     }
 }
 
-// push:
+// pop:
 //   segment := argument, local, static, this, that, pointer, temp
 //   index   := non neg int
 void emit_pop(FILE* out, const char* segment, const char* data) {

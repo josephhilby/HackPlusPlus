@@ -63,7 +63,7 @@ static void run_golden_case(const std::string& stem) {
     ASSERT_TRUE(fs::exists(in))  << "Missing input: "    << in.string();
     ASSERT_TRUE(fs::exists(exp)) << "Missing expected: " << exp.string();
 
-    int rc = assemble_txt(in.c_str(), out.c_str());
+    int rc = assemble_asm(in.c_str(), out.c_str());
     ASSERT_EQ(rc, 0) << "Assemble failed: " << in.string();
 
     auto a = read_all(out);

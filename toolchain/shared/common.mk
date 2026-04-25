@@ -8,8 +8,16 @@ INC_DIR        := include
 SHARED_DIR     := ../shared
 OBJ_DIR        := build
 
+BIN            := $(OBJ_DIR)/$(BIN_NAME)
 LIB_A          := $(OBJ_DIR)/$(LIB_NAME)
 TEST_BIN       := $(OBJ_DIR)/$(TEST_NAME)
+
+APP_SRC        := $(SRC_DIR)/main.c
+LIB_SRCS       := $(filter-out $(APP_SRC),$(wildcard $(SRC_DIR)/*.c)) \
+                  $(wildcard $(SHARED_DIR)/*.c)
+
+LIB_OBJS       := $(patsubst %.c,$(OBJ_DIR)/%.o,$(LIB_SRCS))
+APP_OBJ        := $(patsubst %.c,$(OBJ_DIR)/%.o,$(APP_SRC))
 
 GTEST_INC      ?= /opt/homebrew/include
 GTEST_LIB      ?= /opt/homebrew/lib
@@ -19,11 +27,6 @@ CFLAGS         := -std=c2x -Wall -Wextra -Wpedantic
 CFLAGS         += -I$(INC_DIR) -I$(SRC_DIR) -I$(SHARED_DIR)
 
 CXXFLAGS       := -std=c++20
-
-SRCS           := $(wildcard $(SRC_DIR)/*.c) \
-                  $(wildcard $(SHARED_DIR)/*.c)
-
-OBJS           := $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS))
 
 SAN_CFLAGS     := -g -O0 -fno-omit-frame-pointer
 SAN_FLAGS      := -fsanitize=address,undefined
@@ -36,18 +39,22 @@ LEAK_CXXWARN   := -Wno-character-conversion
 LEAK_BIN       := $(OBJ_DIR)/$(TEST_NAME)_leak
 LEAK_LIB_A     := $(OBJ_DIR)/$(basename $(LIB_NAME))_leak.a
 LEAK_OBJ_DIR   := $(OBJ_DIR)/leak
-LEAK_OBJS      := $(patsubst %.c,$(LEAK_OBJ_DIR)/%.o,$(SRCS))
+LEAK_OBJS      := $(patsubst %.c,$(LEAK_OBJ_DIR)/%.o,$(LIB_SRCS))
 
 ASAN_OPTIONS   ?= detect_leaks=1:abort_on_error=1:strict_string_checks=1:check_initialization_order=1
 UBSAN_OPTIONS  ?= halt_on_error=1:print_stacktrace=1
 
 .PHONY: all clean test debug leak
 
-all: $(LIB_A)
+all: $(LIB_A) $(BIN)
 
-$(LIB_A): $(OBJS)
-	$(AR) rcs $@ $(OBJS)
+$(LIB_A): $(LIB_OBJS)
+	$(AR) rcs $@ $(LIB_OBJS)
 	$(RANLIB) $@
+
+$(BIN): $(APP_OBJ) $(LIB_A)
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(APP_OBJ) $(LIB_A) -o $@
 
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p $(dir $@)
