@@ -135,6 +135,14 @@ TEST(Golden, SimpleFunction) {
     run_golden_case("SimpleFunction");
 }
 
+TEST(Golden, Loop) {
+    run_golden_case("Loop");
+}
+
 TEST(Golden, FibonacciSeries) {
     run_golden_case("FibonacciSeries");
+}
+
+TEST(Golden, NestedCall) {
+    run_golden_case("Sys");
 }

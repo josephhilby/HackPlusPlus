@@ -32,6 +32,7 @@ static void emit_return(FILE* out, const char* segment, const char* data);
 static void emit_label(FILE* out, const char* segment, const char* data);
 static void emit_goto(FILE* out, const char* segment, const char* data);
 static void emit_if_goto(FILE* out, const char* segment, const char* data);
+static void emit_call(FILE* out, const char* name, const char* n_args);
 
 static const VmCommand* find_vm_command(const char* mnemonic);
 
@@ -53,6 +54,7 @@ static const VmCommand vm_table[] = {
     {"label",   emit_label},
 	{"goto",    emit_goto},
 	{"if-goto", emit_if_goto},
+    {"call", emit_call},
     {NULL,   NULL}
 };
 
@@ -492,4 +494,80 @@ static void emit_if_goto(FILE* out, const char* segment, const char* label) {
         "@%s\n"
         "D;JNE\n",
         label);
+}
+
+static long function_id = 0;
+
+static void emit_call(FILE* out, const char* name, const char* n_args) {
+    const long id = function_id++;
+
+    fprintf(out,
+        // push return address
+        "@RET_%ld\n"
+        "D=A\n"
+        "@SP\n"
+        "A=M\n"
+        "M=D\n"
+        "@SP\n"
+        "M=M+1\n"
+
+        // push LCL
+        "@LCL\n"
+        "D=M\n"
+        "@SP\n"
+        "A=M\n"
+        "M=D\n"
+        "@SP\n"
+        "M=M+1\n"
+
+        // push ARG
+        "@ARG\n"
+        "D=M\n"
+        "@SP\n"
+        "A=M\n"
+        "M=D\n"
+        "@SP\n"
+        "M=M+1\n"
+
+        // push THIS
+        "@THIS\n"
+        "D=M\n"
+        "@SP\n"
+        "A=M\n"
+        "M=D\n"
+        "@SP\n"
+        "M=M+1\n"
+
+        // push THAT
+        "@THAT\n"
+        "D=M\n"
+        "@SP\n"
+        "A=M\n"
+        "M=D\n"
+        "@SP\n"
+        "M=M+1\n"
+
+        // ARG = SP - nArgs - 5
+        "@SP\n"
+        "D=M\n"
+        "@%s\n"
+        "D=D-A\n"
+        "@5\n"
+        "D=D-A\n"
+        "@ARG\n"
+        "M=D\n"
+
+        // LCL = SP
+        "@SP\n"
+        "D=M\n"
+        "@LCL\n"
+        "M=D\n"
+
+        // goto function
+        "@%s\n"
+        "0;JMP\n"
+
+        // return address label
+        "(RET_%ld)\n",
+        id, n_args, name, id);
 }
