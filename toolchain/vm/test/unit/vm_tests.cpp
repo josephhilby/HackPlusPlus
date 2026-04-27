@@ -131,6 +131,6 @@ TEST(Golden, Static) {
     run_golden_case("Static");
 }
 
-//TEST(Golden, SimpleFunction) {
-//    run_golden_case("SimpleFunction");
-//}
+TEST(Golden, SimpleFunction) {
+    run_golden_case("SimpleFunction");
+}

@@ -19,9 +19,6 @@ int translate_vm(const char* in, const char* out) {
         return 1;
     }
 
-    // Write Builtins
-//    emit_builtins(dest);
-
     // ONE PASS TRANSLATOR
     char buffer[MAX_LENGTH];
     while (fgets(buffer, MAX_LENGTH, src)) {

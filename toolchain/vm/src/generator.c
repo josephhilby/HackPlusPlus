@@ -1,24 +1,34 @@
 #include "generator.h"
 
+/*
+  nand2tetris does not use return or frame pointers in the symbol table
+  these are added until the entire project is complete then will be refactored
+  to the assembler table
+ */
+#define FRAME "R13"
+#define RET   "R14"
+
 static char filename[256];
 static long compare_id = 1;
 
 // Memory
-void emit_push(FILE* out, const char* segment, const char* data);
-void emit_pop(FILE* out, const char* segment, const char* data);
+static void emit_push(FILE* out, const char* segment, const char* data);
+static void emit_pop(FILE* out, const char* segment, const char* data);
 
 // Arithmetic
-void emit_add(FILE* out, const char* segment, const char* data);
-void emit_sub(FILE* out, const char* segment, const char* data);
+static void emit_add(FILE* out, const char* segment, const char* data);
+static void emit_sub(FILE* out, const char* segment, const char* data);
 
 // Logic
-void emit_eq(FILE* out, const char* segment, const char* data);
-void emit_lt(FILE* out, const char* segment, const char* data);
-void emit_gt(FILE* out, const char* segment, const char* data);
-void emit_neg(FILE* out, const char* segment, const char* data);
-void emit_and(FILE* out, const char* segment, const char* data);
-void emit_or(FILE* out, const char* segment, const char* data);
-void emit_not(FILE* out, const char* segment, const char* data);
+static void emit_eq(FILE* out, const char* segment, const char* data);
+static void emit_lt(FILE* out, const char* segment, const char* data);
+static void emit_gt(FILE* out, const char* segment, const char* data);
+static void emit_neg(FILE* out, const char* segment, const char* data);
+static void emit_and(FILE* out, const char* segment, const char* data);
+static void emit_or(FILE* out, const char* segment, const char* data);
+static void emit_not(FILE* out, const char* segment, const char* data);
+static void emit_function(FILE* out, const char* segment, const char* data);
+static void emit_return(FILE* out, const char* segment, const char* data);
 
 static const VmCommand* find_vm_command(const char* mnemonic);
 
@@ -35,6 +45,8 @@ static const VmCommand vm_table[] = {
     {"and",  emit_and},
     {"or",  emit_or},
     {"not",  emit_not},
+    {"function",  emit_function},
+    {"return", emit_return},
     {NULL,   NULL}
 };
 
@@ -82,7 +94,7 @@ static const VmCommand* find_vm_command(const char* mnemonic) {
 // push:
 //   segment := argument, local, static, constant, this, that, pointer, temp
 //   index   := non neg int
-void emit_push(FILE* out, const char* segment, const char* data) {
+static void emit_push(FILE* out, const char* segment, const char* data) {
     // push constant i
     if (strcmp(segment, "constant") == 0) {
         fprintf(out,
@@ -172,7 +184,7 @@ void emit_push(FILE* out, const char* segment, const char* data) {
 // pop:
 //   segment := argument, local, static, this, that, pointer, temp
 //   index   := non neg int
-void emit_pop(FILE* out, const char* segment, const char* data) {
+static void emit_pop(FILE* out, const char* segment, const char* data) {
     if (strcmp(segment, "static") == 0) {
         fprintf(out,
             "@SP\n"
@@ -235,7 +247,7 @@ void emit_pop(FILE* out, const char* segment, const char* data) {
     }
 }
 
-void emit_add(FILE* out, const char* segment, const char* data) {
+static void emit_add(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
 
@@ -250,7 +262,7 @@ void emit_add(FILE* out, const char* segment, const char* data) {
         "M=M+1\n");
 }
 
-void emit_sub(FILE* out, const char* segment, const char* data) {
+static void emit_sub(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
 
@@ -266,7 +278,7 @@ void emit_sub(FILE* out, const char* segment, const char* data) {
 }
 
 // true = -1, false = 0
-static void emit_compare(FILE* out, const char* jump) {
+static static void emit_compare(FILE* out, const char* jump) {
     const long id = compare_id++;
 
     fprintf(out,
@@ -290,25 +302,25 @@ static void emit_compare(FILE* out, const char* jump) {
         id, jump, id, id, id);
 }
 
-void emit_eq(FILE* out, const char* segment, const char* data) {
+static void emit_eq(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
     emit_compare(out, "JEQ");
 }
 
-void emit_lt(FILE* out, const char* segment, const char* data) {
+static void emit_lt(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
     emit_compare(out, "JLT");
 }
 
-void emit_gt(FILE* out, const char* segment, const char* data) {
+static void emit_gt(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
     emit_compare(out, "JGT");
 }
 
-void emit_neg(FILE* out, const char* segment, const char* data) {
+static void emit_neg(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
 
@@ -321,13 +333,13 @@ void emit_neg(FILE* out, const char* segment, const char* data) {
 }
 
 
-// todo: can improve emit_and by just overwirting SP-1
+// todo: improve emit_and by overwirting SP-1
 // @SP
 // AM=M-1  // SP--, A=SP -> y
 // D=M     // D=y
 // A=A-1   // A=SP-1     -> x
 // M=D&M   // x=x&y
-void emit_and(FILE* out, const char* segment, const char* data) {
+static void emit_and(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
 
@@ -342,7 +354,7 @@ void emit_and(FILE* out, const char* segment, const char* data) {
         "M=M+1\n");
 }
 
-void emit_or(FILE* out, const char* segment, const char* data) {
+static void emit_or(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
 
@@ -357,7 +369,7 @@ void emit_or(FILE* out, const char* segment, const char* data) {
         "M=M+1\n");
 }
 
-void emit_not(FILE* out, const char* segment, const char* data) {
+static void emit_not(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
 
@@ -367,4 +379,87 @@ void emit_not(FILE* out, const char* segment, const char* data) {
         "M=!M\n"
         "@SP\n"
         "M=M+1\n");
+}
+
+static void emit_function(FILE* out, const char* name, const char* n_vars) {
+    int count = atoi(n_vars);
+
+    fprintf(out, "(%s)\n", name);
+
+    for (int i = 0; i < count; i++) {
+        fprintf(out,
+            "@SP\n"
+            "A=M\n"
+            "M=0\n"
+            "@SP\n"
+            "M=M+1\n");
+    }
+}
+
+static void emit_return(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+
+    fprintf(out,
+
+        // save current frame base (FRAME = LCL)
+        "@LCL\n"
+        "D=M\n"
+        "@" FRAME "\n"
+        "M=D\n"
+
+        // get return address (RET = (FRAME - 5))
+        "@5\n"
+        "A=D-A\n"
+        "D=M\n"
+        "@" RET "\n"
+        "M=D\n"
+
+        // move return value to arg 0 (ARG = pop())
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@ARG\n"
+        "A=M\n"
+        "M=D\n"
+
+        // restore caller stack pointer (SP = ARG + 1)
+        "@ARG\n"
+        "D=M+1\n"
+        "@SP\n"
+        "M=D\n"
+
+        // restore THAT = (FRAME - 1)
+        "@" FRAME "\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@THAT\n"
+        "M=D\n"
+
+        // restore THIS = (FRAME - 2)
+        "@" FRAME "\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@THIS\n"
+        "M=D\n"
+
+        // restore ARG = (FRAME - 3)
+        "@" FRAME "\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@ARG\n"
+        "M=D\n"
+
+        // restore LCL = (FRAME - 4)
+        "@" FRAME "\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@LCL\n"
+        "M=D\n"
+
+        // jump back to caller
+        "@" RET "\n"
+        "A=M\n"
+        "0;JMP\n"
+    );
 }
