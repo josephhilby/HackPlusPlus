@@ -1,16 +1,12 @@
 #include "computer.h"
 
-#define SCREEN_WORDS 8192
-//#define RAM_WORDS 24577
-#define ROM_WORDS 32768
-
 static state_t STATE = {
   .pc = 0,
   .flags = 0,
   .cycles = 0
 };
 
-// Refactor to mem.c
+// Refactor to mem.c, remove framebuffer and roll screeb into MMIO in RAM
 // 0: white (black), 1: black (green)
 static uint16_t FRAMEBUFFER[SCREEN_WORDS] = {0};
 static uint16_t ROM[ROM_WORDS] = {0};
