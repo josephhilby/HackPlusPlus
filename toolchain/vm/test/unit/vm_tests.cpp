@@ -134,3 +134,7 @@ TEST(Golden, Static) {
 TEST(Golden, SimpleFunction) {
     run_golden_case("SimpleFunction");
 }
+
+TEST(Golden, FibonacciSeries) {
+    run_golden_case("FibonacciSeries");
+}

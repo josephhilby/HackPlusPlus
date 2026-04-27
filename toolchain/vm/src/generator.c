@@ -29,6 +29,9 @@ static void emit_or(FILE* out, const char* segment, const char* data);
 static void emit_not(FILE* out, const char* segment, const char* data);
 static void emit_function(FILE* out, const char* segment, const char* data);
 static void emit_return(FILE* out, const char* segment, const char* data);
+static void emit_label(FILE* out, const char* segment, const char* data);
+static void emit_goto(FILE* out, const char* segment, const char* data);
+static void emit_if_goto(FILE* out, const char* segment, const char* data);
 
 static const VmCommand* find_vm_command(const char* mnemonic);
 
@@ -47,6 +50,9 @@ static const VmCommand vm_table[] = {
     {"not",  emit_not},
     {"function",  emit_function},
     {"return", emit_return},
+    {"label",   emit_label},
+	{"goto",    emit_goto},
+	{"if-goto", emit_if_goto},
     {NULL,   NULL}
 };
 
@@ -462,4 +468,28 @@ static void emit_return(FILE* out, const char* segment, const char* data) {
         "A=M\n"
         "0;JMP\n"
     );
+}
+
+static void emit_label(FILE* out, const char* segment, const char* label) {
+    (void)segment;
+    fprintf(out, "(%s)\n", label);
+}
+
+static void emit_goto(FILE* out, const char* segment, const char* label) {
+    (void)segment;
+    fprintf(out,
+        "@%s\n"
+        "0;JMP\n",
+        label);
+}
+
+static void emit_if_goto(FILE* out, const char* segment, const char* label) {
+    (void)segment;
+    fprintf(out,
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n"
+        "@%s\n"
+        "D;JNE\n",
+        label);
 }
