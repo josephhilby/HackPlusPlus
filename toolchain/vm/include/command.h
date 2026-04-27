@@ -3,11 +3,12 @@
 
 #include <stdio.h>
 
-typedef void (*Emitter)(FILE* out, const char* arg1, const char* arg2);
+// Operation := Command Segment Data
+typedef void (*VmEmitter)(FILE* out, const char* segment, const char* data);
 
 typedef struct {
     const char* mnemonic;
-    Emitter emit;
-} Command;
+    VmEmitter emit;
+} VmCommand;
 
 #endif

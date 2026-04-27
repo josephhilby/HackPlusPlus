@@ -1,7 +1,7 @@
 #include "generator.h"
 
 static char filename[256];
-static long return_id = 1;
+static long compare_id = 1;
 
 // Memory
 void emit_push(FILE* out, const char* segment, const char* data);
@@ -10,6 +10,8 @@ void emit_pop(FILE* out, const char* segment, const char* data);
 // Arithmetic
 void emit_add(FILE* out, const char* segment, const char* data);
 void emit_sub(FILE* out, const char* segment, const char* data);
+
+// Logic
 void emit_eq(FILE* out, const char* segment, const char* data);
 void emit_lt(FILE* out, const char* segment, const char* data);
 void emit_gt(FILE* out, const char* segment, const char* data);
@@ -18,10 +20,10 @@ void emit_and(FILE* out, const char* segment, const char* data);
 void emit_or(FILE* out, const char* segment, const char* data);
 void emit_not(FILE* out, const char* segment, const char* data);
 
-static const Command* find_vm_command(const char* mnemonic);
+static const VmCommand* find_vm_command(const char* mnemonic);
 
 // Dispatch table
-static const Command vm_table[] = {
+static const VmCommand vm_table[] = {
     {"push", emit_push},
     {"pop",  emit_pop},
     {"add",  emit_add},
@@ -61,38 +63,14 @@ void generate(FILE* dest, Operation* op) {
     if (!op) {
         return;
     }
-    const Command* command = find_vm_command(op->command);
+    const VmCommand* command = find_vm_command(op->command);
     if (!command) {
         fprintf(dest, "error: command not found\n");
     }
     command->emit(dest, op->segment, op->data);
 }
 
-// true = -1, false = 0, use R15 as RA
-void emit_builtins(FILE* out) {
-    fprintf(out,
-        "@START\n"
-        "0;JMP\n"
-        "(RETURN)\n"
-        "@R15\n"
-        "A=M\n"
-        "0;JMP\n"
-        "(TRUE)\n"
-        "@SP\n"
-        "A=M-1\n"
-        "M=-1\n"
-        "@RETURN\n"
-        "0;JMP\n"
-        "(FALSE)\n"
-        "@SP\n"
-        "A=M-1\n"
-        "M=0\n"
-        "@RETURN\n"
-        "0;JMP\n"
-        "(START)\n");
-}
-
-static const Command* find_vm_command(const char* mnemonic) {
+static const VmCommand* find_vm_command(const char* mnemonic) {
     for (size_t i = 0; vm_table[i].mnemonic; i++) {
         if (strcmp(vm_table[i].mnemonic, mnemonic) == 0) {
             return &vm_table[i];
@@ -287,82 +265,47 @@ void emit_sub(FILE* out, const char* segment, const char* data) {
         "M=M+1\n");
 }
 
-void emit_eq(FILE* out, const char* segment, const char* data) {
-    (void)segment;
-    (void)data;
+// true = -1, false = 0
+static void emit_compare(FILE* out, const char* jump) {
+    const long id = compare_id++;
 
     fprintf(out,
-        "@RET_POINT_%ld\n"
-        "D=A\n"
-        "@R15\n"
-        "M=D\n"
         "@SP\n"
         "AM=M-1\n"
         "D=M\n"
+        "A=A-1\n"
+        "D=M-D\n"
+        "@CMP_TRUE_%ld\n"
+        "D;%s\n"
         "@SP\n"
-        "AM=M-1\n"
-        "MD=M-D\n"
-        "@SP\n"
-        "M=M+1\n"
-        "@TRUE\n"
-        "D;JEQ\n"
-        "@FALSE\n"
+        "A=M-1\n"
+        "M=0\n"
+        "@CMP_END_%ld\n"
         "0;JMP\n"
-        "(RET_POINT_%ld)\n",
-        return_id, return_id);
-    return_id++;
+        "(CMP_TRUE_%ld)\n"
+        "@SP\n"
+        "A=M-1\n"
+        "M=-1\n"
+        "(CMP_END_%ld)\n",
+        id, jump, id, id, id);
+}
+
+void emit_eq(FILE* out, const char* segment, const char* data) {
+    (void)segment;
+    (void)data;
+    emit_compare(out, "JEQ");
 }
 
 void emit_lt(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
-
-    fprintf(out,
-        "@RET_POINT_%ld\n"
-        "D=A\n"
-        "@R15\n"
-        "M=D\n"
-        "@SP\n"
-        "AM=M-1\n"
-        "D=M\n"
-        "@SP\n"
-        "AM=M-1\n"
-        "MD=M-D\n"
-        "@SP\n"
-        "M=M+1\n"
-        "@TRUE\n"
-        "D;JLT\n"
-        "@FALSE\n"
-        "0;JMP\n"
-        "(RET_POINT_%ld)\n",
-        return_id, return_id);
-    return_id++;
+    emit_compare(out, "JLT");
 }
 
 void emit_gt(FILE* out, const char* segment, const char* data) {
     (void)segment;
     (void)data;
-
-    fprintf(out,
-        "@RET_POINT_%ld\n"
-        "D=A\n"
-        "@R15\n"
-        "M=D\n"
-        "@SP\n"
-        "AM=M-1\n"
-        "D=M\n"
-        "@SP\n"
-        "AM=M-1\n"
-        "MD=M-D\n"
-        "@SP\n"
-        "M=M+1\n"
-        "@TRUE\n"
-        "D;JGT\n"
-        "@FALSE\n"
-        "0;JMP\n"
-        "(RET_POINT_%ld)\n",
-        return_id, return_id);
-    return_id++;
+    emit_compare(out, "JGT");
 }
 
 void emit_neg(FILE* out, const char* segment, const char* data) {
