@@ -1,7 +1,7 @@
 #include "generator.h"
 
 /*
-  nand2tetris 'registers'
+  nand2tetris 'registers':
     R0-12  reserved
     R13-15 free
 
@@ -13,6 +13,13 @@
 #define FRAME "R14"
 #define RET   "R15"
 
+/*
+  Generator state:
+    filename         Current VM file stem. Used for static symbols and generated labels.
+    current_function Current VM function scope. Used for label/goto/if-goto scoping.
+    compare_id       Unique suffix for generated comparison labels.
+    function_id      Unique suffix for generated return-address labels.
+*/
 static char filename[256];
 static char current_function[256];
 static long compare_id = 0;

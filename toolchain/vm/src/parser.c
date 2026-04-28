@@ -1,15 +1,24 @@
 #include "parser.h"
 
 /*
-  In general,
-     Operation := Command Segment Data
-  Specific,
-     Memory Op := Command Segment Data
-     Func Op   := Command Segment Data
-     Branch Op := Command         Data
-     Alu Op    := Command
-     Ret Op    := Command
- */
+  Parses a cleaned VM source line into an Operation.
+
+  General storage model:
+      Operation := command segment data
+
+  Command shapes:
+      push/pop     command segment index
+      function     command name    n_vars
+      call         command name    n_args
+      label/goto   command         label
+      if-goto      command         label
+      arithmetic   command
+      return       command
+
+  For one-operand commands, the operand is stored in op->data.
+  For two-operand commands, operands are stored in op->segment and op->data.
+*/
+
 void parse_operation(Operation* op) {
     if (!op) {
         return;
