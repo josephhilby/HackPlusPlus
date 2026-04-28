@@ -1,5 +1,6 @@
-#include "vm.h"
 #include <stdio.h>
+
+#include "../include/vm.h"
 
 int main(int argc, char** argv) {
     if (argc != 3) {

@@ -1,7 +1,8 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
-#include <string.h>
+#include <stdio.h>
+
 #include "operation.h"
 #include "command.h"
 

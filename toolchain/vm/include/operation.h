@@ -1,9 +1,8 @@
 #ifndef OPERATION_H
 #define OPERATION_H
 
-#include <stdio.h>
 #include <stdlib.h>
-#include "common.h"
+#include "../../shared/common.h"
 
 typedef struct {
     char ltrl[MAX_LENGTH];

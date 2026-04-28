@@ -1,4 +1,10 @@
-#include "generator.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+
+#include "../include/generator.h"
+#include "../include/command.h"
 
 /*
   nand2tetris 'registers':

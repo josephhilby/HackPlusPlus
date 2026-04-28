@@ -1,4 +1,8 @@
-#include "lexer.h"
+#include <stddef.h>
+#include <string.h>
+
+#include "../include/lexer.h"
+#include "../include/operation.h"
 
 Operation* lex_line(char* line) {
     char* cleaned = clean_line(line);
