@@ -17,7 +17,7 @@ D=M
 @R13
 A=M
 M=D
-(LOOP)
+(Loop$LOOP)
 @ARG
 D=M
 @0
@@ -49,11 +49,8 @@ M=M+1
 @SP
 AM=M-1
 D=M
-@SP
-AM=M-1
+A=A-1
 M=D+M
-@SP
-M=M+1
 @LCL
 D=M
 @0
@@ -90,11 +87,8 @@ M=M+1
 @SP
 AM=M-1
 D=M
-@SP
-AM=M-1
+A=A-1
 M=M-D
-@SP
-M=M+1
 @ARG
 D=M
 @0
@@ -124,7 +118,7 @@ M=M+1
 @SP
 AM=M-1
 D=M
-@LOOP
+@Loop$LOOP
 D;JNE
 @LCL
 D=M

@@ -1,5 +1,15 @@
 #include "parser.h"
 
+/*
+  In general,
+     Operation := Command Segment Data
+  Specific,
+     Memory Op := Command Segment Data
+     Func Op   := Command Segment Data
+     Branch Op := Command         Data
+     Alu Op    := Command
+     Ret Op    := Command
+ */
 void parse_operation(Operation* op) {
     if (!op) {
         return;
