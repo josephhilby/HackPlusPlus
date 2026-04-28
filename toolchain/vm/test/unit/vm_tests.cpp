@@ -93,11 +93,20 @@ static void fail_with_diff(const std::string& stem,
 static void run_golden_case(const std::string& stem) {
     fs::create_directories(actual_dir());
 
-    fs::path in  = cases_dir()    / (stem + ".vm");
+    fs::path file_case = cases_dir() / (stem + ".vm");
+    fs::path dir_case  = cases_dir() / stem;
+
+    fs::path in;
+    if (fs::exists(file_case)) {
+        in = file_case;
+    } else {
+        in = dir_case;
+    }
+
     fs::path out = actual_dir()   / (stem + ".asm");
     fs::path exp = expected_dir() / (stem + ".asm");
 
-    ASSERT_TRUE(fs::exists(in))  << "Missing input: "    << in.string();
+    ASSERT_TRUE(fs::exists(in))  << "Missing input: " << in.string();
     ASSERT_TRUE(fs::exists(exp)) << "Missing expected: " << exp.string();
 
     int rc = translate_vm(in.c_str(), out.c_str());
@@ -145,4 +154,12 @@ TEST(Golden, FibonacciSeries) {
 
 TEST(Golden, NestedCall) {
     run_golden_case("Sys");
+}
+
+TEST(Golden, Statics) {
+    run_golden_case("Statics");
+}
+
+TEST(Golden, FibonacciElement) {
+    run_golden_case("FibonacciElement");
 }

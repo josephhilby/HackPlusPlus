@@ -28,13 +28,12 @@
 
   ------------------ caller stack ------------------
 
-  (Model: caller frame)
-  (Model: caller working stack)
+  (Model: caller frame + working stack)
 
   ------------------ callee frame ------------------
 
-ARG →  arg 0 (RAM: return value)
-       arg 1 (RAM: new caller SP)
+ARG →  arg 0 (RAM: becomes return value)
+       arg 1 (RAM: becomes caller SP)
        ...
        arg n_args-1
 
@@ -44,7 +43,7 @@ ARG →  arg 0 (RAM: return value)
        caller THIS
        caller THAT
 
-LCL →  local 0
+LCL →  local 0 (RAM: n_vars init to 0)
        local 1
        ...
        local n_vars-1

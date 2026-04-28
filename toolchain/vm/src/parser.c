@@ -46,12 +46,14 @@ void parse_operation(Operation* op) {
             i = third - second - 1;
             memcpy(op->segment, second + 1, i);
             op->segment[i] = '\0';
-            memcpy(op->data, third + 1, strlen(third));
-            op->data[strlen(third)] = '\0';
+            size_t len = strlen(third + 1);
+			memcpy(op->data, third + 1, len);
+			op->data[len] = '\0';
         } else {
             // command data
-            memcpy(op->data, second + 1, strlen(second));
-            op->data[strlen(second)] = '\0';
+            size_t len = strlen(second + 1);
+			memcpy(op->data, second + 1, len);
+			op->data[len] = '\0';
         }
     } else {
         // command

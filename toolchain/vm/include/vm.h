@@ -1,6 +1,12 @@
 #ifndef VM_H
 #define VM_H
 
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include "operation.h"
 #include "lexer.h"
 #include "parser.h"

@@ -7,9 +7,9 @@
 
 typedef struct {
     char ltrl[MAX_LENGTH];
-    char command[10];
-    char segment[10];
-    char data[MAX_LENGTH - 20];
+    char command[MAX_TOKEN];
+    char segment[MAX_TOKEN];
+    char data[MAX_TOKEN];
 } Operation;
 
 Operation* create_operation(void);

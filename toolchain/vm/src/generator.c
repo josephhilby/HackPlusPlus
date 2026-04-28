@@ -123,6 +123,18 @@ void generate(FILE* dest, Operation* op) {
     command->emit(dest, op->segment, op->data);
 }
 
+void generate_bootstrap(FILE* out) {
+    // SP = 256
+    fprintf(out,
+        "@256\n"
+        "D=A\n"
+        "@SP\n"
+        "M=D\n");
+
+    // call Sys.init 0
+    emit_call(out, "Sys.init", "0");
+}
+
 // push: segment[index]
 //   segment := argument, local, static, constant, this, that, pointer, temp
 //   index   := non neg int

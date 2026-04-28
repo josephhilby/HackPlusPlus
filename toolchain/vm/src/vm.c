@@ -1,35 +1,87 @@
 #include "vm.h"
 
-int translate_vm(const char* in, const char* out) {
-    // Open Source File
+static int is_directory(const char* path) {
+    struct stat st;
+    return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+static int has_vm_ext(const char* name) {
+    const char* dot = strrchr(name, '.');
+    return dot && strcmp(dot, ".vm") == 0;
+}
+
+static int translate_file(FILE* dest, const char* in) {
     FILE* src = fopen(in, "r");
     if (!src) {
-        printf("Error opening source file\n");
+        printf("Error opening source file: %s\n", in);
         return 1;
     }
 
-    // Set File Name
     set_filename(in);
 
-    // Open Destination File
-    FILE* dest = fopen(out, "w");
-    if (!dest) {
-        printf("Error opening output file\n");
-        fclose(src);
-        return 1;
-    }
-
-    // ONE PASS TRANSLATOR
     char buffer[MAX_LENGTH];
     while (fgets(buffer, MAX_LENGTH, src)) {
         Operation* next = lex_line(buffer);
+        if (!next) {
+            continue;
+        }
+
         parse_operation(next);
+
+        if (next->command[0] == '\0') {
+            free(next);
+            continue;
+        }
+
         generate(dest, next);
         free(next);
     }
 
-    // Close Files
     fclose(src);
-    fclose(dest);
     return 0;
+}
+
+static int translate_dir(FILE* dest, const char* dir_path) {
+    DIR* dir = opendir(dir_path);
+    if (!dir) {
+        printf("Error opening directory: %s\n", dir_path);
+        return 1;
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (!has_vm_ext(entry->d_name)) {
+            continue;
+        }
+
+        char path[1024];
+        snprintf(path, sizeof(path), "%s/%s", dir_path, entry->d_name);
+
+        if (translate_file(dest, path) != 0) {
+            closedir(dir);
+            return 1;
+        }
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+int translate_vm(const char* in, const char* out) {
+    FILE* dest = fopen(out, "w");
+    if (!dest) {
+        printf("Error opening output file: %s\n", out);
+        return 1;
+    }
+
+    int rc;
+    if (is_directory(in)) {
+        generate_bootstrap(dest);
+        rc = translate_dir(dest, in);
+    } else {
+        rc = translate_file(dest, in);
+    }
+
+    fclose(dest);
+    return rc;
 }
