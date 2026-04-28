@@ -15,6 +15,7 @@ assembler_tests
 # Node / Vite (web app / docs)
 node_modules/
 docs/old/
+.vite/
 
 # C/C++ tooling
 *.dSYM/
@@ -26,6 +27,7 @@ toolchain/vm/README.md
 # Build outputs
 toolchain/assembler/build/
 toolchain/vm/build/
+core/build/
 
 # Golden test outputs (generated)
 toolchain/assembler/test/golden/actual/

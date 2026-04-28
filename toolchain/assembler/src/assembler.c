@@ -1,6 +1,6 @@
 #include "assembler.h"
 
-int assemble_txt(const char* in, const char* out) {
+int assemble_asm(const char* in, const char* out) {
     // Open Source File
     FILE* src = fopen(in, "r");
     if (!src) {

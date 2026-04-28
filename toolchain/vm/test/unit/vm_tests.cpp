@@ -93,14 +93,23 @@ static void fail_with_diff(const std::string& stem,
 static void run_golden_case(const std::string& stem) {
     fs::create_directories(actual_dir());
 
-    fs::path in  = cases_dir()    / (stem + ".vm");
+    fs::path file_case = cases_dir() / (stem + ".vm");
+    fs::path dir_case  = cases_dir() / stem;
+
+    fs::path in;
+    if (fs::exists(file_case)) {
+        in = file_case;
+    } else {
+        in = dir_case;
+    }
+
     fs::path out = actual_dir()   / (stem + ".asm");
     fs::path exp = expected_dir() / (stem + ".asm");
 
-    ASSERT_TRUE(fs::exists(in))  << "Missing input: "    << in.string();
+    ASSERT_TRUE(fs::exists(in))  << "Missing input: " << in.string();
     ASSERT_TRUE(fs::exists(exp)) << "Missing expected: " << exp.string();
 
-    int rc = translate_asm(in.c_str(), out.c_str());
+    int rc = translate_vm(in.c_str(), out.c_str());
     ASSERT_EQ(rc, 0) << "Translate failed: " << in.string();
 
     auto a = normalize_eol(read_all(out));
@@ -129,4 +138,28 @@ TEST(Golden, Pointer)  {
 
 TEST(Golden, Static) {
     run_golden_case("Static");
+}
+
+TEST(Golden, SimpleFunction) {
+    run_golden_case("SimpleFunction");
+}
+
+TEST(Golden, Loop) {
+    run_golden_case("Loop");
+}
+
+TEST(Golden, FibonacciSeries) {
+    run_golden_case("FibonacciSeries");
+}
+
+TEST(Golden, NestedCall) {
+    run_golden_case("Sys");
+}
+
+TEST(Golden, Statics) {
+    run_golden_case("Statics");
+}
+
+TEST(Golden, FibonacciElement) {
+    run_golden_case("FibonacciElement");
 }
