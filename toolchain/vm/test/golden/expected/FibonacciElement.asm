@@ -2,7 +2,7 @@
 D=A
 @SP
 M=D
-@Class2$RET.7
+@Bootstrap$RET.0
 D=A
 @SP
 A=M
@@ -51,7 +51,7 @@ D=M
 M=D
 @Sys.init
 0;JMP
-(Class2$RET.7)
+(Bootstrap$RET.0)
 (Main.fibonacci)
 @ARG
 D=M
@@ -79,18 +79,18 @@ AM=M-1
 D=M
 A=A-1
 D=M-D
-@Main$CMP_TRUE.9
+@Main$CMP_TRUE.0
 D;JLT
 @SP
 A=M-1
 M=0
-@Main$CMP_END.9
+@Main$CMP_END.0
 0;JMP
-(Main$CMP_TRUE.9)
+(Main$CMP_TRUE.0)
 @SP
 A=M-1
 M=-1
-(Main$CMP_END.9)
+(Main$CMP_END.0)
 @SP
 AM=M-1
 D=M
@@ -182,7 +182,7 @@ AM=M-1
 D=M
 A=A-1
 M=M-D
-@Main$RET.8
+@Main$RET.1
 D=A
 @SP
 A=M
@@ -231,7 +231,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main$RET.8)
+(Main$RET.1)
 @ARG
 D=M
 @0
@@ -258,7 +258,7 @@ AM=M-1
 D=M
 A=A-1
 M=M-D
-@Main$RET.9
+@Main$RET.2
 D=A
 @SP
 A=M
@@ -307,7 +307,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main$RET.9)
+(Main$RET.2)
 @SP
 AM=M-1
 D=M
@@ -363,7 +363,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys$RET.10
+@Sys$RET.3
 D=A
 @SP
 A=M
@@ -412,7 +412,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Sys$RET.10)
+(Sys$RET.3)
 (Sys.init$END)
 @Sys.init$END
 0;JMP

@@ -124,15 +124,25 @@ void generate(FILE* dest, Operation* op) {
 }
 
 void generate_bootstrap(FILE* out) {
-    // SP = 256
+    snprintf(filename, sizeof(filename), "%s", "Bootstrap");
+    current_function[0] = '\0';
+
+    // reset SP
     fprintf(out,
         "@256\n"
         "D=A\n"
         "@SP\n"
         "M=D\n");
 
-    // call Sys.init 0
+    // call program entry point
     emit_call(out, "Sys.init", "0");
+}
+
+void reset_generator(void) {
+    filename[0] = '\0';
+    current_function[0] = '\0';
+    compare_id = 0;
+    function_id = 0;
 }
 
 // push: segment[index]

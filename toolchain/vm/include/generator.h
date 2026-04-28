@@ -7,6 +7,7 @@
 
 void generate(FILE* dest, Operation* opr);
 void set_filename(const char* path);
+void reset_generator(void);
 void generate_bootstrap(FILE* out);
 
 #endif //GENERATOR_H

@@ -2,7 +2,7 @@
 D=A
 @SP
 M=D
-@Sys$RET.2
+@Bootstrap$RET.0
 D=A
 @SP
 A=M
@@ -51,7 +51,7 @@ D=M
 M=D
 @Sys.init
 0;JMP
-(Sys$RET.2)
+(Bootstrap$RET.0)
 (Class1.set)
 @ARG
 D=M
@@ -217,7 +217,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys$RET.3
+@Sys$RET.1
 D=A
 @SP
 A=M
@@ -266,7 +266,7 @@ D=M
 M=D
 @Class1.set
 0;JMP
-(Sys$RET.3)
+(Sys$RET.1)
 @SP
 AM=M-1
 D=M
@@ -286,7 +286,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys$RET.4
+@Sys$RET.2
 D=A
 @SP
 A=M
@@ -335,13 +335,13 @@ D=M
 M=D
 @Class2.set
 0;JMP
-(Sys$RET.4)
+(Sys$RET.2)
 @SP
 AM=M-1
 D=M
 @5
 M=D
-@Sys$RET.5
+@Sys$RET.3
 D=A
 @SP
 A=M
@@ -390,8 +390,8 @@ D=M
 M=D
 @Class1.get
 0;JMP
-(Sys$RET.5)
-@Sys$RET.6
+(Sys$RET.3)
+@Sys$RET.4
 D=A
 @SP
 A=M
@@ -440,7 +440,7 @@ D=M
 M=D
 @Class2.get
 0;JMP
-(Sys$RET.6)
+(Sys$RET.4)
 (Sys.init$END)
 @Sys.init$END
 0;JMP

@@ -68,6 +68,8 @@ static int translate_dir(FILE* dest, const char* dir_path) {
 }
 
 int translate_vm(const char* in, const char* out) {
+    reset_generator();
+
     FILE* dest = fopen(out, "w");
     if (!dest) {
         printf("Error opening output file: %s\n", out);
