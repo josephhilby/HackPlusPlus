@@ -1,4 +1,10 @@
-#include "symbol_table.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "../include/symbol_table.h"
 
 SystemTable* create_table(void) {
     SystemTable* stbl = calloc(1, sizeof(*stbl));

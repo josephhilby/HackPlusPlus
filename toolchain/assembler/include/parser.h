@@ -1,7 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "lexer.h"
+#include <stdio.h>
+
 #include "instruction.h"
 #include "symbol_table.h"
 

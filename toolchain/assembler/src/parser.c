@@ -1,4 +1,10 @@
-#include "parser.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+
+#include "../include/parser.h"
+#include "../include/lexer.h"
 
 Instruction* first_pass(FILE* src, SystemTable* stbl) {
     Instruction* head = NULL;

@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "common.h"
+#include "../../shared/common.h"
 
 typedef enum { INST_A, INST_C, INST_L } InstType;
 

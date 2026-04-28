@@ -3,11 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "common.h"
+#include "../../shared/common.h"
 
 #define N_BUCKETS 128
 #define N_REG 15

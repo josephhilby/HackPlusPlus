@@ -1,4 +1,9 @@
-#include "tables.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "../include/tables.h"
 
 static const CompInst comp_table[] = {
     {"0",   0b0000101010000000},
