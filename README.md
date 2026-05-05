@@ -12,9 +12,9 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Hack++ is a first-principles computer system built from the ground up, starting with hardware designed with only 
-the elementary NAND logic gate upto a functioning computer, and extending through an assembler, virtual machine, compiler, 
-and operating system. The project follows the methodology outlined in the book [*The Elements of Computing Systems*](https://www.nand2tetris.org/book) 
+Hack++ is a first-principles computer system built from the ground up, starting with hardware designed with only
+the elementary NAND logic gate upto a functioning computer, and extending through an assembler, virtual machine, compiler,
+and operating system. The project follows the methodology outlined in the book [*The Elements of Computing Systems*](https://www.nand2tetris.org/book)
 (commonly known as nand2tetris).
 
 This project represents a full re-implementation and extension of the baseline Hack platform with an emphasis on:
@@ -50,6 +50,7 @@ This project represents a full re-implementation and extension of the baseline H
  ├─ assets/         # Repo/docs Images
  ├─ core/           # C/C++ Hardware Emulator
  ├─ docs/           # Technical Reference
+ ├─ OS/             # Operating System Libraries
  ├─ toolchain/
  │   ├─ compiler/   # Compiler   (file.jack → file.vm)
  │   ├─ vm/         # Translator (file.vm   → file.asm)
@@ -168,15 +169,15 @@ If you are interested in computer architecture, compilers, or operating systems,
 book — it provides the conceptual foundation for everything implemented here.
 
 ### Charles Stevenson
-Adapted from work originally authored by Charles Stevenson, licensed under the MIT License. The content has been 
-reformatted and edited for clarity and consistency within the Hack++ project docs. The original author retains 
+Adapted from work originally authored by Charles Stevenson, licensed under the MIT License. The content has been
+reformatted and edited for clarity and consistency within the Hack++ project docs. The original author retains
 full credit for the underlying technical description.
 
 Stevenson, C. (2024-05-30). CodeWriter.java — Adapted for use in Hack VM memory model documentation.
 - Original source repository: https://github.com/brucesdad13/nand2tetris-vm-translator
 
 ### Christian Vallentin
-EBNF syntax highlighting file authored by Christian Vallentin, licensed under the MIT License. The original 
+EBNF syntax highlighting file authored by Christian Vallentin, licensed under the MIT License. The original
 author retains full credit for their work.
 
 Christian, V. (2020-06-03). bnf.tmLanguage.json — File used in Hack documentation syntax.

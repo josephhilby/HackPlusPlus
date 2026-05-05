@@ -23,15 +23,18 @@ docs/old/
 # README in sub-directories
 toolchain/assembler/README.md
 toolchain/vm/README.md
+toolchain/compiler/README.md
 
 # Build outputs
 toolchain/assembler/build/
 toolchain/vm/build/
+toolchain/compiler/build/
 core/build/
 
 # Golden test outputs (generated)
 toolchain/assembler/test/golden/actual/
 toolchain/vm/test/golden/actual/
+toolchain/compiler/test/golden/actual/
 
 # Node / Vite (React frontend)
 node_modules/
