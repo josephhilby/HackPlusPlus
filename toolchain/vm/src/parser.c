@@ -1,4 +1,7 @@
-#include "parser.h"
+#include <stddef.h>
+#include <string.h>
+
+#include "../include/parser.h"
 
 /*
   Parses a cleaned VM source line into an Operation.

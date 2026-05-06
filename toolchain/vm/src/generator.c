@@ -1,4 +1,10 @@
-#include "generator.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+
+#include "../include/generator.h"
+#include "../include/command.h"
 
 /*
   nand2tetris 'registers':
@@ -59,24 +65,24 @@ static void emit_return(FILE* out, const char* _seg, const char* _dat);
 
 // Dispatch Table
 static const VmCommand vm_table[] = {
-    {"push", emit_push},
-    {"pop", emit_pop},
-    {"function", emit_function},
-    {"call", emit_call},
-    {"label", emit_label},
+  {"push", emit_push},
+  {"pop", emit_pop},
+  {"function", emit_function},
+  {"call", emit_call},
+  {"label", emit_label},
 	{"goto", emit_goto},
 	{"if-goto", emit_if_goto},
-    {"add", emit_add},
-    {"sub", emit_sub},
-    {"eq", emit_eq},
-    {"lt", emit_lt},
-    {"gt", emit_gt},
-    {"neg", emit_neg},
-    {"and", emit_and},
-    {"or", emit_or},
-    {"not", emit_not},
-    {"return", emit_return},
-    {NULL,   NULL}
+  {"add", emit_add},
+  {"sub", emit_sub},
+  {"eq", emit_eq},
+  {"lt", emit_lt},
+  {"gt", emit_gt},
+  {"neg", emit_neg},
+  {"and", emit_and},
+  {"or", emit_or},
+  {"not", emit_not},
+  {"return", emit_return},
+  {NULL,   NULL}
 };
 
 // Dispatcher

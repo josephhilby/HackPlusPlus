@@ -1,4 +1,10 @@
-#include "assembler.h"
+#include <stdio.h>
+
+#include "../include/assembler.h"
+#include "../include/instruction.h"
+#include "../include/symbol_table.h"
+#include "../include/parser.h"
+#include "../include/generator.h"
 
 int assemble_asm(const char* in, const char* out) {
     // Open Source File

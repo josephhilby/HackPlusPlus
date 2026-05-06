@@ -1,4 +1,10 @@
-#include "generator.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "../include/generator.h"
+#include "../include/tables.h"
 
 void second_pass(FILE* dist, const Instruction* curr, SystemTable* stbl) {
     uint16_t inst;

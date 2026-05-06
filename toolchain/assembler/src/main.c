@@ -1,5 +1,6 @@
-#include "assembler.h"
 #include <stdio.h>
+
+#include "../include/assembler.h"
 
 int main(int argc, char** argv) {
     if (argc != 3) {

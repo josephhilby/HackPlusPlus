@@ -1,4 +1,15 @@
-#include "vm.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+#include "../include/vm.h"
+#include "../../shared/common.h"
+#include "../include/lexer.h"
+#include "../include/parser.h"
+#include "../include/generator.h"
 
 static int is_directory(const char* path) {
     struct stat st;

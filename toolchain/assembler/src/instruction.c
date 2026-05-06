@@ -1,7 +1,7 @@
-#include "instruction.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "../include/instruction.h"
 
 Instruction* create_instruction(const size_t line_num) {
     Instruction* inst = calloc(1, sizeof(*inst));
