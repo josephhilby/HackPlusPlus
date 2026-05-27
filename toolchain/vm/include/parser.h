@@ -3,6 +3,6 @@
 
 #include "operation.h"
 
-void parse_operation(Operation* op);
+void parse_operation(Operation *op);
 
-#endif //PARSER_H
+#endif // PARSER_H

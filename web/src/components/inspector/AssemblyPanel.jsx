@@ -28,13 +28,13 @@ function normalizeInstructions(instructions) {
 }
 
 export default function AssemblyPanel({
-                                          title = 'Assembly Inspector',
-                                          instructions = [],
-                                          currentPc = null,
-                                          onStep,
-                                          onClose,
-                                          canStep = false,
-                                      }) {
+    title = 'Assembly Inspector',
+    instructions = [],
+    currentPc = null,
+    onStep,
+    onClose,
+    canStep = false,
+}) {
     const rows = normalizeInstructions(instructions)
 
     return (
@@ -82,10 +82,10 @@ export default function AssemblyPanel({
                                 key={`inst-${row.address}`}
                                 className={`assembly-row ${isActive ? 'assembly-row--active' : ''}`}
                             >
-                <span className="assembly-address">
-                  <span className="assembly-address-prefix">0x</span>
-                    {row.address.toString(16).toUpperCase().padStart(4, '0')}
-                </span>
+                                <span className="assembly-address">
+                                    <span className="assembly-address-prefix">0x</span>
+                                    {row.address.toString(16).toUpperCase().padStart(4, '0')}
+                                </span>
 
                                 <code className="assembly-text">{row.text}</code>
                             </div>

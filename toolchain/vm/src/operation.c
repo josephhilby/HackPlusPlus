@@ -3,9 +3,11 @@
 
 #include "../include/operation.h"
 
-Operation* create_operation(void) {
-    Operation* operation = calloc(1, sizeof(*operation));
-    if (!operation) {
+Operation *create_operation(void)
+{
+    Operation *operation = calloc(1, sizeof(*operation));
+    if (!operation)
+    {
         printf("Failed to allocate memory for Operation\n");
         return NULL;
     }

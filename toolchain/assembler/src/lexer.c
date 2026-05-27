@@ -6,23 +6,27 @@
 #include "../../shared/line.h"
 
 // assumptions: correct code, max line 256 chars
-Instruction* lex_line(char* line, const size_t line_num) {
-    char* cleaned = clean_line(line);
-    if (!cleaned) {
+Instruction *lex_line(char *line, const size_t line_num)
+{
+    char *cleaned = clean_line(line);
+    if (!cleaned)
+    {
         return NULL;
     }
 
     const size_t len = strlen(cleaned);
 
-    Instruction* inst = create_instruction(line_num);
+    Instruction *inst = create_instruction(line_num);
 
     // '@xxx' -> xxx, type = A
-    if (cleaned[0] == '@') {
+    if (cleaned[0] == '@')
+    {
         return lex_a_inst(cleaned, inst, len);
     }
 
     // '(xxx)' -> xxx, type = L
-    if (cleaned[0] == '(') {
+    if (cleaned[0] == '(')
+    {
         return lex_l_inst(cleaned, inst, len);
     }
 
@@ -30,7 +34,8 @@ Instruction* lex_line(char* line, const size_t line_num) {
     return lex_c_inst(cleaned, inst, len);
 }
 
-Instruction* lex_a_inst(const char* line, Instruction* inst, const size_t len) {
+Instruction *lex_a_inst(const char *line, Instruction *inst, const size_t len)
+{
     inst->type = INST_A;
 
     memcpy(inst->ltrl, line + 1, len - 1);
@@ -45,7 +50,8 @@ Instruction* lex_a_inst(const char* line, Instruction* inst, const size_t len) {
     return inst;
 }
 
-Instruction* lex_c_inst(const char* line, Instruction* inst, const size_t len) {
+Instruction *lex_c_inst(const char *line, Instruction *inst, const size_t len)
+{
     inst->type = INST_C;
 
     memcpy(inst->ltrl, line, len);
@@ -54,7 +60,8 @@ Instruction* lex_c_inst(const char* line, Instruction* inst, const size_t len) {
     return inst;
 }
 
-Instruction* lex_l_inst(const char* line, Instruction* inst, const size_t len) {
+Instruction *lex_l_inst(const char *line, Instruction *inst, const size_t len)
+{
     inst->type = INST_L;
 
     memcpy(inst->ltrl, line + 1, len - 2);

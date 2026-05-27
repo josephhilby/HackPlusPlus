@@ -6,15 +6,13 @@
     border-radius: 20px;
     border: 1px solid var(--edge-light);
 
-    background: linear-gradient(
-            180deg,
+    background: linear-gradient(180deg,
             var(--shell-outer-top) 0%,
-            var(--shell-outer-bottom) 100%
-    );
+            var(--shell-outer-bottom) 100%);
 
     box-shadow:
-            0 12px 28px var(--edge-shadow-mid),
-            inset 0 1px 0 var(--edge-highlight);
+        0 12px 28px var(--edge-shadow-mid),
+        inset 0 1px 0 var(--edge-highlight);
 }
 
 .assembly-panel-header {
@@ -49,11 +47,9 @@
     border-radius: 10px;
     border: 1px solid var(--edge-soft);
 
-    background: linear-gradient(
-            180deg,
+    background: linear-gradient(180deg,
             rgba(255, 255, 255, 0.22) 0%,
-            rgba(255, 255, 255, 0.12) 100%
-    );
+            rgba(255, 255, 255, 0.12) 100%);
     color: var(--text-primary);
 
     font: inherit;
@@ -62,20 +58,20 @@
     cursor: pointer;
 
     box-shadow:
-            inset 0 1px 0 var(--edge-highlight),
-            0 2px 6px var(--edge-shadow-soft);
+        inset 0 1px 0 var(--edge-highlight),
+        0 2px 6px var(--edge-shadow-soft);
 
     transition:
-            transform 120ms ease,
-            box-shadow 120ms ease,
-            opacity 120ms ease;
+        transform 120ms ease,
+        box-shadow 120ms ease,
+        opacity 120ms ease;
 }
 
 .assembly-panel-btn:hover:not(:disabled) {
     transform: translateY(-1px);
     box-shadow:
-            inset 0 1px 0 var(--edge-highlight-strong),
-            0 4px 10px var(--edge-shadow-soft);
+        inset 0 1px 0 var(--edge-highlight-strong),
+        0 4px 10px var(--edge-shadow-soft);
 }
 
 .assembly-panel-btn:active:not(:disabled) {

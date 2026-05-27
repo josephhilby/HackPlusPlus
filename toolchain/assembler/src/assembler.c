@@ -6,25 +6,29 @@
 #include "../include/parser.h"
 #include "../include/generator.h"
 
-int assemble_asm(const char* in, const char* out) {
+int assemble_asm(const char *in, const char *out)
+{
     // Open Source File
-    FILE* src = fopen(in, "r");
-    if (!src) {
+    FILE *src = fopen(in, "r");
+    if (!src)
+    {
         printf("Error opening source file\n");
         return 1;
     }
 
     // Open Destination File
-    FILE* dest = fopen(out, "w");
-    if (!dest) {
+    FILE *dest = fopen(out, "w");
+    if (!dest)
+    {
         printf("Error opening output file\n");
         fclose(src);
         return 1;
     }
 
     // Init System Table
-    SystemTable* stbl = create_table();
-    if (!stbl) {
+    SystemTable *stbl = create_table();
+    if (!stbl)
+    {
         fclose(src);
         fclose(dest);
         return 1;
@@ -35,7 +39,7 @@ int assemble_asm(const char* in, const char* out) {
 
     // TWO PASS ASSEMBLER
     // First Pass: create instruction list, and populate label symbols (ROM) in system table
-    Instruction* list = first_pass(src, stbl);
+    Instruction *list = first_pass(src, stbl);
     // Second Pass: generate output code, populate/manage variable symbols (RAM) in system table
     second_pass(dest, list, stbl);
 

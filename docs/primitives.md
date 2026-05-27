@@ -9,8 +9,8 @@ data that they operate on.
 * **Wide Gates** — operates on words
 
 ## The Word
-Imagine a system with only primitive gates, such a system would only have the ability to move and process a single 
-bit (`1` or `0`) of data at any given time. This limitation would be extremely restrictive for any meaningful 
+Imagine a system with only primitive gates, such a system would only have the ability to move and process a single
+bit (`1` or `0`) of data at any given time. This limitation would be extremely restrictive for any meaningful
 computation.
 
 Instead, computers group multiple bits together into a **word**, a wider fundamental unit of data. The size of a word is
@@ -18,7 +18,7 @@ a design choice, balancing capability against implementation complexity. For Hac
 
 This word size sets the width of the datapath: at most 16 bits of data can move through the system in a single operation.
 This decision will propagate throughout the design, determining the size of registers, ALU data limits, memory values,
-total addressable space, and primitive data types. In this way, the word size shapes the overall architecture of the 
+total addressable space, and primitive data types. In this way, the word size shapes the overall architecture of the
 machine.
 
 ## The Primitive Gates
@@ -30,18 +30,18 @@ roles across the system. At a high level, they can be viewed as implementing the
 * **NOT, AND, OR** implement decision and routing logic used throughout the datapath and control unit
 * **XOR** enables binary arithmetic, forming the core of the control unit
 
-Together, these gates — in conjunction with the data flip-flop (DFF) discussed in *Sequential Circuits* — represent 
-the boundary where boolean algebra becomes machine behavior, enabling the construction of a programmable 
+Together, these gates — in conjunction with the data flip-flop (DFF) discussed in *Sequential Circuits* — represent
+the boundary where boolean algebra becomes machine behavior, enabling the construction of a programmable
 computing system.
 
 ### NAND — Universal Gate
 
 > **Also known as:** *Functional complete primitive*
 
-The **NAND gate** is the single primitive from which all combinational and sequential logic in 
+The **NAND gate** is the single primitive from which all combinational and sequential logic in
 Hack++ is constructed.
 
-It computes the logical AND of two inputs and then inverts the result. Because NAND is functionally 
+It computes the logical AND of two inputs and then inverts the result. Because NAND is functionally
 complete, every other gate in this system can be expressed as a composition of NAND gates.
 
 ::: tip NAND(a, b)
@@ -56,7 +56,7 @@ complete, every other gate in this system can be expressed as a composition of N
 
 > **Also known as:** *Negation*, *Logical complement*
 
-The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal 
+The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal
 inversion, and two’s-complement arithmetic throughout the datapath and control logic.
 
 It computes the inverse of its input.
@@ -86,7 +86,7 @@ CHIP Not {
 
 > **Also known as:** *Qualifier*
 
-The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely 
+The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely
 used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
 ::: details Definition
@@ -116,7 +116,7 @@ CHIP And {
 
 The **OR gate** aggregates multiple signal sources into a single logical result.
 
-It is commonly used for: flag reduction (`zr`, jump conditions), multi-source control logic, and datapath signal 
+It is commonly used for: flag reduction (`zr`, jump conditions), multi-source control logic, and datapath signal
 merging.
 
 *Note: Derived using De Morgan’s Law.*
@@ -149,7 +149,7 @@ CHIP Or {
 
 The **XOR gate** produces a high output when its inputs differ.
 
-It is the fundamental building block of **binary addition**, forming the sum path in half-adders, full-adders, 
+It is the fundamental building block of **binary addition**, forming the sum path in half-adders, full-adders,
 and the ALU’s arithmetic pipeline.
 
 ::: details Definition
@@ -173,8 +173,8 @@ CHIP Xor {
 :::
 
 ## The Wide Gates
-With the word size set, the system can now expand its primitive gates and create appropriately sized wide (multi-bit) 
-combinational gates. These will operate on buses rather than single-bit signals and form the architectural bridge 
+With the word size set, the system can now expand its primitive gates and create appropriately sized wide (multi-bit)
+combinational gates. These will operate on buses rather than single-bit signals and form the architectural bridge
 between bit-level logic and word-level computation.
 
 ::: warning The Plan
@@ -182,7 +182,9 @@ All wide gates will be constructed strictly from their single-bit equivalents:
 
 - `Not → Not16`
 - `And → And16`
-- `Or → Or16 → Or8Way`
+- `Or`
+  - `→ Or16`
+  - `→ Or8Way`
 
 Signals will use a fixed indexing convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
 significant bit (MSB). This will define logical bit position, not memory endianness.
@@ -194,7 +196,7 @@ significant bit (MSB). This will define logical bit position, not memory endiann
 
 The **Not16 gate** performs a parallel bitwise inversion across a 16-bit input bus.
 
-It is used in: ALU output negation (`no` control bit), two’s complement formation (via downstream adders), 
+It is used in: ALU output negation (`no` control bit), two’s complement formation (via downstream adders),
 general-purpose bus inversion and masking
 
 ::: details Definition
@@ -236,7 +238,7 @@ CHIP Not16 {
 
 The **And16 gate** computes a parallel logical AND across two 16-bit input buses.
 
-It is used for: masking intermediate ALU results, qualifying memory addresses, and conditional propagation of data 
+It is used for: masking intermediate ALU results, qualifying memory addresses, and conditional propagation of data
 paths.
 
 ::: details Definition

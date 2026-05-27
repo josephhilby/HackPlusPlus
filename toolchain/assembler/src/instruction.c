@@ -3,9 +3,11 @@
 
 #include "../include/instruction.h"
 
-Instruction* create_instruction(const size_t line_num) {
-    Instruction* inst = calloc(1, sizeof(*inst));
-    if (!inst) {
+Instruction *create_instruction(const size_t line_num)
+{
+    Instruction *inst = calloc(1, sizeof(*inst));
+    if (!inst)
+    {
         printf("Failed to allocate memory for Instruction\n");
         return NULL;
     }
@@ -14,10 +16,13 @@ Instruction* create_instruction(const size_t line_num) {
     return inst;
 }
 
-void add_instruction(Instruction** head, Instruction** tail, Instruction* next) {
-    if (!head || !tail || !next) return;
+void add_instruction(Instruction **head, Instruction **tail, Instruction *next)
+{
+    if (!head || !tail || !next)
+        return;
 
-    if (!*head) {
+    if (!*head)
+    {
         *head = next;
         *tail = next;
         return;
@@ -27,9 +32,11 @@ void add_instruction(Instruction** head, Instruction** tail, Instruction* next) 
     *tail = next;
 }
 
-void list_free(Instruction* list) {
-    while (list) {
-        Instruction* next = list->next;
+void list_free(Instruction *list)
+{
+    while (list)
+    {
+        Instruction *next = list->next;
         free(list);
         list = next;
     }

@@ -1,11 +1,11 @@
 import './MachineStatus.css'
 
 export default function MachineStatus({
-                                          state,
-                                          programName,
-                                          pc,
-                                          cycles,
-                                      }) {
+    state,
+    programName,
+    pc,
+    cycles,
+}) {
     return (
         <section className="control-card">
             <h2 className="control-card-title">Machine Status</h2>

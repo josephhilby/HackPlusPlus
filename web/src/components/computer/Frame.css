@@ -4,17 +4,15 @@
 
     border-radius: 28px;
 
-    background: linear-gradient(
-            180deg,
+    background: linear-gradient(180deg,
             var(--shell-outer-top) 0%,
-            var(--shell-outer-bottom) 100%
-    );
+            var(--shell-outer-bottom) 100%);
     border: 1px solid var(--edge-light);
 
     box-shadow:
-            0 25px 60px var(--edge-shadow-strong),
-            inset 0 1px 0 var(--edge-highlight-strong),
-            inset 0 -2px 0 var(--edge-shadow-soft);
+        0 25px 60px var(--edge-shadow-strong),
+        inset 0 1px 0 var(--edge-highlight-strong),
+        inset 0 -2px 0 var(--edge-shadow-soft);
 
     overflow: hidden;
 }
@@ -35,12 +33,10 @@
     border-top: 2px solid var(--edge-shadow-soft);
 
     background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 18px),
-            linear-gradient(
-                    180deg,
-                    var(--shell-inner-top) 0%,
-                    var(--shell-inner-bottom) 100%
-            );
+        linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 18px),
+        linear-gradient(180deg,
+            var(--shell-inner-top) 0%,
+            var(--shell-inner-bottom) 100%);
 }
 
 /* responsive fallback */

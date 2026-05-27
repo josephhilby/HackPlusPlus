@@ -2,8 +2,10 @@
 
 #include "../include/assembler.h"
 
-int main(int argc, char** argv) {
-    if (argc != 3) {
+int main(int argc, char **argv)
+{
+    if (argc != 3)
+    {
         fprintf(stderr, "usage: %s input.asm output.hack\n", argv[0]);
         return 1;
     }

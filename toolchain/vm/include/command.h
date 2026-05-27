@@ -53,10 +53,11 @@ LCL →  local 0 (RAM: n_vars init to 0)
 SP  →  next free slot
 */
 
-typedef void (*VmEmitter)(FILE* out, const char* segment, const char* data);
+typedef void (*VmEmitter)(FILE *out, const char *segment, const char *data);
 
-typedef struct {
-    const char* mnemonic; // command mnemonic
+typedef struct
+{
+    const char *mnemonic; // command mnemonic
     VmEmitter emit;       // command emitter function
 } VmCommand;
 

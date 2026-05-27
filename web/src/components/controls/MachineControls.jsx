@@ -1,15 +1,15 @@
 import './MachineControls.css'
 
 export default function MachineControls({
-                                            machineState,
-                                            onRun,
-                                            onStop,
-                                            onStep,
-                                            onReset,
-                                            canStep,
-                                            canReset,
-                                            canToggleRun,
-                                        }) {
+    machineState,
+    onRun,
+    onStop,
+    onStep,
+    onReset,
+    canStep,
+    canReset,
+    canToggleRun,
+}) {
     const isRunning = machineState === 'running'
     const primaryLabel = isRunning ? 'Stop' : 'Run'
     const primaryAction = isRunning ? onStop : onRun

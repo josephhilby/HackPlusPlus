@@ -5,8 +5,8 @@
     bit 2: 1 error, 0 normal
  */
 #define FLAG_RUNNING 0x0001 // 0b 0000 0000 0000 0001
-#define FLAG_LOADED  0x0002 // 0b 0000 0000 0000 0010
-#define FLAG_ERROR   0x0004 // 0b 0000 0000 0000 0100
+#define FLAG_LOADED 0x0002  // 0b 0000 0000 0000 0010
+#define FLAG_ERROR 0x0004   // 0b 0000 0000 0000 0100
 
 /*
  Screen is 256 (rows) x 512 (cols) = 131,072 pixles, represented in bits (1=black, 0=white)
@@ -28,5 +28,5 @@
 */
 #define SCREEN_WORDS 8192
 
-//#define RAM_WORDS 24577
+// #define RAM_WORDS 24577
 #define ROM_WORDS 32768

@@ -22,43 +22,52 @@
   For two-operand commands, operands are stored in op->segment and op->data.
 */
 
-void parse_operation(Operation* op) {
-    if (!op) {
+void parse_operation(Operation *op)
+{
+    if (!op)
+    {
         return;
     }
 
     long i;
     // command segment data, command data, command
-    const char* first = op->ltrl;
+    const char *first = op->ltrl;
     //         segment data,         data,
-    const char* second = strchr(first, ' ');
+    const char *second = strchr(first, ' ');
     //                 data,
-    const char* third = NULL;
-    if (second) {
+    const char *third = NULL;
+    if (second)
+    {
         third = strchr(second + 1, ' ');
     }
 
-    if (second) {
+    if (second)
+    {
         // command segment data, command data
         i = second - first;
         memcpy(op->command, first, i);
         op->command[i] = '\0';
 
-        if (third) {
+        if (third)
+        {
             // command segment data
             i = third - second - 1;
             memcpy(op->segment, second + 1, i);
             op->segment[i] = '\0';
             size_t len = strlen(third + 1);
-			memcpy(op->data, third + 1, len);
-			op->data[len] = '\0';
-        } else {
+            memcpy(op->data, third + 1, len);
+            op->data[len] = '\0';
+        }
+        else
+        {
             // command data
             size_t len = strlen(second + 1);
-			memcpy(op->data, second + 1, len);
-			op->data[len] = '\0';
+            memcpy(op->data, second + 1, len);
+            op->data[len] = '\0';
         }
-    } else {
+    }
+    else
+    {
         // command
         memcpy(op->command, first, strlen(first));
         op->command[strlen(first)] = '\0';

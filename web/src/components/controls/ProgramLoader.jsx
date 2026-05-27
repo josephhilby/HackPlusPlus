@@ -1,13 +1,13 @@
 import './ProgramLoader.css'
 
 export default function ProgramLoader({
-                                          programs,
-                                          selectedProgramId,
-                                          onProgramChange,
-                                          onLoad,
-                                          onView,
-                                          canView,
-                                      }) {
+    programs,
+    selectedProgramId,
+    onProgramChange,
+    onLoad,
+    onView,
+    canView,
+}) {
     return (
         <section className="control-card">
             <h2 className="control-card-title">Program</h2>

@@ -1,15 +1,16 @@
 # Hack++ Reference
 
-This section provides a quick structural overview of the Hack++ hardware and software systems. From logic 
-gates, to circuits, to modules, to subsystems, to a fully programmable computer system, and supporting software 
-toolchain, these elements work synchronously in order to constitute the Hack++ Computer. 
-
-But, before getting into the specifics of the Hack++ computer and programs, there are a few important terms to clarify...
+Before diving into specifics, I would like to take a brief moment to conceptually talk about what a
+computer is, what a program is, and how the abstractions implemented in this project work together
+to make them. So, with that...
 
 ## What is a computer?
 
-**A computer** can be best understood as five cooperating subsystems that execute program instructions and operates on 
-data — quantifiable values representing, user input, intermediate state, and computed results.
+**A computer** is five cooperating subsystems that execute program instructions and operate on data.
+
+::: warning Definition
+**Data:** quantifiable values that can represent, user input, intermediate state, computed results, as well as many other things...
+:::
 
 ::: tip Computer Subsystems
 1. **Input** — receives program instructions and user input from the external environment
@@ -21,74 +22,62 @@ data — quantifiable values representing, user input, intermediate state, and c
 
 ## What is a program?
 
-**A program** is a set of instructions that are progressively lowered through multiple cooperating abstractions, 
-moving from human intent toward machine execution.
+**A program** is a set of instructions that are progressively lowered through multiple cooperating abstractions,
+moving from abstract human intent toward specific machine execution. These lowerings can be thought of in three
+broad categories.
 
 ::: info Program Lowering
 1. **Design-Time** — transforms an idea into structured high-level source code
-2. **Compile-Time** — analyzes and lowers source code into progressively lower-level representations
-3. **Execution-Time** — executes machine code on target hardware
+2. **Compile-Time** — analyzes and lowers source code into progressively lower-level intermediate representations (IR) and eventually machine code
+3. **Runtime** — executes machine code on target hardware using agreed paradigms for resource orchestration
 :::
 
 ## The Abstraction Ladder
 
-These abstractions form the conceptual framework for Hack++, describing both how a computer is organized and 
-how software is transformed. Hardware and software approach the computer abstraction from opposite directions: hardware 
-builds upward from physical logic, while software lowers downward from human intent until both meet at the 
-executing machine.
+These two primary abstractions form the conceptual framework for Hack++. They describe both how a computer is organized and
+how its software is transformed to machine instructions. Using them as a base, we can layer on the more specific implementation
+of the Hack++ hardware and Jack programming language.
 
 ### Software Abstractions
 
-Programs begin as structured source code and are gradually lowered into executable machine behavior:
+The Jack programming language is a high-level object oriented programming language similar to Java - in that each file is a class.
+It utilizes a two-tier compiler with a stack based virtual machine to compile its code from high level source code (.jack), to bytecode
+(.vm), to assembly (.asm), and finally a simple assembler to move the assembly to machine code binary (.hack).
 
 ```yml
+Design-Time
 ┌──────────────────────┐
 │      Human Idea      │
 └──────────────────────┘
           │
           ▼
+Compile Time
 ┌──────────────────────┐
-│     Source Code      │
+│     File.jack        │
+│         ▼            │
+│     File.vm          │
+│         ▼            │
+│     File.asm         │
+│         ▼            │
+│     File.hack        │
 └──────────────────────┘
           │
           ▼
+Runtime
 ┌──────────────────────┐
-│    Low-Level Code    │
-└──────────────────────┘
-          │
-          ▼
-┌──────────────────────┐
-│     Machine Code     │
-└──────────────────────┘
-          │
-          ▼
-┌──────────────────────┐
-│     The Computer     │
+│  Computer Execution  │
 └──────────────────────┘
 ```
 
-### The Computer Abstraction
-
-These modules collectively realize the five classical computer subsystems. Together, these subsystems form the primary
-abstraction: a programmable computer.
-
-| **Hack++ Modules**                                                           | **Subsystem**     |
-|------------------------------------------------------------------------------|-------------------|
-| Program, Keyboard                                                            | **Input**         |
-| Screen                                                                       | **Output**        |
-| Random Access Memory (RAM), Read Only Memory (ROM), Memory-mapped I/O (MMIO) | **Memory**        |
-| Arithmetic and Logic Unit (ALU), Data Bus, Address Bus                       | **Datapath**      |
-| Central Processing Unit (CPU), Registers, Control Bus                        | **Control Unit**  |
-
 ### Hardware Abstractions
 
-Hack++ is constructed through a strict hierarchy of increasingly capable structures. Each layer is built exclusively
+The Hack++ computer is constructed through a strict hierarchy of increasingly capable structures. Each layer is built exclusively
 from those defined below it, progressively assembling modules, subsystems, and ultimately a complete computer.
 
 At the base of this all is a single universal primitive: **NAND**.
 
 ```yml
-The Computer
+Embodied Computer
  ▲
  └── Control Unit, Datapath, Memory, Input, and Output Subsystems
       ▲
