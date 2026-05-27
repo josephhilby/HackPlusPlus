@@ -3,4 +3,4 @@
 
 int compile_jack(const char *in, const char *out);
 
-#endif // COMPILER_H
+#endif  // COMPILER_H

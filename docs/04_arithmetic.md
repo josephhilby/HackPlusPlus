@@ -1,21 +1,20 @@
 # Arithmetic Units
 
-This section documents the combinational arithmetic building blocks used to implement integer addition and increment 
-operations in Hack++. These components define the **carry-propagation backbone** of the datapath and are used directly 
+This section documents the combinational arithmetic building blocks used to implement integer addition and increment
+operations in Hack++. These components define the **carry-propagation backbone** of the datapath and are used directly
 in the ALU (`f=1` path), address sequencing, and loop/control constructs.
 
-Arithmetic units sit above primitive logic and routing: they introduce *cross-bit coupling* via carry signals, turning 
+Arithmetic units sit above primitive logic and routing: they introduce _cross-bit coupling_ via carry signals, turning
 independent bitwise operations into true word-level arithmetic.
-
 
 ## Design Notes
 
 **Two’s complement arithmetic**
-All arithmetic is performed on 16-bit two’s complement values. Overflow beyond bit 15 is ignored 
+All arithmetic is performed on 16-bit two’s complement values. Overflow beyond bit 15 is ignored
 (wraparound modulo 2¹⁶), matching the Hack ALU specification.
 
 **Carry propagation**
-Unlike wide gates (which operate bitwise in parallel), adders must propagate carry from lower bits to higher bits. 
+Unlike wide gates (which operate bitwise in parallel), adders must propagate carry from lower bits to higher bits.
 This introduces a deterministic dependency chain that defines the critical path of addition.
 
 **Hierarchical construction**
@@ -27,7 +26,7 @@ Arithmetic units are built strictly from lower-level components:
 `Add16 (+ constant 1) → Inc16`
 
 **Bit ordering (bus convention)**
-Arithmetic uses the standard bus convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most 
+Arithmetic uses the standard bus convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
 significant bit (MSB).
 
 ---
@@ -38,12 +37,12 @@ significant bit (MSB).
 
 The **HalfAdder** computes the sum of two one-bit inputs, producing:
 
-* `sum`: the low bit of `a + b`
-* `carry`: the high bit of `a + b`
+- `sum`: the low bit of `a + b`
+- `carry`: the high bit of `a + b`
 
 It is the base primitive of multi-bit addition.
 
-**Also known as:** *1-bit adder*, *sum/carry generator*
+**Also known as:** _1-bit adder_, _sum/carry generator_
 
 #### Behavior
 
@@ -72,12 +71,12 @@ OUT sum,       // LSB of a + b
 
 The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-in `c`), producing:
 
-* `sum`: the low bit of `a + b + c`
-* `carry`: the high bit of `a + b + c`
+- `sum`: the low bit of `a + b + c`
+- `carry`: the high bit of `a + b + c`
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 
-**Also known as:** *carry-propagating adder cell*
+**Also known as:** _carry-propagating adder cell_
 
 #### Behavior
 
@@ -106,10 +105,10 @@ OUT sum,       // LSB of a + b + c
 
 The **Add16** unit adds two 16-bit two’s complement values.
 
-Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored, 
+Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored,
 matching the Hack arithmetic model.
 
-**Also known as:** *ripple-carry adder*, *word adder*
+**Also known as:** _ripple-carry adder_, _word adder_
 
 #### Behavior
 
@@ -151,10 +150,10 @@ OUT out[16];
 
 The **Inc16** unit increments a 16-bit input by 1.
 
-It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential 
+It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential
 address generation (e.g., `PC+1`) and loop/index increments.
 
-**Also known as:** *PC incrementer*, *+1 unit*
+**Also known as:** _PC incrementer_, _+1 unit_
 
 #### Behavior
 
@@ -180,8 +179,8 @@ OUT out[16];
 
 Arithmetic units provide the core mechanism for **word-level computation** in Hack++.
 
-* The **ALU** relies on `Add16` to implement its arithmetic mode (`f=1`) and, combined with inversion (`Not16`), supports subtraction and negation patterns.
-* The **Program Counter** and sequencing logic depend on increment behavior (`Inc16`) to advance instruction flow.
-* Higher-level software abstractions (VM arithmetic, stack pointer updates, address computations) ultimately lower into repeated applications of these adders.
+- The **ALU** relies on `Add16` to implement its arithmetic mode (`f=1`) and, combined with inversion (`Not16`), supports subtraction and negation patterns.
+- The **Program Counter** and sequencing logic depend on increment behavior (`Inc16`) to advance instruction flow.
+- Higher-level software abstractions (VM arithmetic, stack pointer updates, address computations) ultimately lower into repeated applications of these adders.
 
 These units are where boolean logic becomes **integer arithmetic**, enabling the machine’s higher-level semantics (comparisons, branching decisions, and memory addressing) to be expressed in hardware.

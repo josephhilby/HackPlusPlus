@@ -4,16 +4,14 @@
     bit 1: 1 program in rom, 0 rom empty
     bit 2: 1 error, 0 normal
  */
-#define FLAG_RUNNING 0x0001 // 0b 0000 0000 0000 0001
-#define FLAG_LOADED 0x0002  // 0b 0000 0000 0000 0010
-#define FLAG_ERROR 0x0004   // 0b 0000 0000 0000 0100
+#define FLAG_RUNNING 0x0001  // 0b 0000 0000 0000 0001
+#define FLAG_LOADED 0x0002   // 0b 0000 0000 0000 0010
+#define FLAG_ERROR 0x0004    // 0b 0000 0000 0000 0100
 
 /*
- Screen is 256 (rows) x 512 (cols) = 131,072 pixles, represented in bits (1=black, 0=white)
-    131,072 bits / 16 (bits/word)
-    8192 words
-    MMIO Screen offset in RAM by 16384 words
-    screen[index] = RAM[16384 + inded]
+ Screen is 256 (rows) x 512 (cols) = 131,072 pixles, represented in bits
+ (1=black, 0=white) 131,072 bits / 16 (bits/word) 8192 words MMIO Screen offset
+ in RAM by 16384 words screen[index] = RAM[16384 + inded]
 
  Accessing screen as a function of row and column
     Note: row (0 <= r <= 255), col (0 <= c <= 511)

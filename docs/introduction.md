@@ -13,12 +13,13 @@ to make them. So, with that...
 :::
 
 ::: tip Computer Subsystems
+
 1. **Input** — receives program instructions and user input from the external environment
 2. **Output** — returns intermediate state and computed results to the external environment
 3. **Memory** — stores program instructions and data
 4. **Datapath** — moves and performs arithmetic and logical operations on data
 5. **Control Unit** — interprets program instructions and orchestrates their requested operations
-:::
+   :::
 
 ## What is a program?
 
@@ -27,10 +28,11 @@ moving from abstract human intent toward specific machine execution. These lower
 broad categories.
 
 ::: info Program Lowering
+
 1. **Design-Time** — transforms an idea into structured high-level source code
 2. **Compile-Time** — analyzes and lowers source code into progressively lower-level intermediate representations (IR) and eventually machine code
 3. **Runtime** — executes machine code on target hardware using agreed paradigms for resource orchestration
-:::
+   :::
 
 ## The Abstraction Ladder
 
@@ -49,8 +51,8 @@ Design-Time
 ┌──────────────────────┐
 │      Human Idea      │
 └──────────────────────┘
-          │
-          ▼
+│
+▼
 Compile Time
 ┌──────────────────────┐
 │     File.jack        │
@@ -61,8 +63,8 @@ Compile Time
 │         ▼            │
 │     File.hack        │
 └──────────────────────┘
-          │
-          ▼
+│
+▼
 Runtime
 ┌──────────────────────┐
 │  Computer Execution  │
@@ -78,14 +80,14 @@ At the base of this all is a single universal primitive: **NAND**.
 
 ```yml
 Embodied Computer
- ▲
- └── Control Unit, Datapath, Memory, Input, and Output Subsystems
-      ▲
-      └── Functional Modules (CPU, ALU, Registers, ROM, RAM, etc.)
-           ▲
-           └── Combinational & Sequential Circuits (Mux, Add, Bit, etc.)
-                ▲
-                └── Boolean Logic Gates (Not, And, Or, Xor)
-                     ▲
-                     └── Universal Gate (NAND)
+▲
+└── Control Unit, Datapath, Memory, Input, and Output Subsystems
+▲
+└── Functional Modules (CPU, ALU, Registers, ROM, RAM, etc.)
+▲
+└── Combinational & Sequential Circuits (Mux, Add, Bit, etc.)
+▲
+└── Boolean Logic Gates (Not, And, Or, Xor)
+▲
+└── Universal Gate (NAND)
 ```

@@ -1,16 +1,16 @@
 # Combinational Circuits
 
-This section documents the combinational circuits used by Hack++ for data routing and arithmetic operations. Unlike 
-the previous sections primitive gates, which implement individual boolean operations, these components exist to perform 
+This section documents the combinational circuits used by Hack++ for data routing and arithmetic operations. Unlike
+the previous sections primitive gates, which implement individual boolean operations, these components exist to perform
 specific tasks required by higher levels of the abstraction ladder.
 
-Combinational circuits operate only on their current inputs and produce outputs without depending on any previous state, 
+Combinational circuits operate only on their current inputs and produce outputs without depending on any previous state,
 forming the building blocks for datapaths, control logic, and instruction decoding.
 
 ## The Wide Circuits
 
 ::: warning The Plan
-Again, these 1 bit circuits will be combined to accommodate word size computations. All wide routing circuits are 
+Again, these 1 bit circuits will be combined to accommodate word size computations. All wide routing circuits are
 built strictly from their single-bit equivalents, preserving the abstraction ladder:
 
 - Routing:
@@ -26,22 +26,23 @@ significant bit (MSB). This is a bus-ordering convention, not a memory endiannes
 
 ## Routing Circuits
 
-These components do not compute new values; instead, they **select**, **fan in/out**, and **qualify** 
+These components do not compute new values; instead, they **select**, **fan in/out**, and **qualify**
 existing signals, forming the backbone of instruction decoding, register loading, memory writes, and control flow.
 
 ::: warning Fan-in and Fan-out
+
 - **Fan-In**: Multiplexers (MUX), many sources → one destination
 - **Fan-Out**: Demultiplexers (DMUX), one source → many destinations
-:::
+  :::
 
 ### MUX — Selector Circuit
 
-> **Also known as:** *Selector*, *Data switch*
+> **Also known as:** _Selector_, _Data switch_
 
 The **Multiplexer (MUX)** selects exactly one of two inputs based on a single control signal.
 
-* If `sel = 0`, then `out = a`
-* If `sel = 1`, then `out = b`
+- If `sel = 0`, then `out = a`
+- If `sel = 1`, then `out = b`
 
 It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
 
@@ -59,6 +60,7 @@ CHIP Mux {
     Or(a=and0, b=and1, out=out);
 }
 ```
+
 :::
 
 ::: tip MUX(a, b, sel)
@@ -73,16 +75,15 @@ The **Mux16 circuit** extends the single-bit MUX across a 16-bit bus, allowing e
 
 It is heavily used in:
 
-* ALU input selection (`A` vs `M`)
-* Instruction decoding
-* PC source selection
+- ALU input selection (`A` vs `M`)
+- Instruction decoding
+- PC source selection
 
 #### Behavior
 
-* For `(0 <= i <= 15)`:
-  * If `sel = 0`, then `out[i] = a[i]`
-  * If `sel = 1`, then `out[i] = b[i]`
-
+- For `(0 <= i <= 15)`:
+  - If `sel = 0`, then `out[i] = a[i]`
+  - If `sel = 1`, then `out[i] = b[i]`
 
 ::: details Definition
 
@@ -121,16 +122,15 @@ The **Mux4Way16 gate** selects one of four 16-bit inputs using a 2-bit control s
 
 It is typically used in:
 
-* Multi-source bus arbitration
-* ROM and memory bank selection
+- Multi-source bus arbitration
+- ROM and memory bank selection
 
 #### Behavior
 
-* If `sel = 00`, then `out = a`
-* If `sel = 01`, then `out = b`
-* If `sel = 10`, then `out = c`
-* If `sel = 11`, then `out = d`
-
+- If `sel = 00`, then `out = a`
+- If `sel = 01`, then `out = b`
+- If `sel = 10`, then `out = c`
+- If `sel = 11`, then `out = d`
 
 ::: details Definition
 
@@ -145,6 +145,7 @@ CHIP Mux4Way16 {
     Mux16(a=muxAB, b=muxCD, sel=sel[1], out=out);
 }
 ```
+
 :::
 
 ---
@@ -157,15 +158,14 @@ It forms the basis of hierarchical bus selection and large fan-in datapaths.
 
 #### Behavior
 
-* If `sel = 000`, then `out = a`
-* If `sel = 001`, then `out = b`
-* If `sel = 010`, then `out = c`
-* If `sel = 011`, then `out = d`
-* If `sel = 100`, then `out = e`
-* If `sel = 101`, then `out = f`
-* If `sel = 110`, then `out = g`
-* If `sel = 111`, then `out = h`
-
+- If `sel = 000`, then `out = a`
+- If `sel = 001`, then `out = b`
+- If `sel = 010`, then `out = c`
+- If `sel = 011`, then `out = d`
+- If `sel = 100`, then `out = e`
+- If `sel = 101`, then `out = f`
+- If `sel = 110`, then `out = g`
+- If `sel = 111`, then `out = h`
 
 ::: details Definition
 
@@ -182,21 +182,21 @@ CHIP Mux8Way16 {
     Mux16(a=muxABCD, b=muxEFGH, sel=sel[2], out=out);
 }
 ```
+
 :::
 
 ---
 
 ### DMUX — Distributor Circuit
 
-> **Also known as:** *Distributor*, *Write decoder*
+> **Also known as:** _Distributor_, _Write decoder_
 
 The **Demultiplexer (DMUX)** routes a single input to exactly one of two outputs based on a control signal.
 
-* If `sel = 0`, then `{ a = in, b = 0 }`
-* If `sel = 1`, then `{ a = 0, b = in }`
+- If `sel = 0`, then `{ a = in, b = 0 }`
+- If `sel = 1`, then `{ a = 0, b = in }`
 
 It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
-
 
 ::: details Definition
 
@@ -211,6 +211,7 @@ CHIP DMux {
     And(a=sel, b=in, out=b);
 }
 ```
+
 :::
 
 ::: tip DMUX(sel)
@@ -225,16 +226,15 @@ The **DMux4Way gate** routes a single control or data signal to one of four outp
 
 It is used in:
 
-* Register file write selection
-* Memory region decoding
+- Register file write selection
+- Memory region decoding
 
 #### Behavior
 
-* If `sel = 00`, then `{ a = in, b = 0, c = 0, d = 0 }`
-* If `sel = 01`, then `{ a = 0, b = in, c = 0, d = 0 }`
-* If `sel = 10`, then `{ a = 0, b = 0, c = in, d = 0 }`
-* If `sel = 11`, then `{ a = 0, b = 0, c = 0, d = in }`
-
+- If `sel = 00`, then `{ a = in, b = 0, c = 0, d = 0 }`
+- If `sel = 01`, then `{ a = 0, b = in, c = 0, d = 0 }`
+- If `sel = 10`, then `{ a = 0, b = 0, c = in, d = 0 }`
+- If `sel = 11`, then `{ a = 0, b = 0, c = 0, d = in }`
 
 ::: details Definition
 
@@ -262,14 +262,14 @@ It forms the basis of hierarchical write decoding for large memory blocks and re
 
 #### Behavior
 
-* `sel = 000` → `{ a = in, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
-* `sel = 001` → `{ a = 0, b = in, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
-* `sel = 010` → `{ a = 0, b = 0, c = in, d = 0, e = 0, f = 0, g = 0, h = 0 }`
-* `sel = 011` → `{ a = 0, b = 0, c = 0, d = in, e = 0, f = 0, g = 0, h = 0 }`
-* `sel = 100` → `{ a = 0, b = 0, c = 0, d = 0, e = in, f = 0, g = 0, h = 0 }`
-* `sel = 101` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = in, g = 0, h = 0 }`
-* `sel = 110` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = in, h = 0 }`
-* `sel = 111` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = in }`
+- `sel = 000` → `{ a = in, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
+- `sel = 001` → `{ a = 0, b = in, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
+- `sel = 010` → `{ a = 0, b = 0, c = in, d = 0, e = 0, f = 0, g = 0, h = 0 }`
+- `sel = 011` → `{ a = 0, b = 0, c = 0, d = in, e = 0, f = 0, g = 0, h = 0 }`
+- `sel = 100` → `{ a = 0, b = 0, c = 0, d = 0, e = in, f = 0, g = 0, h = 0 }`
+- `sel = 101` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = in, g = 0, h = 0 }`
+- `sel = 110` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = in, h = 0 }`
+- `sel = 111` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = in }`
 
 ::: details Definition
 
@@ -284,33 +284,35 @@ CHIP DMux8Way {
     DMux4Way(in=dMuxEFGH, sel=sel[0..1], a=e, b=f, c=g, d=h);
 }
 ```
+
 :::
 
 ## Arithmetic Circuits
+
 Consider the sum of two single bits. Depending on their values, the operation produces one of four outcomes:
 
-* `0 + 0 =  0`
-* `1 + 0 =  1`
-* `0 + 1 =  1`
-* `1 + 1 = 10`
+- `0 + 0 =  0`
+- `1 + 0 =  1`
+- `0 + 1 =  1`
+- `1 + 1 = 10`
 
-The first three cases match the `OR` truth table exactly. The final case, however, introduces a new requirement: the 
+The first three cases match the `OR` truth table exactly. The final case, however, introduces a new requirement: the
 result produces **two bits**. We will call these the `sum` and `carry`.
 
-* the `sum` bit contains the least significant bit (LSB)
-* the `carry` bit contains the most significant bit (MSB), and is propagated to the next position
+- the `sum` bit contains the least significant bit (LSB)
+- the `carry` bit contains the most significant bit (MSB), and is propagated to the next position
 
 These components define the **carry-propagation backbone**. Allowing them to be combined to handle a binary number the
 size of our word. This is then used in the ALU (`x + y`) and address sequencing.
 
 ### HalfAdder — 1-bit Sum
 
-> **Also known as:** *1-bit adder*, *sum/carry generator*
+> **Also known as:** _1-bit adder_, _sum/carry generator_
 
 The **HalfAdder** computes the sum of two one-bit inputs, producing:
 
-* `sum`: the LSB `a + b`
-* `carry`: the MSB of `a + b`
+- `sum`: the LSB `a + b`
+- `carry`: the MSB of `a + b`
 
 It is the base primitive of multi-bit addition.
 
@@ -334,18 +336,19 @@ CHIP HalfAdder {
     And(a=a, b=b, out=carry);
 }
 ```
+
 :::
 
 ---
 
 ### FullAdder — 1-bit Sum with Carry-In
 
-> **Also known as:** *carry-propagating adder cell*
+> **Also known as:** _carry-propagating adder cell_
 
 The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-in `c`), producing:
 
-* `sum`: the LSB of `a + b + c`
-* `carry`: the MSB of `a + b + c`
+- `sum`: the LSB of `a + b + c`
+- `carry`: the MSB of `a + b + c`
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 
@@ -369,13 +372,14 @@ CHIP FullAdder {
     Or(a=carry0, b=carry1, out=carry);
 }
 ```
+
 :::
 
 ---
 
 ### Add16 — 16-bit Ripple-Carry Adder
 
-> **Also known as:** *ripple-carry adder*, *word adder*
+> **Also known as:** _ripple-carry adder_, _word adder_
 
 The **Add16** unit adds two 16-bit two’s complement values.
 
@@ -415,13 +419,14 @@ CHIP Add16 {
     FullAdder(a=a[15], b=b[15], c=carry14, sum=out[15], carry=dead);
 }
 ```
+
 :::
 
 ---
 
 ### Inc16 — 16-bit Incrementer
 
-> **Also known as:** *PC incrementer*, *+1 unit*
+> **Also known as:** _PC incrementer_, _+1 unit_
 
 The **Inc16** unit increments a 16-bit input by 1.
 
@@ -445,4 +450,5 @@ OUT out[16];
     Add16(a=in[0..15], b[0]=true, b[1..15]=false, out=out[0..15]);
 }
 ```
+
 :::

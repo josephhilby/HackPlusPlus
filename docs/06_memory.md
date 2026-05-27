@@ -4,28 +4,27 @@ This section documents the Hack++ **unified data memory subsystem**, including g
 
 The Hack platform exposes a single 15-bit address space to the CPU. The `Memory` chip implements that space by decoding the address and routing each access to one of:
 
-* **RAM16K** (general-purpose data memory)
-* **Screen** (memory-mapped display buffer)
-* **Keyboard** (memory-mapped input register)
-
+- **RAM16K** (general-purpose data memory)
+- **Screen** (memory-mapped display buffer)
+- **Keyboard** (memory-mapped input register)
 
 ## Design Notes
 
 **Unified address space**
 From the CPU’s perspective, all data accesses use the same interface:
 
-* `address` selects the target word
-* `in` is the write-data bus
-* `load` is the write-enable
-* `out` is the read-data bus
+- `address` selects the target word
+- `in` is the write-data bus
+- `load` is the write-enable
+- `out` is the read-data bus
 
 Internally, the `Memory` chip decodes the address and dispatches reads/writes to the correct region.
 
 **Read vs write timing**
 The memory subsystem follows the standard Hack timing model:
 
-* **Read (combinational):** `out(t) = Memory[address(t)](t)`
-* **Write (clocked):** if `load(t) = 1`, then `Memory[address(t)](t+1) = in(t)`
+- **Read (combinational):** `out(t) = Memory[address(t)](t)`
+- **Write (clocked):** if `load(t) = 1`, then `Memory[address(t)](t+1) = in(t)`
 
 In other words, writes commit on the next clock edge; reads reflect the currently stored value.
 
@@ -35,10 +34,11 @@ Region selection is determined by the high-order address bits. In this implement
 ---
 
 ### Memory Map
+
 The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal addresses):
 
 | Address Range       | ASM Name        | Usage                                                |
-|---------------------|-----------------|------------------------------------------------------|
+| ------------------- | --------------- | ---------------------------------------------------- |
 | `RAM[0]`            | `R0`/`SP`       | Current top of the stack                             |
 | `RAM[1]`            | `R1`/`LCL`      | Base of the current function's local segment         |
 | `RAM[2]`            | `R2`/`ARG`      | Base of the current function's argument segment      |
@@ -53,6 +53,7 @@ The Hack platform's RAM exposes 32K words of 16-bit, mapped as follows (decimal 
 | `RAM[16384..24575]` | `SCREEN`        | Memory-mapped video I/O (512×256 monochrome display) |
 | `RAM[24576]`        | `KBD`           | Memory-mapped keyboard I/O (Last key pressed)        |
 | `RAM[24577..32767]` | —               | Unused                                               |
+
 <p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
 
 ## Address Map
@@ -129,8 +130,8 @@ CHIP Memory {
 
 The memory subsystem is where sequential storage becomes **programmable state**:
 
-* The CPU uses `addressM` to select a word and `writeM` to commit writes.
-* The `Memory` chip routes the access to either RAM (program state), Screen (output), or Keyboard (input).
-* Higher-level software abstractions (stack, heap, static segment, VM memory commands) ultimately lower into reads and writes through this single unified interface.
+- The CPU uses `addressM` to select a word and `writeM` to commit writes.
+- The `Memory` chip routes the access to either RAM (program state), Screen (output), or Keyboard (input).
+- Higher-level software abstractions (stack, heap, static segment, VM memory commands) ultimately lower into reads and writes through this single unified interface.
 
 This is the bridge between instruction execution and observable I/O behavior on the Hack platform.

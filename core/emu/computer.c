@@ -1,9 +1,6 @@
 #include "computer.h"
 
-static state_t STATE = {
-    .pc = 0,
-    .flags = 0,
-    .cycles = 0};
+static state_t STATE = {.pc = 0, .flags = 0, .cycles = 0};
 
 // Refactor to mem.c, remove framebuffer and roll screeb into MMIO in RAM
 // 0: white (black), 1: black (green)
@@ -12,113 +9,85 @@ static uint16_t ROM[ROM_WORDS] = {0};
 // static uint16_t RAM[RAM_WORDS] = {0};
 static size_t ROM_SIZE = 0;
 
-void init(void)
-{
-    STATE.pc = 0;
-    STATE.flags = 0;
-    STATE.cycles = 0;
-    ROM_SIZE = 0;
+void init(void) {
+  STATE.pc = 0;
+  STATE.flags = 0;
+  STATE.cycles = 0;
+  ROM_SIZE = 0;
 }
 
-uint16_t *get_rom_ptr(void)
-{
-    return ROM;
+uint16_t *get_rom_ptr(void) { return ROM; }
+
+void commit_rom(size_t length) {
+  if (length == 0 || length > ROM_WORDS) {
+    STATE.flags |= FLAG_ERROR;
+    return;
+  }
+
+  ROM_SIZE = length;
+
+  STATE.pc = 0;
+  STATE.cycles = 0;
+  STATE.flags = FLAG_LOADED;
 }
 
-void commit_rom(size_t length)
-{
-    if (length == 0 || length > ROM_WORDS)
-    {
-        STATE.flags |= FLAG_ERROR;
-        return;
-    }
+void run(void) {
+  if ((STATE.flags & FLAG_LOADED) == 0) {
+    STATE.flags |= FLAG_ERROR;
+    return;
+  }
 
-    ROM_SIZE = length;
-
-    STATE.pc = 0;
-    STATE.cycles = 0;
-    STATE.flags = FLAG_LOADED;
+  STATE.flags |= FLAG_RUNNING;
+  STATE.flags &= ~FLAG_ERROR;
 }
 
-void run(void)
-{
-    if ((STATE.flags & FLAG_LOADED) == 0)
-    {
-        STATE.flags |= FLAG_ERROR;
-        return;
-    }
+void stop(void) { STATE.flags &= ~FLAG_RUNNING; }
 
-    STATE.flags |= FLAG_RUNNING;
-    STATE.flags &= ~FLAG_ERROR;
+void step(void) {
+  if ((STATE.flags & FLAG_LOADED) == 0) {
+    STATE.flags |= FLAG_ERROR;
+    return;
+  }
+
+  if (STATE.flags & FLAG_RUNNING) {
+    return;
+  }
+
+  if (ROM_SIZE == 0) {
+    return;
+  }
+
+  // Simple mock execution
+  if (STATE.pc < ROM_SIZE - 1) {
+    STATE.pc += 1;
+  }
+
+  STATE.cycles += 1;
+
+  STATE.flags &= ~FLAG_RUNNING;
+  STATE.flags &= ~FLAG_ERROR;
+
+  // simple visible framebuffer change
+  FRAMEBUFFER[STATE.pc % SCREEN_WORDS] = 0xFFFF;
 }
 
-void stop(void)
-{
-    STATE.flags &= ~FLAG_RUNNING;
+void reset(void) {
+  if ((STATE.flags & FLAG_LOADED) == 0) {
+    STATE.flags |= FLAG_ERROR;
+    return;
+  }
+
+  STATE.pc = 0;
+  STATE.cycles = 0;
+  STATE.flags = FLAG_LOADED;
+
+  for (size_t i = 0; i < SCREEN_WORDS; i++) {
+    FRAMEBUFFER[i] = 0;
+  }
 }
 
-void step(void)
-{
-    if ((STATE.flags & FLAG_LOADED) == 0)
-    {
-        STATE.flags |= FLAG_ERROR;
-        return;
-    }
+void set_keyboard(uint16_t value) { (void)value; }
 
-    if (STATE.flags & FLAG_RUNNING)
-    {
-        return;
-    }
+const state_t *get_state_ptr(void) { return &STATE; }
 
-    if (ROM_SIZE == 0)
-    {
-        return;
-    }
-
-    // Simple mock execution
-    if (STATE.pc < ROM_SIZE - 1)
-    {
-        STATE.pc += 1;
-    }
-
-    STATE.cycles += 1;
-
-    STATE.flags &= ~FLAG_RUNNING;
-    STATE.flags &= ~FLAG_ERROR;
-
-    // simple visible framebuffer change
-    FRAMEBUFFER[STATE.pc % SCREEN_WORDS] = 0xFFFF;
-}
-
-void reset(void)
-{
-    if ((STATE.flags & FLAG_LOADED) == 0)
-    {
-        STATE.flags |= FLAG_ERROR;
-        return;
-    }
-
-    STATE.pc = 0;
-    STATE.cycles = 0;
-    STATE.flags = FLAG_LOADED;
-
-    for (size_t i = 0; i < SCREEN_WORDS; i++)
-    {
-        FRAMEBUFFER[i] = 0;
-    }
-}
-
-void set_keyboard(uint16_t value)
-{
-    (void)value;
-}
-
-const state_t *get_state_ptr(void)
-{
-    return &STATE;
-}
-
-const uint16_t *get_framebuffer_ptr(void)
-{
-    return FRAMEBUFFER;
-}
+const uint16_t *get_framebuffer_ptr(void) { return FRAMEBUFFER; }

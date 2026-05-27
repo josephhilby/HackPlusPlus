@@ -1,102 +1,103 @@
-import computerModuleUrl from './wasm/computer.js?url'
+import computerModuleUrl from "./wasm/computer.js?url";
 
 export default class MachineClient {
-    constructor() {
-        this.module = null
-        this.instance = null
+  constructor() {
+    this.module = null;
+    this.instance = null;
+  }
+
+  async init() {
+    const createModule = (await import(/* @vite-ignore */ computerModuleUrl))
+      .default;
+
+    this.module = await createModule();
+    this.instance = this.module;
+
+    this.instance._init();
+  }
+
+  isReady() {
+    return !!this.instance;
+  }
+
+  async load(program) {
+    const response = await fetch(program.bin);
+    const text = await response.text();
+
+    const romWords = text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => parseInt(line, 2));
+
+    const rom = Uint16Array.from(romWords);
+
+    if (rom.length > 32768) {
+      throw new Error("Program too large for ROM");
     }
 
-    async init() {
-        const createModule = (await import(/* @vite-ignore */ computerModuleUrl)).default
+    // Get pointer to machine-owned ROM
+    const ptr = this.instance._get_rom_ptr();
 
-        this.module = await createModule()
-        this.instance = this.module
+    // Write directly into Wasm memory
+    const heapU16 = new Uint16Array(
+      this.instance.HEAPU8.buffer,
+      ptr,
+      rom.length,
+    );
+    heapU16.set(rom);
 
-        this.instance._init()
-    }
+    // Tell core how many words are valid
+    this.instance._commit_rom(rom.length);
 
-    isReady() {
-        return !!this.instance
-    }
+    return this.getState();
+  }
 
-    async load(program) {
-        const response = await fetch(program.bin)
-        const text = await response.text()
+  async run() {
+    this.instance._run();
+    return this.getState();
+  }
 
-        const romWords = text
-            .split(/\r?\n/)
-            .map((line) => line.trim())
-            .filter(Boolean)
-            .map((line) => parseInt(line, 2))
+  async stop() {
+    this.instance._stop();
+    return this.getState();
+  }
 
-        const rom = Uint16Array.from(romWords)
+  async step() {
+    this.instance._step();
+    return this.getState();
+  }
 
-        if (rom.length > 32768) {
-            throw new Error('Program too large for ROM')
-        }
+  async reset() {
+    this.instance._reset();
+    return this.getState();
+  }
 
-        // Get pointer to machine-owned ROM
-        const ptr = this.instance._get_rom_ptr()
+  async setKeyboard(value) {
+    this.instance._set_keyboard(value);
+    return this.getState();
+  }
 
-        // Write directly into Wasm memory
-        const heapU16 = new Uint16Array(
-            this.instance.HEAPU8.buffer,
-            ptr,
-            rom.length
-        )
-        heapU16.set(rom)
+  async getState() {
+    const ptr = this.instance._get_state_ptr();
+    const view = new DataView(this.instance.HEAPU8.buffer);
 
-        // Tell core how many words are valid
-        this.instance._commit_rom(rom.length)
+    const pc = view.getUint16(ptr + 0, true);
+    const flags = view.getUint16(ptr + 2, true);
+    const cycles = view.getUint32(ptr + 4, true);
 
-        return this.getState()
-    }
+    return {
+      pc,
+      flags,
+      cycles,
+    };
+  }
 
-    async run() {
-        this.instance._run()
-        return this.getState()
-    }
+  async getFramebuffer() {
+    const ptr = this.instance._get_framebuffer_ptr();
+    const length = 8192;
 
-    async stop() {
-        this.instance._stop()
-        return this.getState()
-    }
-
-    async step() {
-        this.instance._step()
-        return this.getState()
-    }
-
-    async reset() {
-        this.instance._reset()
-        return this.getState()
-    }
-
-    async setKeyboard(value) {
-        this.instance._set_keyboard(value)
-        return this.getState()
-    }
-
-    async getState() {
-        const ptr = this.instance._get_state_ptr()
-        const view = new DataView(this.instance.HEAPU8.buffer)
-
-        const pc     = view.getUint16(ptr + 0, true)
-        const flags  = view.getUint16(ptr + 2, true)
-        const cycles = view.getUint32(ptr + 4, true)
-
-        return {
-            pc,
-            flags,
-            cycles,
-        }
-    }
-
-    async getFramebuffer() {
-        const ptr = this.instance._get_framebuffer_ptr()
-        const length = 8192
-
-        const view = new Uint16Array(this.instance.HEAPU8.buffer, ptr, length)
-        return new Uint16Array(view)
-    }
+    const view = new Uint16Array(this.instance.HEAPU8.buffer, ptr, length);
+    return new Uint16Array(view);
+  }
 }

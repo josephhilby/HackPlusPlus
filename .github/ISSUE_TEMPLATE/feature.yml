@@ -4,7 +4,6 @@ title: "[Feature]: "
 labels: ["enhancement"]
 
 body:
-
   - type: dropdown
     id: category
     attributes:

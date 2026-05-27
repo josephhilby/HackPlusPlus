@@ -5,4 +5,4 @@
 
 void parse_operation(Operation *op);
 
-#endif // PARSER_H
+#endif  // PARSER_H

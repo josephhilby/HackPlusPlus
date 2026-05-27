@@ -11,4 +11,4 @@ char *trim_left(char *line);
 void trim_right(char *line);
 char *clean_line(char *line);
 
-#endif // LINE_H
+#endif  // LINE_H

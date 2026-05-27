@@ -5,10 +5,11 @@ abstraction — circuits, modules, or subsystems — is ultimately just a combin
 a combination of the universal primitive NAND. At a high-level these gates come in two distinct types, based on the unit of
 data that they operate on.
 
-* **Primitive Gates** — operates on bits
-* **Wide Gates** — operates on words
+- **Primitive Gates** — operates on bits
+- **Wide Gates** — operates on words
 
 ## The Word
+
 Imagine a system with only primitive gates, such a system would only have the ability to move and process a single
 bit (`1` or `0`) of data at any given time. This limitation would be extremely restrictive for any meaningful
 computation.
@@ -26,17 +27,17 @@ machine.
 While the primitives get used throughout increasingly complex circuits. They also retain their own distinct conceptual
 roles across the system. At a high level, they can be viewed as implementing the following tasks:
 
-* **NAND** establishes the universal basis from which all other digital logic can be constructed
-* **NOT, AND, OR** implement decision and routing logic used throughout the datapath and control unit
-* **XOR** enables binary arithmetic, forming the core of the control unit
+- **NAND** establishes the universal basis from which all other digital logic can be constructed
+- **NOT, AND, OR** implement decision and routing logic used throughout the datapath and control unit
+- **XOR** enables binary arithmetic, forming the core of the control unit
 
-Together, these gates — in conjunction with the data flip-flop (DFF) discussed in *Sequential Circuits* — represent
+Together, these gates — in conjunction with the data flip-flop (DFF) discussed in _Sequential Circuits_ — represent
 the boundary where boolean algebra becomes machine behavior, enabling the construction of a programmable
 computing system.
 
 ### NAND — Universal Gate
 
-> **Also known as:** *Functional complete primitive*
+> **Also known as:** _Functional complete primitive_
 
 The **NAND gate** is the single primitive from which all combinational and sequential logic in
 Hack++ is constructed.
@@ -54,7 +55,7 @@ complete, every other gate in this system can be expressed as a composition of N
 
 ### NOT — Inverter Gate
 
-> **Also known as:** *Negation*, *Logical complement*
+> **Also known as:** _Negation_, _Logical complement_
 
 The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal
 inversion, and two’s-complement arithmetic throughout the datapath and control logic.
@@ -72,6 +73,7 @@ CHIP Not {
     Nand(a=in, b=in, out=out);
 }
 ```
+
 :::
 
 ::: tip NOT(in)
@@ -84,12 +86,13 @@ CHIP Not {
 
 ### AND — Enable Gate
 
-> **Also known as:** *Qualifier*
+> **Also known as:** _Qualifier_
 
 The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely
 used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
 ::: details Definition
+
 ```hdl
 CHIP And {
     IN a, b;
@@ -100,6 +103,7 @@ CHIP And {
     Not(in=nand, out=out);
 }
 ```
+
 :::
 
 ::: tip AND(a, b)
@@ -112,16 +116,17 @@ CHIP And {
 
 ### OR — Combine Gate
 
-> **Also known as:** *Signal combiner*, *Logical merge*
+> **Also known as:** _Signal combiner_, _Logical merge_
 
 The **OR gate** aggregates multiple signal sources into a single logical result.
 
 It is commonly used for: flag reduction (`zr`, jump conditions), multi-source control logic, and datapath signal
 merging.
 
-*Note: Derived using De Morgan’s Law.*
+_Note: Derived using De Morgan’s Law._
 
 ::: details Definition
+
 ```hdl
 CHIP Or {
     IN a, b;
@@ -133,6 +138,7 @@ CHIP Or {
     Nand(a=na, b=nb, out=out);
 }
 ```
+
 :::
 
 ::: tip OR(a, b)
@@ -145,7 +151,7 @@ CHIP Or {
 
 ### XOR — Sum Gate
 
-> **Also known as:** *Sum gate*, *Difference detector*
+> **Also known as:** _Sum gate_, _Difference detector_
 
 The **XOR gate** produces a high output when its inputs differ.
 
@@ -153,6 +159,7 @@ It is the fundamental building block of **binary addition**, forming the sum pat
 and the ALU’s arithmetic pipeline.
 
 ::: details Definition
+
 ```hdl
 CHIP Xor {
     IN a, b;
@@ -164,6 +171,7 @@ CHIP Xor {
     And(a=or, b=nand, out=out);
 }
 ```
+
 :::
 
 ::: tip XOR(a, b)
@@ -173,6 +181,7 @@ CHIP Xor {
 :::
 
 ## The Wide Gates
+
 With the word size set, the system can now expand its primitive gates and create appropriately sized wide (multi-bit)
 combinational gates. These will operate on buses rather than single-bit signals and form the architectural bridge
 between bit-level logic and word-level computation.
@@ -192,7 +201,7 @@ significant bit (MSB). This will define logical bit position, not memory endiann
 
 ### Not16 — Bitwise Inverter
 
-> **Also known as:** *Bitwise negator*, *Word inverter*
+> **Also known as:** _Bitwise negator_, _Word inverter_
 
 The **Not16 gate** performs a parallel bitwise inversion across a 16-bit input bus.
 
@@ -228,13 +237,14 @@ CHIP Not16 {
     Not(in=in[15], out=out[15]);
 }
 ```
+
 :::
 
 ---
 
 ### And16 — Bitwise Enable
 
-> **Also known as:** *Bus mask*, *Word enable*
+> **Also known as:** _Bus mask_, _Word enable_
 
 The **And16 gate** computes a parallel logical AND across two 16-bit input buses.
 
@@ -242,6 +252,7 @@ It is used for: masking intermediate ALU results, qualifying memory addresses, a
 paths.
 
 ::: details Definition
+
 ```hdl
 CHIP And16 {
     IN a[16], b[16];
@@ -269,13 +280,14 @@ CHIP And16 {
     And(a=a[15], b=b[15], out=out[15]);
 }
 ```
+
 :::
 
 ---
 
 ### Or16 — Bitwise Combine
 
-> **Also known as:** *Bus merge*, *Word combine*
+> **Also known as:** _Bus merge_, _Word combine_
 
 The **Or16 gate** computes a parallel logical OR across two 16-bit input buses.
 
@@ -310,13 +322,14 @@ CHIP Or16 {
     Or(a=a[15], b=b[15], out=out[15]);
 }
 ```
+
 :::
 
 ---
 
 ### Or8Way — Reduction OR
 
-> **Also known as:** *Zero detector stage*
+> **Also known as:** _Zero detector stage_
 
 The **Or8Way gate** reduces an 8-bit bus to a single status bit by computing the logical OR of all inputs.
 
@@ -341,4 +354,5 @@ CHIP Or8Way {
     Or(a=or4, b=or5, out=out);
 }
 ```
+
 :::

@@ -9,17 +9,15 @@
 #define N_BUCKETS 128
 #define N_REG 15
 
-typedef struct SystemEntry
-{
-    char symbol[MAX_LENGTH];
-    uint16_t addr;
-    struct SystemEntry *next;
+typedef struct SystemEntry {
+  char symbol[MAX_LENGTH];
+  uint16_t addr;
+  struct SystemEntry *next;
 } SystemEntry;
 
-typedef struct SystemTable
-{
-    SystemEntry *buckets[N_BUCKETS];
-    uint16_t next_var;
+typedef struct SystemTable {
+  SystemEntry *buckets[N_BUCKETS];
+  uint16_t next_var;
 } SystemTable;
 
 SystemTable *create_table(void);

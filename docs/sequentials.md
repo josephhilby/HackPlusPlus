@@ -2,13 +2,13 @@
 
 This section documents the stateful (clocked) building blocks of the Hack++ hardware stack.
 
-Unlike combinational logic—which maps inputs to outputs within the same cycle—sequential components 
-**store state across cycles**. This introduces the notion of time (`t`, `t+1`) and enables architectural state 
+Unlike combinational logic—which maps inputs to outputs within the same cycle—sequential components
+**store state across cycles**. This introduces the notion of time (`t`, `t+1`) and enables architectural state
 such as registers, counters, and addressable memory.
 
 **Cycle semantics (`t` → `t+1`)**
-Borrowing the nand2tetris timing schema, combinational outputs reflect signals in the *current* cycle (`t`), while state 
-updates commit on the clock edge and become visible in the *next* cycle (`t+1`).
+Borrowing the nand2tetris timing schema, combinational outputs reflect signals in the _current_ cycle (`t`), while state
+updates commit on the clock edge and become visible in the _next_ cycle (`t+1`).
 
 **Load / enable discipline**
 All state elements follow the same pattern:
@@ -27,9 +27,9 @@ Sequential elements form a strict ladder:
 
 Each RAM level uses:
 
-* a **demultiplexer** to decode *which* sub-block receives `load`
-* a bank of **sub-blocks** to store values
-* a **multiplexer** to select the addressed output
+- a **demultiplexer** to decode _which_ sub-block receives `load`
+- a bank of **sub-blocks** to store values
+- a **multiplexer** to select the addressed output
 
 **Bit ordering (bus convention)**
 As elsewhere, `in[0]` is the LSB and `in[15]` is the MSB.
@@ -42,10 +42,10 @@ As elsewhere, `in[0]` is the LSB and `in[15]` is the MSB.
 
 The **Program Counter (PC)** is a 16-bit stateful counter that tracks the address of the next instruction to execute.
 
-It supports three control behaviors—reset, load, and increment—with a defined priority order. The PC updates on 
+It supports three control behaviors—reset, load, and increment—with a defined priority order. The PC updates on
 the next clock tick; its output reflects the stored value for the current cycle.
 
-**Also known as:** *instruction pointer*, *PC register*
+**Also known as:** _instruction pointer_, _PC register_
 
 #### Update semantics (priority order)
 
@@ -91,10 +91,10 @@ The **Bit** is the smallest state element in the platform: a single-bit storage 
 
 It is implemented by feeding the DFF’s previous output back through a MUX:
 
-* when `load=0`, the cell recirculates and holds its value
-* when `load=1`, the cell captures `in`
+- when `load=0`, the cell recirculates and holds its value
+- when `load=1`, the cell captures `in`
 
-**Also known as:** *1-bit latch (clocked)*, *storage cell*
+**Also known as:** _1-bit latch (clocked)_, _storage cell_
 
 #### Behavior
 
@@ -124,7 +124,7 @@ The **Register** is a 16-bit state element used throughout the CPU and memory hi
 
 It applies a single `load` enable across 16 `Bit` cells, producing a word-sized storage primitive.
 
-**Also known as:** *word register*, *general-purpose register (structural)*
+**Also known as:** _word register_, _general-purpose register (structural)_
 
 #### Behavior
 
@@ -164,16 +164,16 @@ CHIP Register {
 
 ## RAM Hierarchy
 
-Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by composing 
+Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by composing
 **eight** instances of the previous level.
 
 ### Structural pattern (reused at every level)
 
 At each level:
 
-* **Decode**: `DMux8Way(load, sel=hi_addr)` generates eight one-hot write enables
-* **Store**: eight sub-RAM blocks receive the same `in` but only one receives `load=1`
-* **Select**: `Mux8Way16(sel=hi_addr)` chooses which sub-block drives `out`
+- **Decode**: `DMux8Way(load, sel=hi_addr)` generates eight one-hot write enables
+- **Store**: eight sub-RAM blocks receive the same `in` but only one receives `load=1`
+- **Select**: `Mux8Way16(sel=hi_addr)` chooses which sub-block drives `out`
 
 This pattern is identical for `RAM8 → RAM16K`; only the address slicing changes.
 
@@ -187,7 +187,7 @@ This pattern is identical for `RAM8 → RAM16K`; only the address slicing change
 |  `RAM4K` |  4096 |           12 | 8× `RAM512`   | `hi=address[9..11]`, `lo=address[0..8]`   |
 | `RAM16K` | 16384 |           14 | 8× `RAM4K`    | `hi=address[11..13]`, `lo=address[0..11]` |
 
-> Note: These are *word-addressed* memories (each address selects a 16-bit word).
+> Note: These are _word-addressed_ memories (each address selects a 16-bit word).
 
 ---
 
@@ -195,7 +195,7 @@ This pattern is identical for `RAM8 → RAM16K`; only the address slicing change
 
 The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3-bit address.
 
-**Also known as:** *register file (8×16)*
+**Also known as:** _register file (8×16)_
 
 #### HDL
 
@@ -336,10 +336,10 @@ CHIP RAM16K {
 
 ## Architectural Context
 
-Sequential elements are where Hack++ transitions from *pure combinational logic* to *architectural state*.
+Sequential elements are where Hack++ transitions from _pure combinational logic_ to _architectural state_.
 
-* The **PC** turns instruction flow into an explicit state machine (`pc(t) → pc(t+1)`), enabling sequencing and control flow.
-* **Bits and Registers** form the CPU’s programmer-visible state (`A`, `D`) and internal storage.
-* The **RAM hierarchy** provides scalable addressed storage built from the same load/enable semantics, setting up the unified address space documented in [Memory Hierarchy](./06_memory.md).
+- The **PC** turns instruction flow into an explicit state machine (`pc(t) → pc(t+1)`), enabling sequencing and control flow.
+- **Bits and Registers** form the CPU’s programmer-visible state (`A`, `D`) and internal storage.
+- The **RAM hierarchy** provides scalable addressed storage built from the same load/enable semantics, setting up the unified address space documented in [Memory Hierarchy](./06_memory.md).
 
 These components establish the machine’s memory of the past—without them, computation would have no persistence across cycles.

@@ -3,10 +3,9 @@
 
 #include <stdint.h>
 
-typedef struct
-{
-    const char *mnemonic;
-    uint16_t code;
+typedef struct {
+  const char *mnemonic;
+  uint16_t code;
 } CompInst;
 
 uint16_t get_inst_part(const char *mnemonic, const CompInst *tbl);

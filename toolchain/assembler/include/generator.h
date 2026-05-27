@@ -1,8 +1,8 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "instruction.h"
 #include "symbol_table.h"
@@ -16,4 +16,4 @@ uint16_t decode_jump(const char *jump);
 void inst_to_bits(uint16_t inst, char *buffer);
 void write_bits(FILE *dist, const char *buffer);
 
-#endif // GENERATOR_H
+#endif  // GENERATOR_H
