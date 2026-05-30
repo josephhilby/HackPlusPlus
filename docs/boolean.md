@@ -1,43 +1,50 @@
 # Boolean Logic Gates
 
 This section documents the boolean logic gates that form the foundation of the Hack++ hardware suite. Every other hardware
-abstraction — circuits, modules, or subsystems — is ultimately just a combination of these gates, which in turn are just
-a combination of the universal primitive NAND. At a high-level these gates come in two distinct types, based on the unit of
+abstraction — circuits, modules, or subsystems — is ultimately just a composition of these gates, which in turn are just
+various arrangements of the universal primitive 'NAND.' At a high-level these gates come in two distinct types, based on the unit of
 data that they operate on.
 
-- **Primitive Gates** — operates on bits
-- **Wide Gates** — operates on words
+::: info Gate Types
+
+- **Primitive Gates** operate on bits.
+- **Wide Gates** operate on words.
+  :::
 
 ## The Word
 
-Imagine a system with only primitive gates, such a system would only have the ability to move and process a single
-bit (`1` or `0`) of data at any given time. This limitation would be extremely restrictive for any meaningful
-computation.
+Before jumping into describing the gate types it is important to understand the concept that drives their primary distinction, the word.
 
-Instead, computers group multiple bits together into a **word**, a wider fundamental unit of data. The size of a word is
-a design choice, balancing capability against implementation complexity. For Hack++, a word consists of 16 bits.
+Imagine a system with only primitive gates; such a system could only move and process a single bit (`1` or `0`) of data
+at any given time. As you could imagine, this limitation would be extremely restrictive for any meaningful computation.
 
-This word size sets the width of the datapath: at most 16 bits of data can move through the system in a single operation.
-This decision will propagate throughout the design, determining the size of registers, ALU data limits, memory values,
-total addressable space, and primitive data types. In this way, the word size shapes the overall architecture of the
-machine.
+Instead, computers group multiple bits together into a **word**, creating a wider fundamental unit of data to operate on. The
+size of a word is a design choice, balancing capability against complexity. In Hack++, that balance resulted in a word
+size of 16 bits.
+
+This sets the width of the Datapath. It means that at most 16 bits of data can move through the system in a single operation
+(or clock cycle). The effects of this decision will ripple throughout the remaining hardware and software design, determining the
+size of registers, ALU data limits, memory values, total addressable space, and primitive data types. In this way, the word size shapes
+the overall architecture of the machine.
 
 ## The Primitive Gates
 
-While the primitives get used throughout increasingly complex circuits. They also retain their own distinct conceptual
+Even though the primitive gates are aggregated into increasingly complex components, they also retain their own distinct conceptual
 roles across the system. At a high level, they can be viewed as implementing the following tasks:
 
-- **NAND** establishes the universal basis from which all other digital logic can be constructed
-- **NOT, AND, OR** implement decision and routing logic used throughout the datapath and control unit
-- **XOR** enables binary arithmetic, forming the core of the control unit
+::: info Primitive Roles
+
+- **NAND** establishes the universal basis from which all other digital logic can be constructed.
+- **NOT, AND, OR** implement decision and routing logic used throughout the Datapath and Control Unit.
+- **XOR** enables binary arithmetic, forming the core of the ALU.
+  :::
 
 Together, these gates — in conjunction with the data flip-flop (DFF) discussed in _Sequential Circuits_ — represent
-the boundary where boolean algebra becomes machine behavior, enabling the construction of a programmable
-computing system.
+the boundary where mathematics becomes machine behavior.
 
 ### NAND — Universal Gate
 
-> **Also known as:** _Functional complete primitive_
+> **Also known as:** _Functionally complete primitive_
 
 The **NAND gate** is the single primitive from which all combinational and sequential logic in
 Hack++ is constructed.
@@ -60,9 +67,7 @@ complete, every other gate in this system can be expressed as a composition of N
 The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal
 inversion, and two’s-complement arithmetic throughout the datapath and control logic.
 
-It computes the inverse of its input.
-
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Not {
@@ -91,7 +96,7 @@ CHIP Not {
 The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely
 used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP And {
@@ -125,7 +130,7 @@ merging.
 
 _Note: Derived using De Morgan’s Law._
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Or {
@@ -158,7 +163,7 @@ The **XOR gate** produces a high output when its inputs differ.
 It is the fundamental building block of **binary addition**, forming the sum path in half-adders, full-adders,
 and the ALU’s arithmetic pipeline.
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Xor {
@@ -182,8 +187,8 @@ CHIP Xor {
 
 ## The Wide Gates
 
-With the word size set, the system can now expand its primitive gates and create appropriately sized wide (multi-bit)
-combinational gates. These will operate on buses rather than single-bit signals and form the architectural bridge
+With the word size set, the system can now expand its Datapath by combining primitive gates to create wide (multi-bit)
+combinational gates. These will operate on word-sized buses rather than single-bit signals and form the architectural bridge
 between bit-level logic and word-level computation.
 
 ::: warning The Plan
@@ -191,11 +196,9 @@ All wide gates will be constructed strictly from their single-bit equivalents:
 
 - `Not → Not16`
 - `And → And16`
-- `Or`
-  - `→ Or16`
-  - `→ Or8Way`
+- `Or → { Or16, Or8Way }`
 
-Signals will use a fixed indexing convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+Note: Signals will use a fixed indexing convention where `in[0]` is the least significant bit (LSB) and `in[15]` is the most
 significant bit (MSB). This will define logical bit position, not memory endianness.
 :::
 
@@ -208,7 +211,7 @@ The **Not16 gate** performs a parallel bitwise inversion across a 16-bit input b
 It is used in: ALU output negation (`no` control bit), two’s complement formation (via downstream adders),
 general-purpose bus inversion and masking
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Not16 {
@@ -240,6 +243,10 @@ CHIP Not16 {
 
 :::
 
+::: tip NOT16(wordA)
+<WideGateDemo gate="Not16" />
+:::
+
 ---
 
 ### And16 — Bitwise Enable
@@ -251,7 +258,7 @@ The **And16 gate** computes a parallel logical AND across two 16-bit input buses
 It is used for: masking intermediate ALU results, qualifying memory addresses, and conditional propagation of data
 paths.
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP And16 {
@@ -283,7 +290,9 @@ CHIP And16 {
 
 :::
 
----
+::: tip AND16(wordA, wordB)
+<WideGateDemo gate="And16" />
+:::
 
 ### Or16 — Bitwise Combine
 
@@ -293,7 +302,7 @@ The **Or16 gate** computes a parallel logical OR across two 16-bit input buses.
 
 It is used for: merging ALU intermediate results, combining bus sources, and forming reduction trees for flag logic.
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Or16 {
@@ -325,17 +334,21 @@ CHIP Or16 {
 
 :::
 
+::: tip OR16(wordA, wordB)
+<WideGateDemo gate="Or16" />
+:::
+
 ---
 
 ### Or8Way — Reduction OR
 
-> **Also known as:** _Zero detector stage_
+> **Also known as:** _Non-zero detector stage_
 
 The **Or8Way gate** reduces an 8-bit bus to a single status bit by computing the logical OR of all inputs.
 
-It is a core component of **flag generation**, most notably for computing the ALU’s zero flag (`zr`).
+It is a core component of **flag generation**, most notably for helping compute the ALU’s zero flag (`zr`).
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Or8Way {
@@ -354,5 +367,11 @@ CHIP Or8Way {
     Or(a=or4, b=or5, out=out);
 }
 ```
+
+:::
+
+::: tip OR8WAY(in)
+
+<ReductionGateDemo gate="Or8Way" />
 
 :::

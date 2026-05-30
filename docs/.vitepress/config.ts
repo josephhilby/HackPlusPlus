@@ -55,9 +55,9 @@ export default withMermaid(
           items: [
             { text: "Home", link: "/" },
             { text: "Introduction", link: "/introduction.md" },
-            { text: "Boolean Logic Gates", link: "/primitives.md" },
-            { text: "Combinational Circuits", link: "/combinationals.md" },
-            { text: "Sequential Circuits", link: "/sequentials.md" },
+            { text: "Boolean Logic Gates", link: "/boolean.md" },
+            { text: "Combinational Circuits", link: "/combinational.md" },
+            { text: "Sequential Circuits", link: "/sequential.md" },
             { text: "ALU Module", link: "/logic.md" },
             { text: "CPU Module", link: "/processor.md" },
             { text: "Memory Subsystem", link: "/06_memory.md" },

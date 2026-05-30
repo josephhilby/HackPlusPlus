@@ -1,0 +1,84 @@
+.wide-gate-demo {
+  padding: 1.25rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-family: var(--vp-font-family-mono);
+  overflow-x: auto;
+  border: 1px solid var(--vp-c-divider);
+}
+.word-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.label {
+  width: 35px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--vp-c-text-2);
+}
+.bits {
+  display: flex;
+  gap: 2px;
+}
+.bit {
+  width: 22px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  font-size: 0.85rem;
+  position: relative;
+  user-select: none;
+}
+.bit.clickable {
+  cursor: pointer;
+}
+.bit.clickable:hover {
+  border-color: var(--vp-c-brand);
+  z-index: 1;
+}
+.bit.active {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+  border-color: var(--vp-c-brand);
+}
+.bit-val {
+  display: block;
+  line-height: 1;
+}
+.bit.header {
+  border: none;
+  background: transparent;
+  font-size: 0.65rem;
+  color: var(--vp-c-text-3);
+  height: auto;
+}
+.divider {
+  height: 1px;
+  background: var(--vp-c-divider);
+  margin: 0.25rem 0;
+}
+.bit.result {
+  border-style: dashed;
+}
+
+.bit.result {
+  border-style: dashed;
+}
+.decimal-value {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  min-width: 60px;
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--vp-c-brand);
+}

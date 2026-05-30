@@ -5,7 +5,7 @@ computer is, what a program is, and how these abstractions work together to make
 
 ## What is a computer?
 
-**A computer** is an aggregation of five cooperating subsystems that collects input, executes instructions, operates on data, and gives output.
+**A computer** is an aggregation of five cooperating subsystems that collect input, execute instructions, operate on data, and give output.
 
 ::: warning Definition
 **Data** is a set of quantifiable values that can represent user input, intermediate state, or computed results, among other things.
@@ -14,7 +14,7 @@ computer is, what a program is, and how these abstractions work together to make
 ::: tip Computer Subsystems
 
 1. **Input:** Receives program instructions and user input from the external environment.
-2. **Output:** Returns intermediate state and computed results to the external environment.
+2. **Output:** Returns intermediate states and computed results to the external environment.
 3. **Memory:** Stores program instructions and data.
 4. **Datapath:** Moves and performs arithmetic and logical operations on data.
 5. **Control Unit:** Interprets program instructions and orchestrates their requested operations.
@@ -39,8 +39,8 @@ bytecode virtual machine, it functions as the backend of a two-tier compiler rat
 
 ## The Abstraction Ladders
 
-These two primary abstractions form the conceptual framework for Hack++. They describe both how a computer is organized and
-how its software is transformed into machine instructions. Using them as a base, we start to layer on the more specific implementation
+These two primary abstractions form the conceptual framework for Hack++. At a high level they show both how the hardware components
+are organized and how the software instructions are lowered. Using this as a base, we can start to layer on the more specific implementation
 details of the Hack++ hardware and Jack programming language.
 
 ### Software Abstraction Ladder
@@ -59,7 +59,7 @@ At the base of this all is a single universal primitive: **NAND**.
 ::: info Hardware
 
 1. **Universal Primitive (NAND):** The foundational hardware building block from which all subsequent layers are derived.
-2. **Boolean Logic Gates (Not, And, Or, Xor):** The logical, mathematical representations of atomic level behavior, focusing on basic functional ideas.
+2. **Boolean Logic Gates (Not, And, Or, Xor):** The logical, mathematical representations of atomic level machine behavior.
 3. **Combinational & Sequential Circuits (Mux, Add, Bit, etc.):** The embodied, composite implementations of logic gates, introducing complex behavior and time-dependent state.
 4. **Functional Modules (CPU, ALU, RAM, etc.):** Complete, self-contained complex circuits dedicated to executing a single, highly specific task.
 5. **Subsystems (Control Unit, Datapath, Memory, Input, and Output):** The macroscopic components compose a computer.

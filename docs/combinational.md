@@ -7,16 +7,14 @@ specific tasks required by higher levels of the abstraction ladder.
 Combinational circuits operate only on their current inputs and produce outputs without depending on any previous state,
 forming the building blocks for datapaths, control logic, and instruction decoding.
 
-## The Wide Circuits
-
 ::: warning The Plan
-Again, these 1 bit circuits will be combined to accommodate word size computations. All wide routing circuits are
+Again, these single-bit circuits will be combined to accommodate word size computations. All wide routing circuits are
 built strictly from their single-bit equivalents, preserving the abstraction ladder:
 
-- Routing:
+- Routing Circuits:
   - `Mux → Mux16 → Mux4Way16 → Mux8Way16`
   - `DMux → DMux4Way → DMux8Way`
-- Arithmetic:
+- Arithmetic Circuits:
   - `HalfAdder → FullAdder → Add16`
 
 **Bit ordering (bus convention)**
@@ -29,7 +27,7 @@ significant bit (MSB). This is a bus-ordering convention, not a memory endiannes
 These components do not compute new values; instead, they **select**, **fan in/out**, and **qualify**
 existing signals, forming the backbone of instruction decoding, register loading, memory writes, and control flow.
 
-::: warning Fan-in and Fan-out
+::: warning Definition
 
 - **Fan-In**: Multiplexers (MUX), many sources → one destination
 - **Fan-Out**: Demultiplexers (DMUX), one source → many destinations
@@ -41,12 +39,15 @@ existing signals, forming the backbone of instruction decoding, register loading
 
 The **Multiplexer (MUX)** selects exactly one of two inputs based on a single control signal.
 
+::: info Behavior
+
 - If `sel = 0`, then `out = a`
 - If `sel = 1`, then `out = b`
+  :::
 
 It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Mux {
@@ -79,13 +80,15 @@ It is heavily used in:
 - Instruction decoding
 - PC source selection
 
-#### Behavior
+::: info Behavior
 
 - For `(0 <= i <= 15)`:
   - If `sel = 0`, then `out[i] = a[i]`
   - If `sel = 1`, then `out[i] = b[i]`
 
-::: details Definition
+:::
+
+::: details Hardware Description
 
 ```hdl
 CHIP Mux16 {
@@ -114,6 +117,10 @@ CHIP Mux16 {
 
 :::
 
+::: tip MUX16(wordA, wordB)
+<MuxWay16Demo :ways="2" />
+:::
+
 ---
 
 ### Mux4Way16 — Word Selector (4-to-1)
@@ -125,14 +132,16 @@ It is typically used in:
 - Multi-source bus arbitration
 - ROM and memory bank selection
 
-#### Behavior
+::: info Behavior
 
 - If `sel = 00`, then `out = a`
 - If `sel = 01`, then `out = b`
 - If `sel = 10`, then `out = c`
 - If `sel = 11`, then `out = d`
 
-::: details Definition
+:::
+
+::: details Hardware Description
 
 ```hdl
 CHIP Mux4Way16 {
@@ -148,6 +157,10 @@ CHIP Mux4Way16 {
 
 :::
 
+::: tip MUX4WAY16(wordA, wordB, wordC, wordD)
+<MuxWay16Demo :ways="4" />
+:::
+
 ---
 
 ### Mux8Way16 — Word Selector (8-to-1)
@@ -156,7 +169,7 @@ The **Mux8Way16 gate** selects one of eight 16-bit inputs using a 3-bit control 
 
 It forms the basis of hierarchical bus selection and large fan-in datapaths.
 
-#### Behavior
+::: info Behavior
 
 - If `sel = 000`, then `out = a`
 - If `sel = 001`, then `out = b`
@@ -167,7 +180,9 @@ It forms the basis of hierarchical bus selection and large fan-in datapaths.
 - If `sel = 110`, then `out = g`
 - If `sel = 111`, then `out = h`
 
-::: details Definition
+:::
+
+::: details Hardware Description
 
 ```hdl
 CHIP Mux8Way16 {
@@ -185,6 +200,10 @@ CHIP Mux8Way16 {
 
 :::
 
+::: tip MUX4WAY16(wordA, wordB, wordC, wordD, wordE, wordF, wordG, wordH)
+<MuxWay16Demo :ways="8" />
+:::
+
 ---
 
 ### DMUX — Distributor Circuit
@@ -193,12 +212,16 @@ CHIP Mux8Way16 {
 
 The **Demultiplexer (DMUX)** routes a single input to exactly one of two outputs based on a control signal.
 
+::: info Behavior
+
 - If `sel = 0`, then `{ a = in, b = 0 }`
 - If `sel = 1`, then `{ a = 0, b = in }`
 
+:::
+
 It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP DMux {
@@ -229,14 +252,16 @@ It is used in:
 - Register file write selection
 - Memory region decoding
 
-#### Behavior
+::: info Behavior
 
 - If `sel = 00`, then `{ a = in, b = 0, c = 0, d = 0 }`
 - If `sel = 01`, then `{ a = 0, b = in, c = 0, d = 0 }`
 - If `sel = 10`, then `{ a = 0, b = 0, c = in, d = 0 }`
 - If `sel = 11`, then `{ a = 0, b = 0, c = 0, d = in }`
 
-::: details Definition
+:::
+
+::: details Hardware Description
 
 ```hdl
 CHIP DMux4Way {
@@ -252,6 +277,10 @@ CHIP DMux4Way {
 
 :::
 
+::: tip DMUX4WAY(wordA, wordB, wordC, wordD)
+<DMuxWay16Demo :ways="4" />
+:::
+
 ---
 
 ### DMux8Way — Write Decoder (1-to-8)
@@ -260,7 +289,7 @@ The **DMux8Way gate** routes a single control or data signal to one of eight out
 
 It forms the basis of hierarchical write decoding for large memory blocks and register banks.
 
-#### Behavior
+::: info Behavior
 
 - `sel = 000` → `{ a = in, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
 - `sel = 001` → `{ a = 0, b = in, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
@@ -271,7 +300,9 @@ It forms the basis of hierarchical write decoding for large memory blocks and re
 - `sel = 110` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = in, h = 0 }`
 - `sel = 111` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = in }`
 
-::: details Definition
+:::
+
+::: details Hardware Description
 
 ```hdl
 CHIP DMux8Way {
@@ -287,20 +318,25 @@ CHIP DMux8Way {
 
 :::
 
+::: tip DMUX8WAY(wordA, wordB, wordC, wordD, wordE, wordF, wordG, wordH)
+<DMuxWay16Demo :ways="8" />
+:::
+
 ## Arithmetic Circuits
 
 Consider the sum of two single bits. Depending on their values, the operation produces one of four outcomes:
 
-- `0 + 0 =  0`
-- `1 + 0 =  1`
-- `0 + 1 =  1`
+- `0 + 0 = 00`
+- `1 + 0 = 01`
+- `0 + 1 = 01`
 - `1 + 1 = 10`
 
-The first three cases match the `OR` truth table exactly. The final case, however, introduces a new requirement: the
-result produces **two bits**. We will call these the `sum` and `carry`.
+With a little insight we can see that, for each answer, the least significant bit (LSB) matches the `XOR` truth
+table, and the most significant bit (MSB) matches the `AND` truth table. However, to represent all four cases
+we must use **two bits**. We will call these the `carry` and `sum`.
 
-- the `sum` bit contains the least significant bit (LSB)
-- the `carry` bit contains the most significant bit (MSB), and is propagated to the next position
+- the `sum` bit contains the LSB
+- the `carry` bit contains the MSB
 
 These components define the **carry-propagation backbone**. Allowing them to be combined to handle a binary number the
 size of our word. This is then used in the ALU (`x + y`) and address sequencing.
@@ -316,14 +352,7 @@ The **HalfAdder** computes the sum of two one-bit inputs, producing:
 
 It is the base primitive of multi-bit addition.
 
-#### Behavior
-
-```text
-sum   = a ⊕ b
-carry = a ∧ b
-```
-
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP HalfAdder {
@@ -339,6 +368,10 @@ CHIP HalfAdder {
 
 :::
 
+::: tip HALFADDER(a, b)
+<HalfAdderCircuit />
+:::
+
 ---
 
 ### FullAdder — 1-bit Sum with Carry-In
@@ -352,13 +385,13 @@ The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 
-#### Behavior
+::: info Behavior
 
-```text
-(a + b + c) = 2·carry + sum
-```
+(a + b + c) = 2 carry + sum
 
-::: details Definition
+:::
+
+::: details Hardware Description
 
 ```hdl
 CHIP FullAdder {
@@ -373,6 +406,10 @@ CHIP FullAdder {
 }
 ```
 
+:::
+
+::: tip FULLADDER(a, b, c)
+<FullAdderCircuit />
 :::
 
 ---
@@ -392,7 +429,7 @@ matching the Hack arithmetic model.
 out = a + b   (mod 2^16)
 ```
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Add16 {
@@ -439,7 +476,7 @@ address generation (e.g., `PC+1`) and loop/index increments.
 out = in + 1   (mod 2^16)
 ```
 
-::: details Definition
+::: details Hardware Description
 
 ```hdl
 CHIP Inc16 {

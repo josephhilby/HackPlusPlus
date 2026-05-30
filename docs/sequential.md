@@ -205,7 +205,9 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-    DMux8Way(in=load, sel=address, a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
+    DMux8Way(in=load, sel=address,
+             a=in0, b=in1, c=in2, d=in3,
+             e=in4, f=in5, g=in6, h=in7);
 
     Register(in=in, load=in0, out=out0);
     Register(in=in, load=in1, out=out1);
@@ -216,7 +218,9 @@ CHIP RAM8 {
     Register(in=in, load=in6, out=out6);
     Register(in=in, load=in7, out=out7);
 
-    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address, out=out);
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3,
+              e=out4, f=out5, g=out6, h=out7,
+              sel=address, out=out);
 }
 ```
 
@@ -237,7 +241,9 @@ CHIP RAM64 {
     OUT out[16];
 
     PARTS:
-    DMux8Way(in=load, sel=address[3..5], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
+    DMux8Way(in=load, sel=address[3..5],
+             a=in0, b=in1, c=in2, d=in3,
+             e=in4, f=in5, g=in6, h=in7);
 
     RAM8(in=in, load=in0, address=address[0..2], out=out0);
     RAM8(in=in, load=in1, address=address[0..2], out=out1);
@@ -248,7 +254,9 @@ CHIP RAM64 {
     RAM8(in=in, load=in6, address=address[0..2], out=out6);
     RAM8(in=in, load=in7, address=address[0..2], out=out7);
 
-    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address[3..5], out=out);
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3,
+              e=out4, f=out5, g=out6, h=out7,
+              sel=address[3..5], out=out);
 }
 ```
 
@@ -263,7 +271,9 @@ CHIP RAM512 {
     OUT out[16];
 
     PARTS:
-    DMux8Way(in=load, sel=address[6..8], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
+    DMux8Way(in=load, sel=address[6..8],
+             a=in0, b=in1, c=in2, d=in3,
+             e=in4, f=in5, g=in6, h=in7);
 
     RAM64(in=in, load=in0, address=address[0..5], out=out0);
     RAM64(in=in, load=in1, address=address[0..5], out=out1);
@@ -274,7 +284,9 @@ CHIP RAM512 {
     RAM64(in=in, load=in6, address=address[0..5], out=out6);
     RAM64(in=in, load=in7, address=address[0..5], out=out7);
 
-    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address[6..8], out=out);
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3,
+              e=out4, f=out5, g=out6, h=out7,
+              sel=address[6..8], out=out);
 }
 ```
 
@@ -289,7 +301,9 @@ CHIP RAM4K {
     OUT out[16];
 
     PARTS:
-    DMux8Way(in=load, sel=address[9..11], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
+    DMux8Way(in=load, sel=address[9..11],
+             a=in0, b=in1, c=in2, d=in3,
+             e=in4, f=in5, g=in6, h=in7);
 
     RAM512(in=in, load=in0, address=address[0..8], out=out0);
     RAM512(in=in, load=in1, address=address[0..8], out=out1);
@@ -300,7 +314,9 @@ CHIP RAM4K {
     RAM512(in=in, load=in6, address=address[0..8], out=out6);
     RAM512(in=in, load=in7, address=address[0..8], out=out7);
 
-    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address[9..11], out=out);
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3,
+              e=out4, f=out5, g=out6, h=out7,
+              sel=address[9..11], out=out);
 }
 ```
 
@@ -315,7 +331,9 @@ CHIP RAM16K {
     OUT out[16];
 
     PARTS:
-    DMux8Way(in=load, sel=address[11..13], a=in0, b=in1, c=in2, d=in3, e=in4, f=in5, g=in6, h=in7);
+    DMux8Way(in=load, sel=address[11..13],
+             a=in0, b=in1, c=in2, d=in3,
+             e=in4, f=in5, g=in6, h=in7);
 
     RAM4K(in=in, load=in0, address=address[0..11], out=out0);
     RAM4K(in=in, load=in1, address=address[0..11], out=out1);
@@ -326,7 +344,9 @@ CHIP RAM16K {
     RAM4K(in=in, load=in6, address=address[0..11], out=out6);
     RAM4K(in=in, load=in7, address=address[0..11], out=out7);
 
-    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address[11..13], out=out);
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3,
+              e=out4, f=out5, g=out6, h=out7,
+              sel=address[11..13], out=out);
 }
 ```
 

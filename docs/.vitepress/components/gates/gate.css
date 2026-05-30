@@ -190,7 +190,8 @@
 
 .gate-svg line,
 .gate-svg path,
-.gate-svg circle {
+.gate-svg circle,
+.gate-svg rect {
   vector-effect: non-scaling-stroke;
 }
 

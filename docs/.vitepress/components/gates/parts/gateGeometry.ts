@@ -161,6 +161,16 @@ export const MUX_RIGHT_X1 = OUT_X1;
 export const MUX_MID_IO_Y = MID_Y;
 
 /* ------------------------------------------------ */
+/* adder geometry                                   */
+/* ------------------------------------------------ */
+
+export const ADDER_WIDTH = 180;
+export const ADDER_BODY_LEFT_X = BODY_X - 35;
+export const ADDER_X1 = ADDER_BODY_LEFT_X + ADDER_WIDTH + 2;
+export const ADDER_SUM_Y = IN_BOTTOM_Y;
+export const ADDER_CARRY_Y = IN_TOP_Y;
+
+/* ------------------------------------------------ */
 /* top-level label positions (view space)           */
 /* ------------------------------------------------ */
 
