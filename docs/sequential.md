@@ -1,91 +1,70 @@
 # Sequential Circuits
 
-This section documents the stateful (clocked) building blocks of the Hack++ hardware stack.
+This section documents the stateful (time dependent) building blocks of the Hack++ hardware stack.
 
-Unlike combinational logic—which maps inputs to outputs within the same cycle—sequential components
-**store state across cycles**. This introduces the notion of time (`t`, `t+1`) and enables architectural state
-such as registers, counters, and addressable memory.
+Unlike combinational logic — which maps inputs to outputs without regard to time — sequential components
+**store state across time cycles**. This introduces time as an input (`t`, `t+1`) and enables the construction
+of program counters, registers, and eventually memory.
 
-**Cycle semantics (`t` → `t+1`)**
-Borrowing the nand2tetris timing schema, combinational outputs reflect signals in the _current_ cycle (`t`), while state
-updates commit on the clock edge and become visible in the _next_ cycle (`t+1`).
+**Cycle semantics (`t` → `t+1`):**
+Borrowing the nand2tetris timing schema, combinational outputs are reflected as signals in the _current_ cycle (`t`),
+while state updates become visible in the _next_ cycle (`t+1`).
 
-**Load / enable discipline**
-All state elements follow the same pattern:
+::: info Basic State Pattern
 
 ```text
-If load(t) == 1: out(t+1) = in(t)
-Else:            out(t+1) = out(t)
+IF flagged:
+  out(t+1) = state
+ELSE:
+  out(t+1) = out(t)
 ```
 
-This enables deterministic gating of writes and clean composition into larger storage structures.
+:::
 
-**Hierarchical construction**
-Sequential elements form a strict ladder:
+This can be read as: if the conditional flag is `1` at time `t` (`reset(t)`, `load(t)`, `inc(t)`), then modify
+the component to accept a new state (`0`, `in(t)`,`out(t) + 1`) to be set (or latched) by `t+1`. If no flag is set then
+retain the previous state (`out(t)`).
 
-`DFF → Bit → Register → RAM8 → RAM64 → RAM512 → RAM4K → RAM16K`
+## Memory Circuits
 
-Each RAM level uses:
+Hack++ RAM and ROM are built as a hierarchy of addressed register banks. Each level increases capacity by integrating
+**eight** instances of the previous level. To address each instance three bits are required (2^3 = 8). However, as
+the hierarchy increases in complexity there is a need to both select an instance AND pass addressing information into
+that instance.
 
-- a **demultiplexer** to decode _which_ sub-block receives `load`
-- a bank of **sub-blocks** to store values
-- a **multiplexer** to select the addressed output
+To identify what bits are addressing the eight previous instances and what bits are passed into the selected previous
+instance the terms **hi** and **low** are used. Where **hi** references the three bits to select the instance, and **low**
+references the remaining bits passed into the instance.
+
+#### Memory Circuit Hierarchy
+
+|       Chip | Words | Address bits | Built from    | Address split                             |
+| ---------: | ----: | -----------: | ------------- | ----------------------------------------- |
+| `Register` |     1 |            0 | 8× `Bit`      | none                                      |
+|     `RAM8` |     8 |            3 | 8× `Register` | `sel = address[0..2]`                     |
+|    `RAM64` |    64 |            6 | 8× `RAM8`     | `hi=address[3..5]`, `lo=address[0..2]`    |
+|   `RAM512` |   512 |            9 | 8× `RAM64`    | `hi=address[6..8]`, `lo=address[0..5]`    |
+|    `RAM4K` |  4096 |           12 | 8× `RAM512`   | `hi=address[9..11]`, `lo=address[0..8]`   |
+|   `RAM16K` | 16384 |           14 | 8× `RAM4K`    | `hi=address[11..13]`, `lo=address[0..11]` |
+
+::: warning The Plan
+As before the single-bit circuits will be combined to accommodate word size computations. However, as state can now
+be maintained over time, these wide circuits can then be combined to allow the storage and retrieval of previously
+computed words.
+
+- `DFF → Bit → Register → RAM8 → RAM64 → RAM512 → RAM4K → RAM16K`
 
 **Bit ordering (bus convention)**
-As elsewhere, `in[0]` is the LSB and `in[15]` is the MSB.
+Declarations define **width** (e.g., `in[16]` is 16 bits wide), while usage defines **index**.
+Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
+:::
 
----
-
-## Components
-
-### PC — Program Counter
-
-The **Program Counter (PC)** is a 16-bit stateful counter that tracks the address of the next instruction to execute.
-
-It supports three control behaviors—reset, load, and increment—with a defined priority order. The PC updates on
-the next clock tick; its output reflects the stored value for the current cycle.
-
-**Also known as:** _instruction pointer_, _PC register_
-
-#### Update semantics (priority order)
-
-On each cycle, the PC computes `out(t+1)` as:
-
-```text
-If reset(t) == 1
-    out(t+1) = 0
-Else if load(t) == 1
-    out(t+1) = in(t)
-Else if inc(t) == 1
-    out(t+1) = out(t) + 1
-Else
-    out(t+1) = out(t) (hold)
-```
-
-This priority ordering guarantees deterministic behavior when multiple control signals are asserted in the same cycle.
-
-#### HDL
-
-```hdl
-CHIP PC {
-    IN in[16], reset, load, inc;
-    OUT out[16];
-
-    PARTS:
-    // State (t)
-    Register(in=result, load=true, out=count, out=out);
-
-    // Next-State (t+1)
-    Inc16(in=count, out=w0);
-    Mux16(a=count, b=w0, sel=inc, out=w1);
-    Mux16(a=w1, b=in, sel=load, out=w2);
-    Mux16(a=w2, b[0..15]=false, sel=reset, out=result);
-}
-```
-
----
+### Data Flip Flop - DFF
 
 ### Bit — 1-bit Register
+
+> **Also known as:** _1-bit latch_, _storage cell_
 
 The **Bit** is the smallest state element in the platform: a single-bit storage cell with a load-enable.
 
@@ -94,16 +73,16 @@ It is implemented by feeding the DFF’s previous output back through a MUX:
 - when `load=0`, the cell recirculates and holds its value
 - when `load=1`, the cell captures `in`
 
-**Also known as:** _1-bit latch (clocked)_, _storage cell_
-
 #### Behavior
 
 ```text
-If load(t) == 1: out(t+1) = in(t)
-Else:            out(t+1) = out(t)
+IF load(t) == 1:
+    out(t+1) = in(t)
+Else:
+    out(t+1) = out(t)
 ```
 
-#### HDL
+::: details Hardware Description
 
 ```hdl
 CHIP Bit {
@@ -116,24 +95,19 @@ CHIP Bit {
 }
 ```
 
+:::
+
 ---
 
 ### Register — 16-bit Word Register
+
+> **Also known as:** _word register_, _general-purpose register_
 
 The **Register** is a 16-bit state element used throughout the CPU and memory hierarchy.
 
 It applies a single `load` enable across 16 `Bit` cells, producing a word-sized storage primitive.
 
-**Also known as:** _word register_, _general-purpose register (structural)_
-
-#### Behavior
-
-```text
-If load(t) == 1: out(t+1) = in(t)
-Else:            out(t+1) = out(t)
-```
-
-#### HDL
+::: details Hardware Description
 
 ```hdl
 CHIP Register {
@@ -160,44 +134,17 @@ CHIP Register {
 }
 ```
 
----
-
-## RAM Hierarchy
-
-Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by composing
-**eight** instances of the previous level.
-
-### Structural pattern (reused at every level)
-
-At each level:
-
-- **Decode**: `DMux8Way(load, sel=hi_addr)` generates eight one-hot write enables
-- **Store**: eight sub-RAM blocks receive the same `in` but only one receives `load=1`
-- **Select**: `Mux8Way16(sel=hi_addr)` chooses which sub-block drives `out`
-
-This pattern is identical for `RAM8 → RAM16K`; only the address slicing changes.
-
-### Capacity overview
-
-|     Chip | Words | Address bits | Built from    | Address split                             |
-| -------: | ----: | -----------: | ------------- | ----------------------------------------- |
-|   `RAM8` |     8 |            3 | 8× `Register` | `sel = address[0..2]`                     |
-|  `RAM64` |    64 |            6 | 8× `RAM8`     | `hi=address[3..5]`, `lo=address[0..2]`    |
-| `RAM512` |   512 |            9 | 8× `RAM64`    | `hi=address[6..8]`, `lo=address[0..5]`    |
-|  `RAM4K` |  4096 |           12 | 8× `RAM512`   | `hi=address[9..11]`, `lo=address[0..8]`   |
-| `RAM16K` | 16384 |           14 | 8× `RAM4K`    | `hi=address[11..13]`, `lo=address[0..11]` |
-
-> Note: These are _word-addressed_ memories (each address selects a 16-bit word).
+:::
 
 ---
 
 ### RAM8 — 8-Word Register Bank
 
+> **Also known as:** _register file (8×16)_
+
 The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3-bit address.
 
-**Also known as:** _register file (8×16)_
-
-#### HDL
+::: details Hardware Description
 
 ```hdl
 CHIP RAM8 {
@@ -224,13 +171,16 @@ CHIP RAM8 {
 }
 ```
 
+:::
+
 ---
 
 ### RAM64 / RAM512 / RAM4K / RAM16K — Hierarchical RAM
 
 The remaining RAM blocks repeat the same decode/store/select pattern, each time stacking 8× of the previous level.
 
-To keep this reference readable, their full HDL is included below in collapsible sections.
+To keep this reference readable, their full HDL is included below in collapsible sections. But no demo or behavior
+will be provided.
 
 <details>
 <summary><strong>RAM64 — 64-word memory (8× RAM8)</strong></summary>
@@ -352,14 +302,50 @@ CHIP RAM16K {
 
 </details>
 
----
+## Component Circuits
 
-## Architectural Context
+### PC — Program Counter
 
-Sequential elements are where Hack++ transitions from _pure combinational logic_ to _architectural state_.
+> **Also known as:** _instruction pointer_, _PC register_
 
-- The **PC** turns instruction flow into an explicit state machine (`pc(t) → pc(t+1)`), enabling sequencing and control flow.
-- **Bits and Registers** form the CPU’s programmer-visible state (`A`, `D`) and internal storage.
-- The **RAM hierarchy** provides scalable addressed storage built from the same load/enable semantics, setting up the unified address space documented in [Memory Hierarchy](./06_memory.md).
+The **Program Counter (PC)** is a 16-bit stateful counter that tracks the ROM address of the instruction in execution and
+sequences to the next executable instruction. It supports three control behaviors — reset, load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple control signals are asserted in the
+same cycle.
 
-These components establish the machine’s memory of the past—without them, computation would have no persistence across cycles.
+::: info PC State Pattern
+
+```text
+IF reset(t) == 1
+    out(t+1) = 0
+ELSE IF load(t) == 1
+    out(t+1) = in(t)
+ELSE IF inc(t) == 1
+    out(t+1) = out(t) + 1
+ELSE
+    out(t+1) = out(t)
+```
+
+:::
+
+::: details Hardware Description
+
+```hdl
+CHIP PC {
+    IN in[16], reset, load, inc;
+    OUT out[16];
+
+    PARTS:
+    // State (t)
+    Register(in=result, load=true, out=count, out=out);
+
+    // Next-State (t+1)
+    Inc16(in=count, out=w0);
+    Mux16(a=count, b=w0, sel=inc, out=w1);
+    Mux16(a=w1, b=in, sel=load, out=w2);
+    Mux16(a=w2, b[0..15]=false, sel=reset, out=result);
+}
+```
+
+:::
+
+<PCDemo />

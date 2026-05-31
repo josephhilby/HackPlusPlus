@@ -198,8 +198,10 @@ All wide gates will be constructed strictly from their single-bit equivalents:
 - `And → And16`
 - `Or → { Or16, Or8Way }`
 
-Note: Signals will use a fixed indexing convention where `in[0]` is the least significant bit (LSB) and `in[15]` is the most
-significant bit (MSB). This will define logical bit position, not memory endianness.
+**Bit ordering (bus convention)**
+Declarations define **width** (e.g., `in[16]` is 16 bits wide), while usage defines **index**.
+Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
 :::
 
 ### Not16 — Bitwise Inverter

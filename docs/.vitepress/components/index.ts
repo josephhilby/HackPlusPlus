@@ -26,6 +26,10 @@ export { default as WideGateDemo } from "./wide_gates/WideGateDemo.vue";
 export { default as ReductionGateDemo } from "./wide_gates/ReductionGateDemo.vue";
 export { default as MuxWay16Demo } from "./wide_gates/MuxWay16Demo.vue";
 export { default as DMuxWay16Demo } from "./wide_gates/DMuxWay16Demo.vue";
+export { default as Add16Demo } from "./wide_gates/Add16Demo.vue";
+export { default as Inc16Demo } from "./wide_gates/Inc16Demo.vue";
+export { default as ArithmeticDemo } from "./wide_gates/ArithmeticDemo.vue";
+export { default as PCDemo } from "./wide_gates/PCDemo.vue";
 
 // Truth Table
 export { default as TruthTable } from "./table/TruthTable.vue";

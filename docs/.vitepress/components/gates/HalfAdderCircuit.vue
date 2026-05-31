@@ -48,7 +48,7 @@ const carryOn = (row: AdderRow | null) => row?.carry === 1;
 <template>
   <div class="gate-identity">
     <div class="gate-identity-label">Boolean Identity</div>
-    <code class="gate-identity-formula">a + b = 2 · carry + 1 · sum</code>
+    <code class="gate-identity-formula">a + b = (2 · carry) + (1 · sum)</code>
   </div>
 
   <div class="gate-demo">

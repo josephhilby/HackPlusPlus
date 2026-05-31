@@ -18,8 +18,9 @@ built strictly from their single-bit equivalents, preserving the abstraction lad
   - `HalfAdder → FullAdder → Add16`
 
 **Bit ordering (bus convention)**
-Signals use a fixed bit-indexing convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
-significant bit (MSB). This is a bus-ordering convention, not a memory endianness rule.
+Declarations define **width** (e.g., `in[16]` is 16 bits wide), while usage defines **index**.
+Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
 :::
 
 ## Routing Circuits
@@ -38,12 +39,6 @@ existing signals, forming the backbone of instruction decoding, register loading
 > **Also known as:** _Selector_, _Data switch_
 
 The **Multiplexer (MUX)** selects exactly one of two inputs based on a single control signal.
-
-::: info Behavior
-
-- If `sel = 0`, then `out = a`
-- If `sel = 1`, then `out = b`
-  :::
 
 It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
 
@@ -80,14 +75,6 @@ It is heavily used in:
 - Instruction decoding
 - PC source selection
 
-::: info Behavior
-
-- For `(0 <= i <= 15)`:
-  - If `sel = 0`, then `out[i] = a[i]`
-  - If `sel = 1`, then `out[i] = b[i]`
-
-:::
-
 ::: details Hardware Description
 
 ```hdl
@@ -117,7 +104,7 @@ CHIP Mux16 {
 
 :::
 
-::: tip MUX16(wordA, wordB)
+::: tip MUX16(wordA, wordB, sel)
 <MuxWay16Demo :ways="2" />
 :::
 
@@ -131,15 +118,6 @@ It is typically used in:
 
 - Multi-source bus arbitration
 - ROM and memory bank selection
-
-::: info Behavior
-
-- If `sel = 00`, then `out = a`
-- If `sel = 01`, then `out = b`
-- If `sel = 10`, then `out = c`
-- If `sel = 11`, then `out = d`
-
-:::
 
 ::: details Hardware Description
 
@@ -157,7 +135,7 @@ CHIP Mux4Way16 {
 
 :::
 
-::: tip MUX4WAY16(wordA, wordB, wordC, wordD)
+::: tip MUX4WAY16(wordA, wordB, wordC, wordD, sel)
 <MuxWay16Demo :ways="4" />
 :::
 
@@ -168,19 +146,6 @@ CHIP Mux4Way16 {
 The **Mux8Way16 gate** selects one of eight 16-bit inputs using a 3-bit control signal.
 
 It forms the basis of hierarchical bus selection and large fan-in datapaths.
-
-::: info Behavior
-
-- If `sel = 000`, then `out = a`
-- If `sel = 001`, then `out = b`
-- If `sel = 010`, then `out = c`
-- If `sel = 011`, then `out = d`
-- If `sel = 100`, then `out = e`
-- If `sel = 101`, then `out = f`
-- If `sel = 110`, then `out = g`
-- If `sel = 111`, then `out = h`
-
-:::
 
 ::: details Hardware Description
 
@@ -200,7 +165,7 @@ CHIP Mux8Way16 {
 
 :::
 
-::: tip MUX4WAY16(wordA, wordB, wordC, wordD, wordE, wordF, wordG, wordH)
+::: tip MUX4WAY16(wordA, wordB, wordC, wordD, wordE, wordF, wordG, wordH, sel)
 <MuxWay16Demo :ways="8" />
 :::
 
@@ -211,13 +176,6 @@ CHIP Mux8Way16 {
 > **Also known as:** _Distributor_, _Write decoder_
 
 The **Demultiplexer (DMUX)** routes a single input to exactly one of two outputs based on a control signal.
-
-::: info Behavior
-
-- If `sel = 0`, then `{ a = in, b = 0 }`
-- If `sel = 1`, then `{ a = 0, b = in }`
-
-:::
 
 It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
 
@@ -237,7 +195,7 @@ CHIP DMux {
 
 :::
 
-::: tip DMUX(sel)
+::: tip DMUX(in, sel)
 <DMuxCircuit />
 :::
 
@@ -251,15 +209,6 @@ It is used in:
 
 - Register file write selection
 - Memory region decoding
-
-::: info Behavior
-
-- If `sel = 00`, then `{ a = in, b = 0, c = 0, d = 0 }`
-- If `sel = 01`, then `{ a = 0, b = in, c = 0, d = 0 }`
-- If `sel = 10`, then `{ a = 0, b = 0, c = in, d = 0 }`
-- If `sel = 11`, then `{ a = 0, b = 0, c = 0, d = in }`
-
-:::
 
 ::: details Hardware Description
 
@@ -277,7 +226,7 @@ CHIP DMux4Way {
 
 :::
 
-::: tip DMUX4WAY(wordA, wordB, wordC, wordD)
+::: tip DMUX4WAY(wordIN, sel)
 <DMuxWay16Demo :ways="4" />
 :::
 
@@ -288,19 +237,6 @@ CHIP DMux4Way {
 The **DMux8Way gate** routes a single control or data signal to one of eight outputs.
 
 It forms the basis of hierarchical write decoding for large memory blocks and register banks.
-
-::: info Behavior
-
-- `sel = 000` → `{ a = in, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
-- `sel = 001` → `{ a = 0, b = in, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0 }`
-- `sel = 010` → `{ a = 0, b = 0, c = in, d = 0, e = 0, f = 0, g = 0, h = 0 }`
-- `sel = 011` → `{ a = 0, b = 0, c = 0, d = in, e = 0, f = 0, g = 0, h = 0 }`
-- `sel = 100` → `{ a = 0, b = 0, c = 0, d = 0, e = in, f = 0, g = 0, h = 0 }`
-- `sel = 101` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = in, g = 0, h = 0 }`
-- `sel = 110` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = in, h = 0 }`
-- `sel = 111` → `{ a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = in }`
-
-:::
 
 ::: details Hardware Description
 
@@ -318,28 +254,41 @@ CHIP DMux8Way {
 
 :::
 
-::: tip DMUX8WAY(wordA, wordB, wordC, wordD, wordE, wordF, wordG, wordH)
+::: tip DMUX8WAY(wordIN, sel)
 <DMuxWay16Demo :ways="8" />
 :::
 
 ## Arithmetic Circuits
 
-Consider the sum of two single bits. Depending on their values, the operation produces one of four outcomes:
+Consider the addition of two single bits. Depending on their values, the operation produces one of four possible outcomes:
 
 - `0 + 0 = 00`
 - `1 + 0 = 01`
 - `0 + 1 = 01`
 - `1 + 1 = 10`
 
-With a little insight we can see that, for each answer, the least significant bit (LSB) matches the `XOR` truth
-table, and the most significant bit (MSB) matches the `AND` truth table. However, to represent all four cases
-we must use **two bits**. We will call these the `carry` and `sum`.
+Notice that for each outcome, the least significant bit (LSB) perfectly matches the output of an `XOR` gate, while the most
+significant bit (MSB) matches the output of an `AND` gate. To represent all four outcomes, any adder circuit must output two
+bits as well. These are:
 
-- the `sum` bit contains the LSB
-- the `carry` bit contains the MSB
+- the `sum` bit (LSB)
+- the `carry` bit (MSB)
 
-These components define the **carry-propagation backbone**. Allowing them to be combined to handle a binary number the
-size of our word. This is then used in the ALU (`x + y`) and address sequencing.
+In binary arithmetic, the carry bit occupies the next higher power-of-two column (2^1). This is conceptually identical to
+decimal addition, where carrying a number shifts it into the next column (10^1).
+
+::: tip Binary Addition Logic (Half Adder)
+<ArithmeticDemo type="half" />
+:::
+
+While this simple configuration — known as a Half Adder — works perfectly for two isolated bits, it is unable to accept a
+`carry-in` from a previous operation. To handle this we can combine two Half Adders to create a Full Adder that can add
+two bits and accept a carry. These can then be linked together to form a **carry-propagation backbone**, this allows a
+circuit to be scaled to the size of a word.
+
+::: tip Binary Addition Logic (Full Adder)
+<ArithmeticDemo type="full" />
+:::
 
 ### HalfAdder — 1-bit Sum
 
@@ -385,12 +334,6 @@ The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 
-::: info Behavior
-
-(a + b + c) = 2 carry + sum
-
-:::
-
 ::: details Hardware Description
 
 ```hdl
@@ -421,13 +364,7 @@ CHIP FullAdder {
 The **Add16** unit adds two 16-bit two’s complement values.
 
 Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored,
-matching the Hack arithmetic model.
-
-#### Behavior
-
-```text
-out = a + b   (mod 2^16)
-```
+matching the Hack arithmetic model (mod 2^16).
 
 ::: details Hardware Description
 
@@ -459,6 +396,10 @@ CHIP Add16 {
 
 :::
 
+::: tip ADD16(wordA, wordB)
+<Add16Demo />
+:::
+
 ---
 
 ### Inc16 — 16-bit Incrementer
@@ -468,13 +409,7 @@ CHIP Add16 {
 The **Inc16** unit increments a 16-bit input by 1.
 
 It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential
-address generation (e.g., `PC+1`) and loop/index increments.
-
-#### Behavior
-
-```text
-out = in + 1   (mod 2^16)
-```
+address generation (e.g., `PC+1`).
 
 ::: details Hardware Description
 
@@ -488,4 +423,8 @@ OUT out[16];
 }
 ```
 
+:::
+
+::: tip INC16
+<Inc16Demo />
 :::

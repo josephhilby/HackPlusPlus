@@ -60,7 +60,9 @@ const carry1 = (row: AdderRow | null) =>
 <template>
   <div class="gate-identity">
     <div class="gate-identity-label">Boolean Identity</div>
-    <code class="gate-identity-formula">a + b + c = 2 · carry + 1 · sum</code>
+    <code class="gate-identity-formula"
+      >a + b + c = (2 · carry) + (1 · sum)</code
+    >
   </div>
 
   <div class="gate-demo">
@@ -82,13 +84,13 @@ const carry1 = (row: AdderRow | null) =>
           <GateLabel
             :x="LABEL_OUT_X"
             :y="LABEL_A_Y"
-            text="Sum"
+            text="Carry"
             class="gate-text-out"
           />
           <GateLabel
             :x="LABEL_OUT_X"
             :y="LABEL_B_Y"
-            text="Carry"
+            text="Sum"
             class="gate-text-out"
           />
 
@@ -96,7 +98,7 @@ const carry1 = (row: AdderRow | null) =>
           <g transform="translate(160 94)  scale(0.18)">
             <g transform="translate(30 90)">
               <!-- HA1 -->
-              <g transform="translate(-150 -96)">
+              <g transform="translate(-150 -100)">
                 <AdderBody
                   :is-full="false"
                   :a-on="aOn(hovered)"
@@ -126,6 +128,57 @@ const carry1 = (row: AdderRow | null) =>
                   :out-x2="330"
                 />
               </g>
+
+              <!-- Input Wires -->
+              <WireElbow
+                :x1="-250"
+                :y1="-211"
+                :x2="-150"
+                :y2="-80"
+                :on="aOn(hovered)"
+              />
+
+              <WireElbow
+                :x1="-250"
+                :y1="0"
+                :x2="-150"
+                :y2="0"
+                :on="bOn(hovered)"
+              />
+
+              <WireElbow
+                :x1="-250"
+                :y1="210"
+                :x2="100"
+                :y2="80"
+                :on="cOn(hovered)"
+              />
+
+              <!-- HA1 to OR -->
+              <WireElbow
+                :x1="120"
+                :y1="-70"
+                :x2="330"
+                :y2="-70"
+                :on="carry0(hovered)"
+              />
+
+              <!-- Output Wires -->
+              <WireElbow
+                :x1="900"
+                :y1="-210"
+                :x2="680"
+                :y2="-40"
+                :on="carryOn(hovered)"
+              />
+
+              <WireElbow
+                :x1="900"
+                :y1="210"
+                :x2="370"
+                :y2="90"
+                :on="sumOn(hovered)"
+              />
             </g>
           </g>
 
