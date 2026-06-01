@@ -38,12 +38,18 @@ const result = computed(() => {
       </div>
     </div>
 
-    <!-- Carry In -->
+    <!-- Carry -->
     <div v-if="type === 'full'" class="word-container carry-row">
       <div class="label" style="opacity: 0.5">c</div>
       <div class="bits">
         <div class="bit header">...</div>
-        <div class="bit header">...</div>
+        <div
+          class="bit carry-bit"
+          :class="{ active: result.carry }"
+          style="cursor: default; pointer-events: none"
+        >
+          <span class="bit-val">{{ result.carry }}</span>
+        </div>
         <div
           class="bit clickable carry-bit"
           :class="{ active: cin }"
@@ -60,7 +66,7 @@ const result = computed(() => {
       <div class="label">A</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit header">...</div>
+        <div class="bit header">{{ type === "full" ? "..." : "" }}</div>
         <div class="bit clickable" :class="{ active: a }" @click="a ^= 1">
           <span class="bit-val">{{ a }}</span>
         </div>
@@ -73,7 +79,7 @@ const result = computed(() => {
       <div class="label">B</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit header">...</div>
+        <div class="bit header">{{ type === "full" ? "..." : "" }}</div>
         <div class="bit clickable" :class="{ active: b }" @click="b ^= 1">
           <span class="bit-val">{{ b }}</span>
         </div>
@@ -83,18 +89,23 @@ const result = computed(() => {
 
     <div class="divider"></div>
 
-    <!-- Output -->
+    <!-- Result -->
     <div class="word-container">
-      <div class="label">out</div>
+      <div class="label">{{ type === "full" ? "sum" : "out" }}</div>
       <div class="bits">
-        <div v-if="type === 'full'" class="bit header">...</div>
-        <div
-          class="bit carry-bit"
-          :class="{ active: result.carry }"
-          style="cursor: default; pointer-events: none"
-        >
-          <span class="bit-val">{{ result.carry }}</span>
-        </div>
+        <template v-if="type === 'full'">
+          <div class="bit header">...</div>
+          <div class="bit header">...</div>
+        </template>
+        <template v-else>
+          <div
+            class="bit carry-bit"
+            :class="{ active: result.carry }"
+            style="cursor: default; pointer-events: none"
+          >
+            <span class="bit-val">{{ result.carry }}</span>
+          </div>
+        </template>
         <div class="bit result" :class="{ active: result.sum }">
           <span class="bit-val">{{ result.sum }}</span>
         </div>

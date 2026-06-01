@@ -139,7 +139,7 @@ const triggerReset = () => {
 
     <!-- Part 4: ROM -->
     <div class="pc-col rom">
-      <div class="col-label">Register Bank (ROM)</div>
+      <div class="col-label">Instruction Registers</div>
       <div class="rom-container">
         <div
           v-for="instr in program"
@@ -147,7 +147,7 @@ const triggerReset = () => {
           class="rom-row"
           :class="{ active: pc === instr.addr }"
         >
-          <span class="rom-addr">{{ toHex(instr.addr).slice(2) }}</span>
+          <span class="rom-addr">{{ toHex(instr.addr) }}</span>
           <code class="rom-code">{{ instr.code }}</code>
         </div>
       </div>

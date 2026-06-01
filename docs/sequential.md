@@ -60,7 +60,7 @@ Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) a
 significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
 :::
 
-### Data Flip Flop - DFF
+### DFF — Data Flip Flop
 
 ::: tip DFF Logic
 
@@ -82,18 +82,6 @@ It is implemented by feeding the DFF’s previous output back through a MUX:
 - when `load=0`, the cell recirculates and holds its value
 - when `load=1`, the cell captures `in`
 
-::: tip Bit Logic
-
-```text
-IF load(t) == 1:
-    out(t+1) = in(t)
-ELSE:
-    out(t+1) = out(t)
-```
-
-<BitDemo />
-:::
-
 ::: details Hardware Description
 
 ```hdl
@@ -109,6 +97,18 @@ CHIP Bit {
 
 :::
 
+::: tip Bit Logic
+
+```text
+IF load(t) == 1:
+    out(t+1) = in(t)
+ELSE:
+    out(t+1) = out(t)
+```
+
+<BitDemo />
+:::
+
 ---
 
 ### Register — 16-bit Word Register
@@ -120,19 +120,6 @@ The **Register** is a 16-bit state element used throughout the CPU and memory hi
 It applies a single `load` enable across 16 `Bit` cells, producing a word-sized storage primitive. As
 this has grown in complexity, to keep the demos from here on out readable the binary values will be
 represented in hex.
-
-::: tip Register Logic
-
-```text
-IF load(t) == 1:
-    out(t+1) = in(t)
-ELSE:
-    out(t+1) = out(t)
-```
-
-<RegisterDemo />
-
-:::
 
 ::: details Hardware Description
 
@@ -163,6 +150,19 @@ CHIP Register {
 
 :::
 
+::: tip Register Logic
+
+```text
+IF load(t) == 1:
+    out(t+1) = in(t)
+ELSE:
+    out(t+1) = out(t)
+```
+
+<RegisterDemo />
+
+:::
+
 ---
 
 ### RAM8 — 8-Word Register Bank
@@ -170,20 +170,6 @@ CHIP Register {
 > **Also known as:** _register file (8×16)_
 
 The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3-bit address.
-
-::: tip Register Bank Logic
-
-```text
-IF load(t) == 1:
-    Target = address(t)
-    Register[Target](t+1) = in(t)
-ELSE:
-    Bank(t+1) = Bank(t)
-```
-
-<RegisterBankDemo />
-
-:::
 
 ::: details Hardware Description
 
@@ -211,6 +197,19 @@ CHIP RAM8 {
               sel=address, out=out);
 }
 ```
+
+:::
+
+::: tip Register Bank Logic
+
+```text
+IF load(t) == 1:
+    Register[ADDR](t+1) = in(t)
+ELSE:
+    Bank(t+1) = Bank(t)
+```
+
+<RegisterBankDemo />
 
 :::
 
@@ -353,23 +352,6 @@ The **Program Counter (PC)** is a 16-bit stateful counter that tracks the ROM ad
 sequences to the next executable instruction. It supports three control behaviors — reset, load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple control signals are asserted in the
 same cycle.
 
-::: tip PC Logic
-
-```text
-IF reset(t) == 1
-    out(t+1) = 0
-ELSE IF load(t) == 1
-    out(t+1) = in(t)
-ELSE IF inc(t) == 1
-    out(t+1) = out(t) + 1
-ELSE
-    out(t+1) = out(t)
-```
-
-<PCDemo />
-
-:::
-
 ::: details Hardware Description
 
 ```hdl
@@ -388,5 +370,22 @@ CHIP PC {
     Mux16(a=w2, b[0..15]=false, sel=reset, out=result);
 }
 ```
+
+:::
+
+::: tip PC Logic
+
+```text
+IF reset(t) == 1
+    out(t+1) = 0
+ELSE IF load(t) == 1
+    out(t+1) = in(t)
+ELSE IF inc(t) == 1
+    out(t+1) = out(t) + 1
+ELSE
+    out(t+1) = out(t)
+```
+
+<PCDemo />
 
 :::

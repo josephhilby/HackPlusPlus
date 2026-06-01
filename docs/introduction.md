@@ -84,9 +84,9 @@ graph TD
         Asm([File.asm])
         Hack([File.hack])
 
-        Jack --> |"<i>&nbsp;Compiler Frontend&nbsp;</i>"| VM
-        VM --> |"<i>&nbsp;Compiler Backend&nbsp;</i>"| Asm
-        Asm --> |"<i>&nbsp;Assembler&nbsp;</i>"| Hack
+        Jack --> VM
+        VM --> Asm
+        Asm --> Hack
     end
 
     %% Right Side: Hardware Abstraction Ladder (Builds Up)
@@ -107,8 +107,8 @@ graph TD
     Computer{Computer}
 
     %% Cross-boundary connections using unique line types
-    Hack ===> |"<i>&nbsp;Runtime&nbsp;</i>"| Computer
-    Subsystems ==> |"<i>&nbsp;Orchestration&nbsp;</i>"| Computer
+    Hack ===> Computer
+    Subsystems ==> Computer
 
     %% Stable Inline CSS Styling (Nodes)
     style Jack fill:#1e293b,stroke:#38bdf8,stroke-width:1px,color:#f8fafc

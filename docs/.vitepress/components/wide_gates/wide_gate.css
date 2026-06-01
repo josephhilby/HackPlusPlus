@@ -376,6 +376,15 @@
   font-weight: bold;
 }
 
+.carry-bit.clickable {
+  border: 1px dashed transparent;
+  transition: border-color 0.2s;
+}
+.carry-bit.clickable:hover {
+  border: 1px solid var(--vp-c-brand);
+  z-index: 1;
+}
+
 .ignored-bit.active {
   color: var(--vp-c-danger-1);
 }

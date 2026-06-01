@@ -57,7 +57,7 @@ const addrBits = computed(() => {
     <!-- Column 2: Input/Address at time t -->
     <div class="pc-col inputs">
       <div class="col-label">State (t)</div>
-      <div class="reg" style="width: 140px;">
+      <div class="reg" style="width: 140px">
         <span class="reg-id">IN</span>
         <div class="hex-input">
           <code
@@ -71,7 +71,7 @@ const addrBits = computed(() => {
         </div>
       </div>
 
-      <div class="reg" style="width: 140px;">
+      <div class="reg" style="width: 140px">
         <span class="reg-id">ADDR</span>
         <div class="addr-input">
           <code
@@ -88,7 +88,7 @@ const addrBits = computed(() => {
 
     <!-- Column 3: Register Bank at time t+1 -->
     <div class="pc-col registers">
-      <div class="col-label">Bank (t+1)</div>
+      <div class="col-label">Register Bank (t+1)</div>
       <div class="pc-unit-box">
         <div
           v-for="(val, i) in registers"
@@ -96,7 +96,7 @@ const addrBits = computed(() => {
           class="reg bank-row"
           :class="{ targeted: address === i }"
         >
-          <span class="reg-id">OUT{{ i }}</span>
+          <span class="reg-id">Reg {{ i }}</span>
           <code class="reg-val small">{{ toHex(val) }}</code>
         </div>
       </div>
