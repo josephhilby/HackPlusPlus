@@ -19,22 +19,22 @@ ELSE:
   out(t+1) = out(t)
 ```
 
-:::
-
 This can be read as: if the conditional flag is `1` at time `t` (`reset(t)`, `load(t)`, `inc(t)`), then modify
 the component to accept a new state (`0`, `in(t)`,`out(t) + 1`) to be set (or latched) by `t+1`. If no flag is set then
 retain the previous state (`out(t)`).
 
+:::
+
 ## Memory Circuits
 
 Hack++ RAM and ROM are built as a hierarchy of addressed register banks. Each level increases capacity by integrating
-**eight** instances of the previous level. To address each instance three bits are required (2^3 = 8). However, as
-the hierarchy increases in complexity there is a need to both select an instance AND pass addressing information into
-that instance.
+**eight** instances of the previous levels component. To address each interior component three bits are required
+(2^3 = 8). However, as the hierarchy increases in complexity there is a need to both select an interior component AND pass
+addressing information into that component.
 
-To identify what bits are addressing the eight previous instances and what bits are passed into the selected previous
-instance the terms **hi** and **low** are used. Where **hi** references the three bits to select the instance, and **low**
-references the remaining bits passed into the instance.
+To identify what bits are addressing the eight previous components and what bits are passed into the single selected previous
+component the terms **hi** and **low** are used. Where **hi** references the three bits to select the it, and **low**
+references the remaining bits passed into it.
 
 #### Memory Circuit Hierarchy
 
@@ -62,6 +62,15 @@ significant bit (MSB). This is keeping with the nand2tetris hdl convention, not 
 
 ### Data Flip Flop - DFF
 
+::: tip DFF Logic
+
+```text
+out(t+1) = in(t)
+```
+
+<DFFDemo />
+:::
+
 ### Bit — 1-bit Register
 
 > **Also known as:** _1-bit latch_, _storage cell_
@@ -73,14 +82,17 @@ It is implemented by feeding the DFF’s previous output back through a MUX:
 - when `load=0`, the cell recirculates and holds its value
 - when `load=1`, the cell captures `in`
 
-#### Behavior
+::: tip Bit Logic
 
 ```text
 IF load(t) == 1:
     out(t+1) = in(t)
-Else:
+ELSE:
     out(t+1) = out(t)
 ```
+
+<BitDemo />
+:::
 
 ::: details Hardware Description
 
@@ -105,7 +117,22 @@ CHIP Bit {
 
 The **Register** is a 16-bit state element used throughout the CPU and memory hierarchy.
 
-It applies a single `load` enable across 16 `Bit` cells, producing a word-sized storage primitive.
+It applies a single `load` enable across 16 `Bit` cells, producing a word-sized storage primitive. As
+this has grown in complexity, to keep the demos from here on out readable the binary values will be
+represented in hex.
+
+::: tip Register Logic
+
+```text
+IF load(t) == 1:
+    out(t+1) = in(t)
+ELSE:
+    out(t+1) = out(t)
+```
+
+<RegisterDemo />
+
+:::
 
 ::: details Hardware Description
 
@@ -143,6 +170,20 @@ CHIP Register {
 > **Also known as:** _register file (8×16)_
 
 The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3-bit address.
+
+::: tip Register Bank Logic
+
+```text
+IF load(t) == 1:
+    Target = address(t)
+    Register[Target](t+1) = in(t)
+ELSE:
+    Bank(t+1) = Bank(t)
+```
+
+<RegisterBankDemo />
+
+:::
 
 ::: details Hardware Description
 
@@ -312,7 +353,7 @@ The **Program Counter (PC)** is a 16-bit stateful counter that tracks the ROM ad
 sequences to the next executable instruction. It supports three control behaviors — reset, load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple control signals are asserted in the
 same cycle.
 
-::: info PC State Pattern
+::: tip PC Logic
 
 ```text
 IF reset(t) == 1
@@ -324,6 +365,8 @@ ELSE IF inc(t) == 1
 ELSE
     out(t+1) = out(t)
 ```
+
+<PCDemo />
 
 :::
 
@@ -347,5 +390,3 @@ CHIP PC {
 ```
 
 :::
-
-<PCDemo />

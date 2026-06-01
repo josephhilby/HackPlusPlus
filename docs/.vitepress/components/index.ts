@@ -30,6 +30,10 @@ export { default as Add16Demo } from "./wide_gates/Add16Demo.vue";
 export { default as Inc16Demo } from "./wide_gates/Inc16Demo.vue";
 export { default as ArithmeticDemo } from "./wide_gates/ArithmeticDemo.vue";
 export { default as PCDemo } from "./wide_gates/PCDemo.vue";
+export { default as DFFDemo } from "./wide_gates/DFFDemo.vue";
+export { default as BitDemo } from "./wide_gates/BitDemo.vue";
+export { default as RegisterDemo } from "./wide_gates/RegisterDemo.vue";
+export { default as RegisterBankDemo } from "./wide_gates/RegisterBankDemo.vue";
 
 // Truth Table
 export { default as TruthTable } from "./table/TruthTable.vue";

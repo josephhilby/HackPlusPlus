@@ -10,28 +10,28 @@ const pendingReset = ref(false);
 const program = [
   {
     addr: 0,
-    code: "MOVE 0, A",
+    code: "LOAD A, 0",
     action: () => {
       a.value = 0;
     },
   },
   {
     addr: 1,
-    code: "MOVE 1, A",
+    code: "LOAD A, 1",
     action: () => {
       a.value = 1;
     },
   },
   {
     addr: 2,
-    code: "MOVE A, D",
+    code: "MOVE D, A",
     action: () => {
       d.value = a.value;
     },
   },
   {
     addr: 3,
-    code: "MOVE 2, A",
+    code: "LOAD A, 2",
     action: () => {
       a.value = 2;
     },
@@ -139,7 +139,7 @@ const triggerReset = () => {
 
     <!-- Part 4: ROM -->
     <div class="pc-col rom">
-      <div class="col-label">ROM</div>
+      <div class="col-label">Register Bank (ROM)</div>
       <div class="rom-container">
         <div
           v-for="instr in program"
