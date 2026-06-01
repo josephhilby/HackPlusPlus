@@ -134,26 +134,3 @@ const indices = computed(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.carry-row {
-  margin-top: -8px;
-  margin-bottom: -4px;
-  z-index: 10;
-}
-.carry-bit {
-  border: none;
-  font-size: 0.7rem;
-  color: var(--vp-c-text-3);
-  background: transparent;
-  pointer-events: none;
-  position: relative;
-}
-.carry-bit.active {
-  color: var(--vp-c-warning-1);
-  font-weight: bold;
-}
-.ignored-bit.active {
-  color: var(--vp-c-danger-1);
-}
-</style>

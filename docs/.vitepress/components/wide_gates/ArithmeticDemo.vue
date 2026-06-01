@@ -43,6 +43,7 @@ const result = computed(() => {
       <div class="label" style="opacity: 0.5">c</div>
       <div class="bits">
         <div class="bit header">...</div>
+        <div class="bit header">...</div>
         <div
           class="bit clickable carry-bit"
           :class="{ active: cin }"
@@ -50,7 +51,6 @@ const result = computed(() => {
         >
           <span class="bit-val">{{ cin }}</span>
         </div>
-        <div class="bit header" style="border: none"></div>
         <div class="bit header">...</div>
       </div>
     </div>
@@ -60,7 +60,7 @@ const result = computed(() => {
       <div class="label">A</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit header" style="border: none"></div>
+        <div class="bit header">...</div>
         <div class="bit clickable" :class="{ active: a }" @click="a ^= 1">
           <span class="bit-val">{{ a }}</span>
         </div>
@@ -73,7 +73,7 @@ const result = computed(() => {
       <div class="label">B</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit header" style="border: none"></div>
+        <div class="bit header">...</div>
         <div class="bit clickable" :class="{ active: b }" @click="b ^= 1">
           <span class="bit-val">{{ b }}</span>
         </div>
@@ -88,7 +88,11 @@ const result = computed(() => {
       <div class="label">out</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit result" :class="{ active: result.carry }">
+        <div
+          class="bit carry-bit"
+          :class="{ active: result.carry }"
+          style="cursor: default; pointer-events: none"
+        >
           <span class="bit-val">{{ result.carry }}</span>
         </div>
         <div class="bit result" :class="{ active: result.sum }">
@@ -99,23 +103,3 @@ const result = computed(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.bits {
-  justify-content: flex-start;
-}
-.carry-row {
-  margin-bottom: -4px;
-}
-.carry-bit {
-  border: none;
-  font-size: 0.7rem;
-  color: var(--vp-c-text-3);
-  background: transparent;
-  cursor: pointer;
-}
-.carry-bit.active {
-  color: var(--vp-c-warning-1);
-  font-weight: bold;
-}
-</style>

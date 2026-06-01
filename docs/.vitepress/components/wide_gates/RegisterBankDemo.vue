@@ -57,14 +57,13 @@ const addrBits = computed(() => {
     <!-- Column 2: Input/Address at time t -->
     <div class="pc-col inputs">
       <div class="col-label">State (t)</div>
-      <div class="reg" style="width: 140px; padding: 4px 6px">
+      <div class="reg" style="width: 140px;">
         <span class="reg-id">IN</span>
         <div class="hex-input">
           <code
             v-for="(digit, i) in dInHexDigits"
             :key="i"
             class="reg-val hex-digit"
-            style="cursor: pointer"
             @click="setNibble(3 - i)"
           >
             <span v-if="i === 0" class="prefix">0x</span>{{ digit }}
@@ -72,7 +71,7 @@ const addrBits = computed(() => {
         </div>
       </div>
 
-      <div class="reg" style="width: 140px; padding: 4px 6px">
+      <div class="reg" style="width: 140px;">
         <span class="reg-id">ADDR</span>
         <div class="addr-input">
           <code
@@ -104,151 +103,3 @@ const addrBits = computed(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.bank-container {
-  display: grid;
-  grid-template-columns: 100px 150px 180px;
-  gap: 1.5rem;
-  align-items: stretch;
-  min-height: 280px;
-}
-
-.pc-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.col-label {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  font-weight: bold;
-  color: var(--vp-c-text-3);
-  letter-spacing: 0.05em;
-}
-
-.pc-btn {
-  padding: 8px 6px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  border: 1px solid var(--vp-c-divider);
-  background: var(--vp-c-bg);
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.2;
-}
-
-.pc-btn:hover {
-  border-color: var(--vp-c-brand);
-  color: var(--vp-c-brand);
-}
-.pc-btn.load-toggle.active {
-  background: var(--vp-c-brand-soft);
-  border-color: var(--vp-c-brand);
-  color: var(--vp-c-brand);
-}
-
-.cycle-formula {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.65rem;
-  font-family: var(--vp-font-family-mono);
-  color: var(--vp-c-brand-1);
-  margin-bottom: 2px;
-}
-.cycle-formula .arrow {
-  font-weight: bold;
-  opacity: 0.8;
-}
-
-.pc-unit-box {
-  border: 1px solid var(--vp-c-brand-soft);
-  background: color-mix(in srgb, var(--vp-c-brand-soft) 5%, transparent);
-  border-radius: 6px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.reg {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-  background: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 4px;
-}
-
-.bank-row {
-  border-color: transparent;
-  background: transparent;
-  padding: 2px 6px;
-  opacity: 0.6;
-  transition: all 0.2s;
-}
-
-.bank-row.targeted {
-  opacity: 1;
-  background: var(--vp-c-bg);
-  border-color: var(--vp-c-brand-soft);
-  box-shadow: var(--vp-shadow-1);
-}
-
-.hex-input {
-  display: flex;
-  font-family: var(--vp-font-family-mono);
-}
-
-.addr-input {
-  display: flex;
-  font-family: var(--vp-font-family-mono);
-  gap: 2px;
-}
-.hex-digit,
-.addr-bit {
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.1s;
-}
-.hex-digit:hover,
-.addr-bit:hover {
-  background: var(--vp-c-brand-soft);
-  color: var(--vp-c-brand);
-}
-.prefix {
-  opacity: 0.5;
-}
-
-.reg-id {
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: var(--vp-c-text-2);
-}
-.reg-val {
-  font-size: 1.1rem;
-  color: var(--vp-c-brand-1);
-}
-.reg-val.small {
-  font-size: 0.85rem;
-}
-
-@media (max-width: 640px) {
-  .bank-container {
-    grid-template-columns: 1fr;
-  }
-  .controls {
-    flex-direction: row;
-  }
-  .controls button {
-    flex: 1;
-  }
-}
-</style>
