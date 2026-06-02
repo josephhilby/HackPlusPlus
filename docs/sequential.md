@@ -62,6 +62,12 @@ significant bit (MSB). This is keeping with the nand2tetris hdl convention, not 
 
 ### DFF — Data Flip Flop
 
+> **Also known as:** _1-bit latch_
+
+A DFF is the core unit on which all sequential circuits are built. This circuit receives an signal form the
+computers clock, and at the end of each time unit (cycle) updates its output to match the input from the previous
+cycle.
+
 ::: tip DFF Logic
 
 ```text
@@ -73,14 +79,15 @@ out(t+1) = in(t)
 
 ### Bit — 1-bit Register
 
-> **Also known as:** _1-bit latch_, _storage cell_
+> **Also known as:** _storage cell_
 
-The **Bit** is the smallest state element in the platform: a single-bit storage cell with a load-enable.
+The **Bit** consists of a DFF wrapped in some additional conditional logic that allows some control over
+what previous clock cycle value the DFF accepts.
 
-It is implemented by feeding the DFF’s previous output back through a MUX:
+It is implemented by feeding the DFF’s previous output back and a new input through a MUX:
 
-- when `load=0`, the cell recirculates and holds its value
-- when `load=1`, the cell captures `in`
+- when `load=0`, the cell recirculates its output and holds its value
+- when `load=1`, the cell captures the new input and updates its value
 
 ::: details Hardware Description
 
@@ -115,11 +122,14 @@ ELSE:
 
 > **Also known as:** _word register_, _general-purpose register_
 
-The **Register** is a 16-bit state element used throughout the CPU and memory hierarchy.
+The **Register** is a 16-bit state element used throughout the CPU and memory hierarchy. It applies a single `load`
+enable across 16 `Bit` cells, producing a word-sized storage primitive.
 
-It applies a single `load` enable across 16 `Bit` cells, producing a word-sized storage primitive. As
-this has grown in complexity, to keep the demos from here on out readable the binary values will be
-represented in hex.
+::: warning Note:
+The remaining hardware described in these docs will quickly grow in complexity. To account for this, when prudent, 16-bit words
+will be translated into hex - denoted with a prefix of `0x` - for brevity.
+
+:::
 
 ::: details Hardware Description
 
@@ -351,6 +361,16 @@ CHIP RAM16K {
 The **Program Counter (PC)** is a 16-bit stateful counter that tracks the ROM address of the instruction in execution and
 sequences to the next executable instruction. It supports three control behaviors — reset, load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple control signals are asserted in the
 same cycle.
+
+::: warning Execution Context
+To demonstrate the **Program Counter** and its control logic, this demo simulates a CPU executing a simple arithmetic loop that calculates `1 + 2 = 3`.
+
+**The Sequence:**
+
+- **Addresses 0–4:** Linear execution. The `inc` flag remains high to advance the PC to the next instruction.
+- **Address 5 (`JNZ 1`):** A conditional jump. Since the result in the `D` register is `3` (non-zero), the `load` flag goes high, forcing the PC to "jump" back to address `1` on the next cycle.
+- **Reset:** Click the manual **Reset** button to assert the `reset` flag. This has the highest priority and will force the PC back to `0x0000` regardless of other signals.
+  :::
 
 ::: details Hardware Description
 

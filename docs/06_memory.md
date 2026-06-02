@@ -76,9 +76,7 @@ Only the lower portion of the 15-bit address space is defined by the Hack platfo
 |              `10` | Keyboard / invalid | only `0x6000` is valid |
 |              `11` | Invalid            | unused                 |
 
-> Note: The Hack spec treats `0x6000` as keyboard and does not define behavior for addresses above it. This implementation returns `0` on reads and ignores writes for out-of-range addresses.
-
----
+> Note: The Hack spec treats `0x6000` as keyboard and does not define behavior for addresses above it. This implementation returns `0` on reads and ignores writes for out-of-range addresses. This allows a simplistic binary addressing of RAM `0b0xxxxxxxxxxxxxx`, Screen `0b10xxxxxxxxxxxxx`, and Keyboard `0b110000000000000`.
 
 ## Read and Write Routing
 
@@ -92,8 +90,6 @@ The `Memory` chip implements routing in three steps:
 
 3. **Read routing**
    A `Mux4Way16` selects the output from the active region and drives `out`.
-
----
 
 ## Implementation
 
@@ -123,8 +119,6 @@ CHIP Memory {
     Mux4Way16(a=memOut, b=memOut, c=scrOut, d=keyOut, sel=address[13..14], out=out);
 }
 ```
-
----
 
 ## Architectural Context
 

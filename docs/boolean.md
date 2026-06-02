@@ -342,37 +342,52 @@ CHIP Or16 {
 
 ---
 
-### Or8Way — Reduction OR
+### Or16Way — Reduction OR
 
-> **Also known as:** _Non-zero detector stage_
+> **Also known as:** _Non-zero detector_
 
-The **Or8Way gate** reduces an 8-bit bus to a single status bit by computing the logical OR of all inputs.
+The **Or16Way gate** reduces a 16-bit bus to a single status bit by computing the logical OR of all inputs.
 
 It is a core component of **flag generation**, most notably for helping compute the ALU’s zero flag (`zr`).
+
+::: warning Change
+In the nand2tetris system this gate is made to be an `Or8Way gate`. However, the only use of this gate, in
+hardware, is in setting the ALU's zero flag. This is set by checking the ALU output (a 16-bit value). Because
+of this, the gate has been widened to account for the value size.
+:::
 
 ::: details Hardware Description
 
 ```hdl
-CHIP Or8Way {
-    IN in[8];
+CHIP Or16Way {
+    IN in[16];
     OUT out;
 
     PARTS:
-    Or(a=in[0], b=in[1], out=or0);
-    Or(a=in[2], b=in[3], out=or1);
-    Or(a=in[4], b=in[5], out=or2);
-    Or(a=in[6], b=in[7], out=or3);
+    Or(a=in[0],  b=in[1],  out=or0);
+    Or(a=in[2],  b=in[3],  out=or1);
+    Or(a=in[4],  b=in[5],  out=or2);
+    Or(a=in[6],  b=in[7],  out=or3);
+    Or(a=in[8],  b=in[9],  out=or4);
+    Or(a=in[10], b=in[11], out=or5);
+    Or(a=in[12], b=in[13], out=or6);
+    Or(a=in[14], b=in[15], out=or7);
 
-    Or(a=or0, b=or1, out=or4);
-    Or(a=or2, b=or3, out=or5);
+    Or(a=or0, b=or1, out=or00);
+    Or(a=or2, b=or3, out=or01);
+    Or(a=or4, b=or5, out=or02);
+    Or(a=or6, b=or7, out=or03);
 
-    Or(a=or4, b=or5, out=out);
+    Or(a=or00, b=or01, out=or000);
+    Or(a=or02, b=or03, out=or001);
+
+    Or(a=or000, b=or001, out=out);
 }
 ```
 
 :::
 
-::: tip OR8WAY(in)
+::: tip OR16WAY(in)
 
 <ReductionGateDemo gate="Or8Way" />
 

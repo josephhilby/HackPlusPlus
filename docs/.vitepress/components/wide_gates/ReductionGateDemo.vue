@@ -2,7 +2,7 @@
 import "./wide_gate.css";
 import { ref, computed } from "vue";
 
-const a = ref(new Array(8).fill(0));
+const a = ref(new Array(16).fill(0));
 const out = computed(() => (a.value.some((v) => v === 1) ? 1 : 0));
 </script>
 
@@ -12,13 +12,13 @@ const out = computed(() => (a.value.some((v) => v === 1) ? 1 : 0));
       <div class="label">in</div>
       <div class="bits">
         <div
-          v-for="i in 8"
-          :key="'a' + (8 - i)"
+          v-for="i in 16"
+          :key="'a' + (16 - i)"
           class="bit clickable"
-          :class="{ active: a[8 - i] }"
-          @click="a[8 - i] ^= 1"
+          :class="{ active: a[16 - i] }"
+          @click="a[16 - i] ^= 1"
         >
-          <span class="bit-val">{{ a[8 - i] }}</span>
+          <span class="bit-val">{{ a[16 - i] }}</span>
         </div>
       </div>
       <div class="decimal-value" style="visibility: hidden; border: none">
@@ -33,7 +33,7 @@ const out = computed(() => (a.value.some((v) => v === 1) ? 1 : 0));
       <div class="bits">
         <!-- Spacers to align the single output bit to the right (Bit 0 position) -->
         <div
-          v-for="i in 7"
+          v-for="i in 15"
           :key="'sp' + i"
           class="bit header"
           style="border: none"

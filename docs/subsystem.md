@@ -1,115 +1,76 @@
-# Hack++ Instruction Set Architecture (ISA)
+# Computer Subsystems
 
-This document defines the binary encoding and execution semantics of the Hack++ instruction set. The CPU
-decodes each 16-bit instruction into control signals that drive the ALU, register file (A, D), memory interface,
-and program counter (PC).
+## Memory Subsystem
 
-For execution details, see:
+From the system perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is
+hidden behind the Memory subsystem.
 
-- docs/cpu.md — instruction decode and control flow
-- docs/alu.md — ALU control bits and flag generation
-- docs/pc.md — jump and sequencing behavior
+| Address Range (Hex) | address[13..14] | Size   | Region   | Function                    |
+| ------------------- | --------------: | ------ | -------- | --------------------------- |
+| `0x0000–0x3FFF`     |            `00` | 16K    | RAM      | General-purpose data memory |
+| `0x4000–0x5FFF`     |            `01` | 8K     | Screen   | Display framebuffer         |
+| `0x6000`            |            `10` | 1 word | Keyboard | Input register              |
+| `> 0x6000`          |            `11` | —      | Invalid  | Ignored / reads return `0`  |
 
-### Instruction Set Architecture
+SCREEN = 16384
+KBD = 24576
 
-To instruct the CPU, the ROM is loaded with a program in the form of a `.hack` binary file. That file is
-assembled from a more human-readable assembly language file (`.asm`). The mapping between the two can be found
-in `\docs`. However, as to not get bogged down in ones and zeros here, we will skip the binary and proceed directly
-to the assembly language syntax and describe it in Extended Backus–Naur Form (EBNF).
+### RAM Memory Map
 
-While it looks imposing it really boils down to two steps:
+The Hack platform's RAM exposes 16K words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
 
-1. Determine the instruction:
-   - `a_instruction` - load an address into the A Register
-   - `c_instruction` - perform a computation
-2. Map the given instructions mnemonics to binary, such that:
-   - `a_instruction` - `value` is mapped to a binary address
-   - `c_instruction` - `comp`, `dest`, `jump` is mapped to a binary instruction
+| Address Range (word) | ASM Name        | Usage                                                       |
+| -------------------- | --------------- | ----------------------------------------------------------- |
+| `RAM[0]`             | `R0`/`SP`       | Current top of the stack                                    |
+| `RAM[1]`             | `R1`/`LCL`      | Base of the current function's local segment                |
+| `RAM[2]`             | `R2`/`ARG`      | Base of the current function's argument segment             |
+| `RAM[3]`             | `R3`/`THIS`     | Base of the current function's `this` segment (heap object) |
+| `RAM[4]`             | `R4`/`THAT`     | Base of the current function's `that` segment (heap array)  |
+| `RAM[5..12]`         | `R5..12`/`TEMP` | Virtual Registers for current function's temporary storage  |
+| `RAM[13..15]`        | `R13..R15`      | General-purpose registers (`TMP`,`FRAME`,`RET` in Hack ++)  |
+| `RAM[16..255]`       | —               | Static variables (assigned at compile time)                 |
+| `RAM[256..2047]`     | —               | Stack                                                       |
+| `RAM[2048..16383]`   | —               | Heap                                                        |
 
-Labels, comments, and lines can all be ignored, for now. With that, below is the EBNF for the Hack++ assembly language.
+<p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
 
-#### Assembly Grammar (EBNF)
+## Input and Output Subsystems
 
-**Tokens**
+### Screen Memory Map
 
-```regexp
-integer := ^[0-9]+$
-symbol  := [A-Za-z_$:.] [A-Za-z0-9_-]*
-newline := [\r\n]
-```
+The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF`, each bit represents a screen pixel.
 
-```ebnf
-non-terminal  ::= production rule
----               ---
-program       ::= { line }
+- 131,072 pixels
+- 256 rows
+- 512 cols
+- word = SCREEN + 32r + (c/16)
+- pixel = RAM[word][c % 16]
+- 1 = black, 0 = white
 
-line          ::= [ insrtuction | label ] [ comment ] newline
-comment       ::= "//" { any_char_except_newline }
+### Keyboard Memory map
 
-instruction   ::= a_instruction | c_instruction
+The Hack platform screen exposes 1 word of 16-bits at address `0x6000`. When a key is pressed
+a 16-bit character code appears at RAM[KBD]. When no key is pressed RAM[KBD] = 0.
 
-a_instruction ::= "@" value
+## Control Unit Subsystem
 
-c_instruction ::= [ dest "=" ] comp [ ";" jump ]
+### ROM
 
-dest          ::= dest_char { dest_char }
-dest_char     ::= "A" | "D" | "M"
+Consists of 32K words of 16-bits
 
-comp          ::=  "0" |  "1" | "-1"
-                |  "A" |  "D" |  "M"
-                | "!A" | "!D" | "!M"
-                | "-A" | "-D" | "-M"
-                | "A+1" | "D+1" | "M+1"
-                | "A-1" | "D-1" | "M-1"
-                | "D+A" | "D+M"
-                | "D-A" | "D-M" | "A-D" | "M-D"
-                | "D&A" | "D&M"
-                | "D|A" | "D|M"
+- OS (range in hex)
+  - Init (bootstrap)
+  - "System Calls"
+- Program (range in hex)
 
-jump          ::= "JGT" | "JEQ" | "JGE" | "JLT" | "JNE" | "JLE" | "JMP"
-
-label         ::= "(" symbol ")"
-
-value         ::= constant | symbol
-
-constant      ::= integer (* 0 <= integer <= 32767 *)
-```
-
-**Legend:**
-
-- `{ … }` = zero or more
-- `[ … ]` = optional (zero or one)
-- `|` = alternative
-- Mnemonics for dest, comp, jump (e.g., `"AM"`, `"D+A"`, `"JEQ"`) are case-sensitive
-- Mnemonics for comp, jump (e.g., `"D+A"`, `"JEQ"`) are not comutive
-
-**Predefined Symbols**
-
-```
-R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD
-```
-
-A quick example could be:
-
-```asm
-// Foo.asm
-...
-@BAR   // load address attributed to BAR label in ROM into A Register (a_instruction)
-0;JMP  // Jump to instruction in ROM at BAR (c_instruction)
-...
-(BAR)  // Address label being jumped to (label)
-@SP    // First line of code after the jump (a_instruction)
-...
-```
-
-## Instruction Determination
+### Instructions
 
 All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determines the instruction class:
 
 - `MSB = 0b0` → A-instruction (address / constant load)
 - `MSB = 0b1` → C-instruction (compute, store, and/or jump)
 
-## A-Instruction
+#### A-Instruction
 
 ```
 0b 0vvv vvvv vvvv vvvv
@@ -119,7 +80,7 @@ All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determi
 Where zero is the opcode denoting the `a_instruction`, and the remaining 15 locations are a binary value denoting an
 integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
 
-## C-Instruction
+#### C-Instruction
 
 ```
 0b 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
@@ -129,7 +90,7 @@ integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
 Where the one is the opcode denoting the `c_instruction`, the following two ones are unused, and the
 remaining groups (comp, dest, and jump) are mapped according to the following tables.
 
-### ALU Control — `comp` field (`a, c1–c6`)
+##### ALU Control — `comp` field (`a, c1–c6`)
 
 The `a` bit selects the ALU's `y` input:
 
@@ -170,7 +131,7 @@ for the full control-bit semantics.
 | `D\|A` | 0   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and A       |
 | `D\|M` | 1   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and RAM[A]  |
 
-### Destination Control — `dest` field (`d1–d3`)
+##### Destination Control — `dest` field (`d1–d3`)
 
 The `dest` field controls which storage elements receive the ALU result.
 
@@ -185,7 +146,7 @@ The `dest` field controls which storage elements receive the ALU result.
 | `AD`   | 1   | 1   | 0   | A register and D register          |
 | `AMD`  | 1   | 1   | 1   | A register, RAM[A], and D register |
 
-### Jump Control — `jump` field (`j1–j3`)
+##### Jump Control — `jump` field (`j1–j3`)
 
 Jump decisions are made using the ALU flags:
 
@@ -203,31 +164,30 @@ Jump decisions are made using the ALU flags:
 | `JLE`  | 1   | 1   | 0   | If out ≤ 0, jump   |
 | `JMP`  | 1   | 1   | 1   | Unconditional jump |
 
-### Instruction
+## Datapath Subsystem
 
-- **PC** — program counter, instruction pointer
-  - Passes through the
+### RAM
 
-### Instruction Classes
+### CPU Registers
 
-**A-instruction (MSB = 0)**
-Loads a 16-bit value into `Register A`:
+- Accumulator Register
+  - **A register** — address / operand register
+- Destination Register
+  - **D register** — data register
 
-```text
-0 vvv vvvv vvvv vvvv
-```
+program from circuits
 
-- `address = instruction[0..14]`
-
-**C-instruction (MSB = 1)**
-Controls ALU computation, destinations, and jumps:
-
-```text
-111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
-           comp           dest     jump
-```
-
-- `a` — selects ALU `y` source (`A` vs `M`)
-- `c1..c6` — ALU control bits (`zx,nx,zy,ny,f,no`)
-- `d1..d3` — destination enables (`A, D, M`)
-- `j1..j3` — jump condition (driven by `zr`, `ng`)
+// LOAD A, 0
+@0
+// LOAD A, 1
+@1
+// MOVE D, A
+D=A
+// LOAD A, 2
+@2
+// ADD A, D
+D=D+A
+// Set up the Jump Target
+@1
+// JNZ 1 (If D != 0, jump to target)
+D;JNE

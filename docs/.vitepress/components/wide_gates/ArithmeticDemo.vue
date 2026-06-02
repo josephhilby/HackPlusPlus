@@ -66,7 +66,7 @@ const result = computed(() => {
       <div class="label">A</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit header">{{ type === "full" ? "..." : "" }}</div>
+        <div class="bit header">{{ type === "full" ? "0" : "" }}</div>
         <div class="bit clickable" :class="{ active: a }" @click="a ^= 1">
           <span class="bit-val">{{ a }}</span>
         </div>
@@ -79,7 +79,7 @@ const result = computed(() => {
       <div class="label">B</div>
       <div class="bits">
         <div v-if="type === 'full'" class="bit header">...</div>
-        <div class="bit header">{{ type === "full" ? "..." : "" }}</div>
+        <div class="bit header">{{ type === "full" ? "0" : "" }}</div>
         <div class="bit clickable" :class="{ active: b }" @click="b ^= 1">
           <span class="bit-val">{{ b }}</span>
         </div>
@@ -95,7 +95,9 @@ const result = computed(() => {
       <div class="bits">
         <template v-if="type === 'full'">
           <div class="bit header">...</div>
-          <div class="bit header">...</div>
+          <div class="bit result" :class="{ active: result.carry }">
+            <span class="bit-val">{{ result.carry }}</span>
+          </div>
         </template>
         <template v-else>
           <div

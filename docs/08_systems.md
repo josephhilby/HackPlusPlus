@@ -133,7 +133,7 @@ ISA and VM layers.
 
 ## HDL — Top-Level Integration
 
-```java
+```hdl
 CHIP Computer {
 
 IN reset;
@@ -164,3 +164,21 @@ The **Computer** is the meeting point: where symbolic programs become physical s
 computation becomes observable behavior.
 
 Together with the ISA, this defines the complete contract between _program_ and _machine_.
+
+```hdl
+CHIP Computer {
+
+IN reset;
+
+    PARTS:
+    // Instruction Memory (ROM)
+    ROM32K(address=pc, out=instruction);
+
+    // Data + Memory-Mapped I/O
+    Memory(in=in, load=load, address=address, out=inM);
+
+    // Central Processing Unit
+    CPU(inM=inM, instruction=instruction, reset=reset,
+        outM=in, writeM=load, addressM=address, pc=pc);
+}
+```
