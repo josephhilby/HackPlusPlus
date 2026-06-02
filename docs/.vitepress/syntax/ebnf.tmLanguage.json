@@ -2,9 +2,15 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "BNF",
   "patterns": [
-    { "include": "#comment" },
-    { "include": "#rule" },
-    { "include": "#indented-symbols" }
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#rule"
+    },
+    {
+      "include": "#indented-symbols"
+    }
   ],
   "repository": {
     "comment": {
@@ -63,15 +69,25 @@
     },
     "symbols": {
       "patterns": [
-        { "include": "#comment" },
-        { "include": "#string" },
-        { "include": "#symbol" },
-        { "include": "#operators" }
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#string"
+        },
+        {
+          "include": "#symbol"
+        },
+        {
+          "include": "#operators"
+        }
       ]
     },
     "indented-symbols": {
       "patterns": [
-        { "include": "#symbols" }
+        {
+          "include": "#symbols"
+        }
       ]
     },
     "symbol": {

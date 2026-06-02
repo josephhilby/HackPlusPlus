@@ -1,16 +1,12 @@
 #include "computer.h"
 
-static state_t STATE = {
-  .pc = 0,
-  .flags = 0,
-  .cycles = 0
-};
+static state_t STATE = {.pc = 0, .flags = 0, .cycles = 0};
 
 // Refactor to mem.c, remove framebuffer and roll screeb into MMIO in RAM
 // 0: white (black), 1: black (green)
 static uint16_t FRAMEBUFFER[SCREEN_WORDS] = {0};
 static uint16_t ROM[ROM_WORDS] = {0};
-//static uint16_t RAM[RAM_WORDS] = {0};
+// static uint16_t RAM[RAM_WORDS] = {0};
 static size_t ROM_SIZE = 0;
 
 void init(void) {
@@ -20,9 +16,7 @@ void init(void) {
   ROM_SIZE = 0;
 }
 
-uint16_t* get_rom_ptr(void) {
-  return ROM;
-}
+uint16_t *get_rom_ptr(void) { return ROM; }
 
 void commit_rom(size_t length) {
   if (length == 0 || length > ROM_WORDS) {
@@ -47,9 +41,7 @@ void run(void) {
   STATE.flags &= ~FLAG_ERROR;
 }
 
-void stop(void) {
-  STATE.flags &= ~FLAG_RUNNING;
-}
+void stop(void) { STATE.flags &= ~FLAG_RUNNING; }
 
 void step(void) {
   if ((STATE.flags & FLAG_LOADED) == 0) {
@@ -94,14 +86,8 @@ void reset(void) {
   }
 }
 
-void set_keyboard(uint16_t value) {
-  (void)value;
-}
+void set_keyboard(uint16_t value) { (void)value; }
 
-const state_t* get_state_ptr(void) {
-  return &STATE;
-}
+const state_t *get_state_ptr(void) { return &STATE; }
 
-const uint16_t* get_framebuffer_ptr(void) {
-  return FRAMEBUFFER;
-}
+const uint16_t *get_framebuffer_ptr(void) { return FRAMEBUFFER; }

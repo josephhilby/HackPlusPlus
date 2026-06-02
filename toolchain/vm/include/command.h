@@ -19,8 +19,8 @@
       alu           -> _seg, _dat
 
   Note setment has a strict definition of: local, argument, this, that,
-  temp, pointer, static, constant. Everything else is data. The exception is function
-  names.
+  temp, pointer, static, constant. Everything else is data. The exception is
+function names.
 
   Stack Frame Model (built top down):
 
@@ -53,11 +53,11 @@ LCL →  local 0 (RAM: n_vars init to 0)
 SP  →  next free slot
 */
 
-typedef void (*VmEmitter)(FILE* out, const char* segment, const char* data);
+typedef void (*VmEmitter)(FILE *out, const char *segment, const char *data);
 
 typedef struct {
-    const char* mnemonic; // command mnemonic
-    VmEmitter emit;       // command emitter function
+  const char *mnemonic;  // command mnemonic
+  VmEmitter emit;        // command emitter function
 } VmCommand;
 
 #endif

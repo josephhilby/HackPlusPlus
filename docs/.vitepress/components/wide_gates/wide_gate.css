@@ -1,0 +1,473 @@
+/* ============================================================ */
+/* Main Containers & Layout                                     */
+/* ============================================================ */
+
+.wide-gate-demo {
+  padding: 1.25rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-family: var(--vp-font-family-mono);
+  overflow-x: auto;
+  border: 1px solid var(--vp-c-divider);
+}
+
+/* Sequential/CPU Style Containers */
+.pc-container,
+.bit-container,
+.dff-container,
+.register-container,
+.bank-container {
+  display: grid;
+  gap: 1.5rem;
+  align-items: stretch;
+  max-width: 500px;
+}
+
+/* Specific Grid Layouts */
+.pc-container {
+  grid-template-columns: 100px 1fr 140px 160px;
+  max-width: none;
+}
+.dff-container {
+  grid-template-columns: 100px 140px 160px;
+}
+.bit-container {
+  grid-template-columns: 110px 140px 160px;
+}
+.register-container {
+  grid-template-columns: 100px 140px 160px;
+}
+.bank-container {
+  grid-template-columns: 100px 150px 180px;
+  min-height: 280px;
+  max-width: none;
+}
+
+.pc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.col-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: var(--vp-c-text-3);
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================ */
+/* Word & Bus Rows                                              */
+/* ============================================================ */
+
+.word-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.label {
+  width: 35px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--vp-c-text-2);
+  flex-shrink: 0;
+}
+
+.bits {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-start;
+}
+
+/* ============================================================ */
+/* Cells, Registers & Values                                    */
+/* ============================================================ */
+
+.bit {
+  width: 22px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  font-size: 0.85rem;
+  position: relative;
+  user-select: none;
+}
+
+.bit-val {
+  display: block;
+  line-height: 1;
+}
+
+.bit.header {
+  border: none;
+  background: transparent;
+  font-size: 0.65rem;
+  color: var(--vp-c-text-3);
+  height: auto;
+}
+
+.bit.clickable {
+  cursor: pointer;
+}
+.bit.clickable:hover {
+  border-color: var(--vp-c-brand);
+  z-index: 1;
+}
+.bit.active {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+  border-color: var(--vp-c-brand);
+}
+.bit.result {
+  border-style: dashed;
+}
+
+.reg {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+}
+
+.reg.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+.reg.clickable:hover {
+  border-color: var(--vp-c-brand);
+}
+.reg-id {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--vp-c-text-2);
+}
+.reg-val {
+  font-size: 1.1rem;
+  color: var(--vp-c-brand-1);
+}
+.reg-val.small {
+  font-size: 0.85rem;
+}
+
+.decimal-value {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  min-width: 60px;
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--vp-c-brand);
+}
+
+/* ============================================================ */
+/* Controls, Buttons & Indicators                               */
+/* ============================================================ */
+
+.pc-btn {
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.pc-btn.cycle {
+  padding: 8px 6px;
+}
+.pc-btn:hover {
+  border-color: var(--vp-c-brand);
+  color: var(--vp-c-brand);
+}
+.pc-btn.load-toggle.active {
+  background: var(--vp-c-brand-soft);
+  border-color: var(--vp-c-brand);
+  color: var(--vp-c-brand);
+}
+.pc-btn.reset.pending {
+  background: var(--vp-c-danger-soft);
+  border-color: var(--vp-c-danger-1);
+  color: var(--vp-c-danger-1);
+}
+
+.cycle-formula {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-family: var(--vp-font-family-mono);
+  color: var(--vp-c-brand-1);
+  margin-bottom: 2px;
+}
+
+.cycle-formula .arrow {
+  font-weight: bold;
+  opacity: 0.8;
+}
+.btn-label {
+  font-size: 0.6rem;
+  opacity: 0.6;
+  font-weight: normal;
+  font-family: var(--vp-font-family-mono);
+}
+
+/* ============================================================ */
+/* Specialized Unit Elements                                    */
+/* ============================================================ */
+
+.pc-unit-box {
+  border: 1px solid var(--vp-c-brand-soft);
+  background: color-mix(in srgb, var(--vp-c-brand-soft) 5%, transparent);
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.flags-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.flag {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--vp-c-bg-alt);
+  color: var(--vp-c-text-3);
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.flag.active {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+  border-color: var(--vp-c-brand);
+}
+
+.instruction-box {
+  flex: 1;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+.instruction-box .addr {
+  font-size: 0.65rem;
+  color: var(--vp-c-text-3);
+}
+.instruction-box .code {
+  font-weight: bold;
+  color: var(--vp-c-brand-1);
+  font-size: 1.1rem;
+}
+
+/* Decorative "CPU" bus lines */
+.instruction-box::before,
+.instruction-box::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 15px;
+  height: 1px;
+  background: var(--vp-c-divider);
+  box-shadow:
+    0 -8px 0 var(--vp-c-divider),
+    0 8px 0 var(--vp-c-divider);
+}
+.instruction-box::before {
+  left: -15px;
+}
+.instruction-box::after {
+  right: -15px;
+}
+
+/* ============================================================ */
+/* Addressing & Inputs                                          */
+/* ============================================================ */
+
+.hex-input,
+.addr-input {
+  display: flex;
+  font-family: var(--vp-font-family-mono);
+}
+.hex-digit,
+.addr-bit {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.1s;
+}
+.hex-digit:hover,
+.addr-bit:hover {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+}
+.hex-digit {
+  padding: 0 1px;
+  border-radius: 2px;
+}
+.addr-input {
+  gap: 2px;
+}
+.prefix {
+  opacity: 0.5;
+}
+
+.bank-row {
+  border-color: transparent;
+  background: transparent;
+  padding: 2px 6px;
+  opacity: 0.6;
+  transition: all 0.2s;
+}
+.bank-row.targeted {
+  opacity: 1;
+  background: var(--vp-c-bg);
+  border-color: var(--vp-c-brand-soft);
+  box-shadow: var(--vp-shadow-1);
+}
+
+/* ============================================================ */
+/* Carry Logic                                                  */
+/* ============================================================ */
+
+.carry-row {
+  margin-top: -8px;
+  margin-bottom: -4px;
+  z-index: 10;
+}
+.carry-bit {
+  border: none;
+  font-size: 0.7rem;
+  color: var(--vp-c-text-3);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+.carry-bit.active {
+  color: var(--vp-c-warning-1);
+  font-weight: bold;
+}
+
+.carry-bit.clickable {
+  border: 1px dashed transparent;
+  transition: border-color 0.2s;
+}
+.carry-bit.clickable:hover {
+  border: 1px solid var(--vp-c-brand);
+  z-index: 1;
+}
+
+.ignored-bit.active {
+  color: var(--vp-c-danger-1);
+}
+.ignored-bit.active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 80%;
+  height: 1.5px;
+  background: var(--vp-c-danger-1);
+  transform: rotate(-45deg);
+}
+.ignored-label {
+  position: absolute;
+  top: -12px;
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  color: var(--vp-c-danger-1);
+  white-space: nowrap;
+}
+
+/* ============================================================ */
+/* ROM View                                                     */
+/* ============================================================ */
+
+.rom-container {
+  flex: 1;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rom-row {
+  display: flex;
+  gap: 8px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--vp-c-divider);
+  opacity: 0.6;
+}
+.rom-row:last-child {
+  border-bottom: none;
+}
+.rom-row.active {
+  opacity: 1;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+  font-weight: bold;
+}
+.rom-addr {
+  color: var(--vp-c-text-3);
+  font-family: var(--vp-font-family-mono);
+}
+
+/* ============================================================ */
+/* General Utilities                                            */
+/* ============================================================ */
+
+.divider {
+  height: 1px;
+  background: var(--vp-c-divider);
+  margin: 0.25rem 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .pc-container,
+  .bit-container,
+  .dff-container,
+  .register-container,
+  .bank-container {
+    grid-template-columns: 1fr;
+  }
+  .pc-col.controls {
+    flex-direction: row;
+  }
+  .pc-col.controls button,
+  .pc-col.controls .reg {
+    flex: 1;
+  }
+}

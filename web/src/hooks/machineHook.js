@@ -1,149 +1,145 @@
-import { useEffect, useRef, useState } from 'react'
-import MachineClient from '../runtime/machineClient'
+import { useEffect, useRef, useState } from "react";
+import MachineClient from "../runtime/machineClient";
 
 export default function useMachine({ onFramebuffer }) {
-    const machineRef = useRef(null)
+  const machineRef = useRef(null);
 
-    const [runtimeStatus, setRuntimeStatus] = useState('Initializing Hack++ runtime...')
-    const [result, setResult] = useState('')
+  const [runtimeStatus, setRuntimeStatus] = useState(
+    "Initializing Hack++ runtime...",
+  );
+  const [result, setResult] = useState("");
 
-    const [machineState, setMachineState] = useState({
-        pc: 0,
-        flags: 0,
-        cycles: 0,
-        programId: null,
-    })
+  const [machineState, setMachineState] = useState({
+    pc: 0,
+    flags: 0,
+    cycles: 0,
+    programId: null,
+  });
 
-    useEffect(() => {
-        let cancelled = false
+  useEffect(() => {
+    let cancelled = false;
 
-        async function init() {
-            try {
-                const machine = new MachineClient()
-                await machine.init()
+    async function init() {
+      try {
+        const machine = new MachineClient();
+        await machine.init();
 
-                if (cancelled) return
+        if (cancelled) return;
 
-                machineRef.current = machine
-                setRuntimeStatus('Hack++ runtime ready.')
+        machineRef.current = machine;
+        setRuntimeStatus("Hack++ runtime ready.");
 
-                const initialState = await machine.getState()
-                if (!cancelled) {
-                    setMachineState((prev) => ({
-                        ...prev,
-                        ...initialState,
-                    }))
-                }
-            } catch (error) {
-                if (cancelled) return
-                setRuntimeStatus('Runtime initialization failed.')
-                setResult(error instanceof Error ? error.message : 'Unknown error.')
-            }
+        const initialState = await machine.getState();
+        if (!cancelled) {
+          setMachineState((prev) => ({
+            ...prev,
+            ...initialState,
+          }));
         }
-
-        init()
-
-        return () => {
-            cancelled = true
-        }
-    }, [])
-
-    function getReadyMachine() {
-        const machine = machineRef.current
-
-        if (!machine || !machine.isReady()) {
-            setResult('Machine not ready.')
-            return null
-        }
-
-        return machine
+      } catch (error) {
+        if (cancelled) return;
+        setRuntimeStatus("Runtime initialization failed.");
+        setResult(error instanceof Error ? error.message : "Unknown error.");
+      }
     }
 
-    async function refreshScreen() {
-        try {
-            const machine = getReadyMachine()
-            if (!machine) return
+    init();
 
-            const buffer = await machine.getFramebuffer()
-            onFramebuffer?.(buffer)
-            setResult('Screen updated.')
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function getReadyMachine() {
+    const machine = machineRef.current;
+
+    if (!machine || !machine.isReady()) {
+      setResult("Machine not ready.");
+      return null;
     }
 
-    async function applyMachineUpdate(action, options = {}) {
-        try {
-            const machine = getReadyMachine()
-            if (!machine) return
+    return machine;
+  }
 
-            const nextState = await action(machine)
+  async function refreshScreen() {
+    try {
+      const machine = getReadyMachine();
+      if (!machine) return;
 
-            setMachineState((prev) => ({
-                ...prev,
-                ...nextState,
-                ...(options.programId !== undefined
-                    ? { programId: options.programId }
-                    : {}),
-            }))
-
-            if (options.refreshScreen) {
-                await refreshScreen()
-            }
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : 'Unknown error.')
-        }
+      const buffer = await machine.getFramebuffer();
+      onFramebuffer?.(buffer);
+      setResult("Screen updated.");
+    } catch (error) {
+      setResult(error instanceof Error ? error.message : "Unknown error.");
     }
+  }
 
-    async function load(program) {
-        await applyMachineUpdate(
-            (machine) => machine.load(program),
-            {
-                programId: program.id,
-                refreshScreen: true,
-            }
-        )
-    }
+  async function applyMachineUpdate(action, options = {}) {
+    try {
+      const machine = getReadyMachine();
+      if (!machine) return;
 
-    async function run() {
-        await applyMachineUpdate((machine) => machine.run())
-    }
+      const nextState = await action(machine);
 
-    async function stop() {
-        await applyMachineUpdate((machine) => machine.stop())
-    }
+      setMachineState((prev) => ({
+        ...prev,
+        ...nextState,
+        ...(options.programId !== undefined
+          ? { programId: options.programId }
+          : {}),
+      }));
 
-    async function step() {
-        await applyMachineUpdate(
-            (machine) => machine.step(),
-            { refreshScreen: true }
-        )
+      if (options.refreshScreen) {
+        await refreshScreen();
+      }
+    } catch (error) {
+      setResult(error instanceof Error ? error.message : "Unknown error.");
     }
+  }
 
-    async function reset() {
-        await applyMachineUpdate(
-            (machine) => machine.reset(),
-            { refreshScreen: true }
-        )
-    }
+  async function load(program) {
+    await applyMachineUpdate((machine) => machine.load(program), {
+      programId: program.id,
+      refreshScreen: true,
+    });
+  }
 
-    async function setKeyboard(value) {
-        await applyMachineUpdate(
-            (machine) => machine.setKeyboard(value),
-            { refreshScreen: true }
-        )
-    }
+  async function run() {
+    await applyMachineUpdate((machine) => machine.run());
+  }
 
-    return {
-        runtimeStatus,
-        result,
-        machineState,
-        load,
-        run,
-        stop,
-        step,
-        reset,
-        setKeyboard,
-        refreshScreen,
-    }
+  async function stop() {
+    await applyMachineUpdate((machine) => machine.stop());
+  }
+
+  async function step() {
+    await applyMachineUpdate((machine) => machine.step(), {
+      refreshScreen: true,
+    });
+  }
+
+  async function reset() {
+    await applyMachineUpdate((machine) => machine.reset(), {
+      refreshScreen: true,
+    });
+  }
+
+  async function setKeyboard(value) {
+    await applyMachineUpdate((machine) => machine.setKeyboard(value), {
+      refreshScreen: true,
+    });
+  }
+
+  return {
+    runtimeStatus,
+    result,
+    machineState,
+    load,
+    run,
+    stop,
+    step,
+    reset,
+    setKeyboard,
+    refreshScreen,
+  };
 }

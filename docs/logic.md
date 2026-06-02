@@ -1,26 +1,24 @@
 # 07 — Processor Components
 
 This section documents the computational and control units that integrate datapath, state, and memory into an
-executing processor. Together, the **ALU** and **CPU** form the boundary between *pure computation* and
-*architectural control flow*.
+executing processor. Together, the **ALU** and **CPU** form the boundary between _pure computation_ and
+_architectural control flow_.
 
 At this layer, signals become **instructions**: bits are interpreted as operations, destinations, and jumps that
 shape program execution over time.
-
-
 
 ## Design Notes
 
 **Datapath vs. Control**
 The processor is cleanly split into two conceptual planes:
 
-* **Datapath** — registers, buses, and the ALU that move and transform data
-* **Control** — instruction decoding and jump logic that decide *what* the datapath should do next
+- **Datapath** — registers, buses, and the ALU that move and transform data
+- **Control** — instruction decoding and jump logic that decide _what_ the datapath should do next
 
 **Timing discipline**
 
-* Combinational paths (ALU, control decode, `outM`, `writeM`) reflect signals in the *current* cycle (`t`)
-* State updates (`A`, `D`, `pc`, RAM writes) commit on the clock edge and become visible at `t+1`
+- Combinational paths (ALU, control decode, `outM`, `writeM`) reflect signals in the _current_ cycle (`t`)
+- State updates (`A`, `D`, `pc`, RAM writes) commit on the clock edge and become visible at `t+1`
 
 **Single-cycle execution model**
 Each instruction completes its compute, optional store, and jump decision in one cycle. Only architectural state
@@ -33,41 +31,37 @@ Each instruction completes its compute, optional store, and jump decision in one
 The **ALU** is the computational core of Hack++. It implements all arithmetic and bitwise operations required by the
 ISA using a minimal, normalized pipeline driven by six control bits.
 
-**Also known as:** *execution unit*, *datapath core*
+**Also known as:** _execution unit_, _datapath core_
 
 ### Interface
 
-* Inputs: `x[16]`, `y[16]`
-* Control: `zx, nx, zy, ny, f, no`
-* Outputs: `out[16]`, `zr`, `ng`
+- Inputs: `x[16]`, `y[16]`
+- Control: `zx, nx, zy, ny, f, no`
+- Outputs: `out[16]`, `zr`, `ng`
 
 ### Control Pipeline
 
 The ALU is defined by a deterministic four-stage pipeline:
 
 1. **Normalize X**
-
-    * `zx = 1` → `x = 0`
-    * `nx = 1` → `x = !x`
+   - `zx = 1` → `x = 0`
+   - `nx = 1` → `x = !x`
 
 2. **Normalize Y**
-
-    * `zy = 1` → `y = 0`
-    * `ny = 1` → `y = !y`
+   - `zy = 1` → `y = 0`
+   - `ny = 1` → `y = !y`
 
 3. **Compute**
-
-    * `f = 1` → `out = x + y` (two’s complement, 16-bit)
-    * `f = 0` → `out = x & y`
+   - `f = 1` → `out = x + y` (two’s complement, 16-bit)
+   - `f = 0` → `out = x & y`
 
 4. **Post-process**
-
-    * `no = 1` → `out = !out`
+   - `no = 1` → `out = !out`
 
 ### Flags
 
-* `zr = 1` iff `out == 0`
-* `ng = out[15]` (MSB, sign bit)
+- `zr = 1` iff `out == 0`
+- `ng = out[15]` (MSB, sign bit)
 
 These flags feed directly into the CPU’s jump logic.
 
@@ -122,15 +116,15 @@ Each cycle, it:
 4. Optionally stores results to `A`, `D`, or `M`
 5. Optionally updates the `pc` via jump logic
 
-**Also known as:** *control unit + datapath*, *execution core*
+**Also known as:** _control unit + datapath_, _execution core_
 
 ---
 
 ### Programmer-Visible State
 
-* **A register** — address / operand register
-* **D register** — data register
-* **PC** — program counter
+- **A register** — address / operand register
+- **D register** — data register
+- **PC** — program counter
 
 All other signals are internal to the execution pipeline.
 
@@ -145,7 +139,7 @@ Loads a 15-bit value into `A`:
 0 vvv vvvv vvvv vvvv
 ```
 
-* `A = instruction[0..14]`
+- `A = instruction[0..14]`
 
 **C-instruction (MSB = 1)**
 Controls ALU computation, destinations, and jumps:
@@ -155,10 +149,10 @@ Controls ALU computation, destinations, and jumps:
         comp              dest      jump
 ```
 
-* `a` — selects ALU `y` source (`A` vs `M`)
-* `c1..c6` — ALU control bits (`zx,nx,zy,ny,f,no`)
-* `d1..d3` — destination enables (`A, D, M`)
-* `j1..j3` — jump condition (driven by `zr`, `ng`)
+- `a` — selects ALU `y` source (`A` vs `M`)
+- `c1..c6` — ALU control bits (`zx,nx,zy,ny,f,no`)
+- `d1..d3` — destination enables (`A, D, M`)
+- `j1..j3` — jump condition (driven by `zr`, `ng`)
 
 ---
 
@@ -169,6 +163,7 @@ and selects the ALU’s `y` input (`A` vs. `M`) for subsequent instructions.
 
 C-instruction (`dest=comp;jump`) routes the D register (pink) to `ALU.x` and selects `A` or `M` for `ALU.y` via the
 `a` bit. The ALU computes out under control of `c1..c6`, then:
+
 - DEST uses `d1..d3` to write `out` to `A`, `D`, and/or `M`
 - JUMP uses `j1..j3` and the ALU flags (`zr, ng`) to decide whether the PC loads `A` (jump) or increments (fall-through)
 
@@ -219,6 +214,7 @@ flowchart TD
 ```
 
 **Legend**
+
 - Blue (A-instruction path): @value loads the A register (address/operand).
 - Pink (C-instruction path): dest + jump behavior (writes to D/A/M, evaluates jump from zr/ng).
 - Orange: core datapath compute/select (ALU + Y mux).
@@ -286,10 +282,10 @@ CHIP CPU {
 
 The processor layer is where **syntax becomes semantics**:
 
-* The **ISA** defines how bit patterns are interpreted as operations
-* The **CPU** decodes those patterns into control signals
-* The **ALU** executes the resulting computation
-* The **PC** turns results into control flow
+- The **ISA** defines how bit patterns are interpreted as operations
+- The **CPU** decodes those patterns into control signals
+- The **ALU** executes the resulting computation
+- The **PC** turns results into control flow
 
 Together, they form a closed execution loop:
 

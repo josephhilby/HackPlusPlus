@@ -3,6 +3,7 @@
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+HackPlusPlus.code-workspace
 
 # Compiled artifacts / binaries
 *.o

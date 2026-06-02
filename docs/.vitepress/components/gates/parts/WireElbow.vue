@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import Wire from './Wire.vue'
+import Wire from "./Wire.vue";
 
 defineProps<{
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-  on?: boolean
-}>()
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  on?: boolean;
+}>();
 </script>
 
 <template>

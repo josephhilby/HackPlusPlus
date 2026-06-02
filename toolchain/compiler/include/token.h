@@ -14,13 +14,13 @@ typedef enum {
 } TokenClass;
 
 typedef struct Token {
-    char ltrl[MAX_LENGTH];
-    TokenClass cls;
-    struct Token* next;
+  char ltrl[MAX_LENGTH];
+  TokenClass cls;
+  struct Token *next;
 } Token;
 
-Token* create_token(const char* ltrl, size_t len, TokenClass cls);
-void free_token(Token* tkn);
-void free_token_list(Token* head);
+Token *create_token(const char *ltrl, size_t len, TokenClass cls);
+void free_token(Token *tkn);
+void free_token_list(Token *head);
 
-#endif //TOKEN_H
+#endif  // TOKEN_H

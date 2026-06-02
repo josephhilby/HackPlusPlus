@@ -4,7 +4,6 @@ title: "[Bug]: "
 labels: ["bug"]
 
 body:
-
   - type: textarea
     id: description
     attributes:

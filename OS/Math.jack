@@ -1,97 +1,97 @@
 class Math {
-    function int multiply(int x, int y) {
-        var int sum;
-        var int sign;
+  function int multiply(int x, int y) {
+    var int sum;
+    var int sign;
 
-        let sum = 0;
-        let sign = 1;
+    let sum = 0;
+    let sign = 1;
 
-        if (x < 0) {
-            let x = -x;
-            let sign = -sign;
-        }
-
-        if (y < 0) {
-            let y = -y;
-            let sign = -sign;
-        }
-
-        while (y > 0) {
-            let sum = sum + x;
-            let y = y - 1;
-        }
-
-        if (sign < 0) {
-            return -sum;
-        }
-
-        return sum;
+    if (x < 0) {
+      let x = -x;
+      let sign = -sign;
     }
 
-    function int divide(int x, int y) {
-        var int quotient;
-        var int sign;
-
-        if (y = 0) {
-            do Sys.error(3);
-            return 0;
-        }
-
-        let quotient = 0;
-        let sign = 1;
-
-        if (x < 0) {
-            let x = -x;
-            let sign = -sign;
-        }
-
-        if (y < 0) {
-            let y = -y;
-            let sign = -sign;
-        }
-
-        while (~(x < y)) {
-            let x = x - y;
-            let quotient = quotient + 1;
-        }
-
-        if (sign < 0) {
-            return -quotient;
-        }
-
-        return quotient;
+    if (y < 0) {
+      let y = -y;
+      let sign = -sign;
     }
 
-    function int min(int x, int y) {
-        if (x < y) {
-            return x;
-        }
-
-        return y;
+    while (y > 0) {
+      let sum = sum + x;
+      let y = y - 1;
     }
 
-    function int max(int x, int y) {
-        if (x > y) {
-            return x;
-        }
-
-        return y;
+    if (sign < 0) {
+      return -sum;
     }
 
-    function int sqrt(int x) {
-        var int y;
+    return sum;
+  }
 
-        if (x < 0) {
-            do Sys.error(4);
-            return 0;
-        }
+  function int divide(int x, int y) {
+    var int quotient;
+    var int sign;
 
-        let y = 0;
-
-        while (~((y + 1) * (y + 1) > x)) {
-            let y = y + 1;
-        }
-
-        return y;
+    if (y = 0) {
+      do Sys.error(3);
+      return 0;
     }
+
+    let quotient = 0;
+    let sign = 1;
+
+    if (x < 0) {
+      let x = -x;
+      let sign = -sign;
+    }
+
+    if (y < 0) {
+      let y = -y;
+      let sign = -sign;
+    }
+
+    while (~(x < y)) {
+      let x = x - y;
+      let quotient = quotient + 1;
+    }
+
+    if (sign < 0) {
+      return -quotient;
+    }
+
+    return quotient;
+  }
+
+  function int min(int x, int y) {
+    if (x < y) {
+      return x;
+    }
+
+    return y;
+  }
+
+  function int max(int x, int y) {
+    if (x > y) {
+      return x;
+    }
+
+    return y;
+  }
+
+  function int sqrt(int x) {
+    var int y;
+
+    if (x < 0) {
+      do Sys.error(4);
+      return 0;
+    }
+
+    let y = 0;
+
+    while (~((y + 1) * (y + 1) > x)) {
+      let y = y + 1;
+    }
+
+    return y;
+  }
 }

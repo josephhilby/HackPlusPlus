@@ -71,13 +71,12 @@ body,
 
 body {
   min-height: 100vh;
-  background:
-          radial-gradient(
-                  1200px 700px at 50% 30%,
-                  var(--app-bg-center) 0%,
-                  var(--app-bg-mid) 55%,
-                  var(--app-bg-edge) 100%
-          );
+  background: radial-gradient(
+    1200px 700px at 50% 30%,
+    var(--app-bg-center) 0%,
+    var(--app-bg-mid) 55%,
+    var(--app-bg-edge) 100%
+  );
   color: var(--app-text);
 }
 

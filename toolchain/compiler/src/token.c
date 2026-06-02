@@ -1,10 +1,10 @@
+#include "../include/token.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/token.h"
-
-Token* create_token(const char* ltrl, size_t len, TokenClass cls) {
+Token *create_token(const char *ltrl, size_t len, TokenClass cls) {
   if (!ltrl) {
     return NULL;
   }
@@ -13,7 +13,7 @@ Token* create_token(const char* ltrl, size_t len, TokenClass cls) {
     len = MAX_LENGTH - 1;
   }
 
-  Token* tkn = calloc(1, sizeof(*tkn));
+  Token *tkn = calloc(1, sizeof(*tkn));
   if (!tkn) {
     printf("Failed to allocate memory for Token\n");
     return NULL;
@@ -26,15 +26,15 @@ Token* create_token(const char* ltrl, size_t len, TokenClass cls) {
   return tkn;
 }
 
-void free_token(Token* tkn) {
+void free_token(Token *tkn) {
   if (!tkn) return;
 
   free(tkn);
 }
 
-void free_token_list(Token* head) {
+void free_token_list(Token *head) {
   if (!head) return;
-  Token* next;
+  Token *next;
   while (head) {
     next = head->next;
     free_token(head);
