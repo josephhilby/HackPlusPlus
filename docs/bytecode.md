@@ -1,3 +1,5 @@
+# Bytecode Language (VM), (in progress)
+
 ## VM Grammar (EBNF)
 
 ### Tokens
@@ -20,10 +22,13 @@ comment       ::= "//" { any_char_except_newline }
 
 command       ::= arithmetic | memory | branching | function
 
-arithmetic    ::= "add" | "sub" | "neg" | "eq" | "gt" | "lt" | "and" | "or" | "not"
+arithmetic    ::= "add" | "sub" | "neg" | "eq" | "gt"
+                | "lt" | "and" | "or" | "not"
 
 memory        ::= ("push" | "pop") segment index  (* segment[index] *)
-segment       ::= "local" | "argument" | "this" | "that" | "temp" | "static" | "pointer" | "constant"
+
+segment       ::= "local" | "argument" | "this" | "that"
+                | "temp" | "static" | "pointer" | "constant"
 index         ::= integer
 
 branching     ::= ("label" | "goto" | "if-goto") label
