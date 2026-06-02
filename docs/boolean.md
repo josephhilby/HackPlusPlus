@@ -196,7 +196,7 @@ All wide gates will be constructed strictly from their single-bit equivalents:
 
 - `Not → Not16`
 - `And → And16`
-- `Or → { Or16, Or8Way }`
+- `Or → { Or16, Or16Way }`
 
 **Bit ordering (bus convention)**
 Declarations define **width** (e.g., `in[16]` is 16 bits wide), while usage defines **index**.
