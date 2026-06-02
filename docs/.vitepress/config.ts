@@ -16,7 +16,7 @@ const hdlGrammar = readGrammar("hdl.tmLanguage.json");
 
 const ebnfLang = {
   id: "ebnf",
-  scopeName: ebnfGrammar.scopeName ?? "source.bnf",
+  scopeName: ebnfGrammar.scopeName ?? "source.ebnf",
   ...ebnfGrammar,
 };
 

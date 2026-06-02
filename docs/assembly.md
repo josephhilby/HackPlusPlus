@@ -1,3 +1,5 @@
+# Assembly Language, (in progress)
+
 ## Assembly Grammar (EBNF)
 
 ### Tokens
@@ -38,7 +40,8 @@ comp          ::=  "0" |  "1" | "-1"
                 | "D&A" | "D&M"
                 | "D|A" | "D|M"
 
-jump          ::= "JGT" | "JEQ" | "JGE" | "JLT" | "JNE" | "JLE" | "JMP"
+jump          ::= "JGT" | "JEQ" | "JGE" | "JLT"
+                | "JNE" | "JLE" | "JMP"
 
 label         ::= "(" symbol ")"
 

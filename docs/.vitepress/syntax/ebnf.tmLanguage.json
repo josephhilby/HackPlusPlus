@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "BNF",
+  "name": "ebnf",
+  "scopeName": "source.ebnf",
   "patterns": [
     {
       "include": "#comment"
@@ -9,14 +10,20 @@
       "include": "#rule"
     },
     {
-      "include": "#indented-symbols"
+      "include": "#string"
+    },
+    {
+      "include": "#symbol"
+    },
+    {
+      "include": "#operators"
     }
   ],
   "repository": {
     "comment": {
       "patterns": [
         {
-          "name": "comment.block.bnf",
+          "name": "comment.block.ebnf",
           "begin": "\\(\\*",
           "end": "\\*\\)",
           "patterns": [
@@ -26,7 +33,7 @@
           ]
         },
         {
-          "name": "comment.line.bnf",
+          "name": "comment.line.ebnf",
           "begin": "#",
           "end": "$",
           "patterns": [
@@ -40,7 +47,7 @@
     "comment-tags": {
       "patterns": [
         {
-          "name": "keyword.codetag.bnf",
+          "name": "keyword.codetag.ebnf",
           "match": "\\b(?:TODO|FIXME|BUG|NOTE|HACK)\\b"
         }
       ]
@@ -48,80 +55,50 @@
     "rule": {
       "patterns": [
         {
-          "match": "([\\w\\-]+)\\s*(::=|=)\\s*(.+)?",
+          "match": "^\\s*([a-zA-Z_][a-zA-Z0-9_\\-]*)\\s*(::=|:=|=)",
           "captures": {
             "1": {
-              "name": "entity.name.class.bnf"
+              "name": "entity.name.class.ebnf"
             },
             "2": {
-              "name": "keyword.symbol.bnf"
-            },
-            "3": {
-              "patterns": [
-                {
-                  "include": "#symbols"
-                }
-              ]
+              "name": "keyword.symbol.ebnf"
             }
           }
-        }
-      ]
-    },
-    "symbols": {
-      "patterns": [
-        {
-          "include": "#comment"
-        },
-        {
-          "include": "#string"
-        },
-        {
-          "include": "#symbol"
-        },
-        {
-          "include": "#operators"
-        }
-      ]
-    },
-    "indented-symbols": {
-      "patterns": [
-        {
-          "include": "#symbols"
         }
       ]
     },
     "symbol": {
       "patterns": [
         {
-          "match": "\\b[A-Z][_A-Z0-9]*\\b",
-          "name": "support.variable.bnf"
+          "match": "\\b[A-Z][A-Z0-9_\\-]*\\b",
+          "name": "support.variable.ebnf"
         },
         {
-          "match": "\\b[_a-zA-Z][_a-zA-Z0-9]*\\b",
-          "name": "entity.name.class.bnf"
+          "match": "\\b[a-z_][a-zA-Z0-9_\\-]*\\b",
+          "name": "entity.name.class.ebnf"
         }
       ]
     },
     "string": {
       "patterns": [
         {
-          "name": "string.quoted.single.bnf",
+          "name": "string.quoted.single.ebnf",
           "begin": "'",
           "end": "'",
           "patterns": [
             {
-              "name": "constant.character.escape.bnf",
+              "name": "constant.character.escape.ebnf",
               "match": "\\\\."
             }
           ]
         },
         {
-          "name": "string.quoted.double.bnf",
+          "name": "string.quoted.double.ebnf",
           "begin": "\"",
           "end": "\"",
           "patterns": [
             {
-              "name": "constant.character.escape.bnf",
+              "name": "constant.character.escape.ebnf",
               "match": "\\\\."
             }
           ]
@@ -131,15 +108,14 @@
     "operators": {
       "patterns": [
         {
-          "match": "[?+*|()\\[\\]{},.\\-!]",
-          "name": "keyword.control.bnf"
+          "match": "[?+*|()\\[\\]{},.\\-!]|::=|:=|=",
+          "name": "keyword.control.ebnf"
         },
         {
           "match": ";",
-          "name": "keyword.symbol.bnf"
+          "name": "keyword.symbol.ebnf"
         }
       ]
     }
-  },
-  "scopeName": "source.bnf"
+  }
 }
