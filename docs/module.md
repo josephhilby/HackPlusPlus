@@ -12,7 +12,7 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Write DMux: select the write region
+    // Select the write region
     DMux4Way(in=load, sel=address[13..14],
              a=mem1, b=mem2, c=scr, d=key);
 
@@ -29,7 +29,7 @@ CHIP Memory {
     // Keyboard (0x6000); sel = 0b11
     Keyboard(out=keyOut);
 
-    // Read Mux: select the read region
+    // Select the read region
     Mux4Way16(a=memOut, b=memOut, c=scrOut, d=keyOut,
               sel=address[13..14], out=out);
 }
@@ -120,13 +120,16 @@ CHIP ROM32K {
 ```hdl
 CHIP CPU {
     IN  inM[16], instruction[16], reset;
-    OUT outM[16], writeM, addressM[15], pc[15];
+    OUT outM[16], writeM, addressM[15], pc[15], kernel;
 
     PARTS:
     // A-Instruction Handling
     Not(in=instruction[15], out=isA);
     Mux16(a=instruction, b=ALUout, sel=instruction[15], out=inA);
     ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
+
+    // Context Switch
+    SysCall15(in=addressM, out=request);
 
     // C-Instruction Decoding
     And(a=instruction[15], b=true, out=insC);
@@ -173,8 +176,28 @@ CHIP CPU {
     And(a=insC, b=jump, out=exeJump);
 
     // Controlpath: Set Program Counter (ROM)
-    PC(in=outA, load=exeJump, inc=true, reset=reset, out[0..14]=pc);
+    PC(in=outA, load=exeJump, inc=true, reset=reset, request=request,
+       out[0..14]=pc, kernel=kernel);
 }
 ```
 
 :::
+
+```hdl
+CHIP Computer {
+    IN reset;
+
+    PARTS:
+    // OS / Instruction Memory (ROM)
+    ROM16K(address=pc[0..13], out=instructionOS);
+    ROM32K(address=pc, out=instructionProg);
+    MUX16(a=instructionProg, b=instructionOS, sel=kernel, out=instruction)
+
+    // Data + Memory-Mapped I/O
+    Memory(in=in, load=load, address=address, out=inM);
+
+    // Central Processing Unit ()
+    CPU(inM=inM, instruction=instruction, reset=reset,
+        outM=in, writeM=load, addressM=address, pc=pc, kernel=kernel);
+}
+```

@@ -359,7 +359,7 @@ In the nand2tetris system this gate is made to be an `Or8Way gate`. However, the
 hardware, is in setting the ALU's zero flag and CPU's jump condition. Because of this, the gate has been
 split into two and made as efficient as possible to allow for faster processing.
 
-Due to the simplicity of this circuit only the `Or3Way gate` demo will be provided.
+Due to the simplicity of these circuits only the `Or3Way gate` demo will be provided.
 :::
 
 ::: details Hardware Description

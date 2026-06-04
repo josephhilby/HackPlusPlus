@@ -12,9 +12,6 @@ hidden behind the Memory subsystem.
 | `0x6000`            |          `0b10` | 1 word | Keyboard | Input register              |
 | `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
 
-SCREEN = 16384
-KBD = 24576
-
 ### RAM Memory Map
 
 The Hack platform's RAM exposes 16K words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
@@ -36,6 +33,9 @@ The Hack platform's RAM exposes 16K words of 16-bits at address `0x0000–0x3FFF
 
 ## Input and Output Subsystems
 
+SCREEN = 16384
+KBD = 24576
+
 ### Screen Memory Map
 
 The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF`, each bit represents a screen pixel.
@@ -52,6 +52,34 @@ The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF
 The Hack platform screen exposes 1 word of 16-bits at address `0x6000`. When a key is pressed
 a 16-bit character code appears at RAM[KBD]. When no key is pressed RAM[KBD] = 0.
 
+## Datapath Subsystem
+
+### RAM
+
+### A, D, M Registers
+
+- Accumulator Registers
+  - **A register** — address / operand register
+  - **M register** - virtual registers R1-R15
+- Destination Register
+  - **D register** — data register
+
+### ALU
+
+Conceptually talk about what it can do with data. leave the dirty implementation of instruciton to compution to the
+control path section. End with how is this turing complete.
+
+Can:
+
+- Output a constant {0, 1, -1}
+- Pass a register vlaue {ADM}
+- Pass on a negated or bitwise not register value
+- Increment or decrement a register value
+- Add two registers
+- Subtract two registers
+- Bitwise And two registers
+- Bitwise Or two registers
+
 ## Control Unit Subsystem
 
 ### ROM
@@ -67,8 +95,20 @@ Consists of 32K words of 16-bits
 
 All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determines the instruction class:
 
-- `MSB = 0b0` → A-instruction (address / constant load)
-- `MSB = 0b1` → C-instruction (compute, store, and/or jump)
+- `MSB = 0b0xx` → A-instruction (address / constant load)
+- `MSB = 0b111` → C-instruction (compute, store, and/or jump)
+
+This creates a gap we can exploit in a bit to allow for a simple context switch. As the last valid A instruction
+is 0x6000 and first valid C instruction is 0xE000 with a hole at (0x8000-0xDFFF). This lets us use 0x7FFF, or
+0b 0111 1111 1111 1111 in bin and `@32767` in our assembly, to be used not as an address but a request for a
+context switch. This context switch will act as a switch between the OS and User Program Space, allowing the current
+RAM state to be preserved between the two and freeing up the space in ROM that previously was utilized for the OS
+to instead be used for more elaborate user programs.
+
+Must preserve previous A-reg when this magic address is called as it will have the effect of `@0` the a reg.
+
+It is also important to note that not all C instructions are used. Only 1,792 (28 ALU x 8 Destination x 8 Jumps)
+of the 8,192 (0xE000-0xFFFF). So there is much more room to play with.
 
 #### A-Instruction
 
@@ -80,6 +120,15 @@ All Hack++ instructions are 16 bits wide. The most significant bit (MSB) determi
 Where zero is the opcode denoting the `a_instruction`, and the remaining 15 locations are a binary value denoting an
 integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
 
+Added magic address to allow for a context switch to kernel mode.
+
+```
+0b 0111 1111 1111 1111
+```
+
+This works as the max address the RAM has to consider is the keyboard (`0b 0110 0000 0000 0001`). So no program
+should be requesting this via an A instruction, and it is not a valid C instruction.
+
 #### C-Instruction
 
 ```
@@ -89,6 +138,8 @@ integer is one of 32768 (i.e., 2^15) integers between 0 and 32767.
 
 Where the one is the opcode denoting the `c_instruction`, the following two ones are unused, and the
 remaining groups (comp, dest, and jump) are mapped according to the following tables.
+
+### CPU
 
 ##### ALU Control — `comp` field (`a, c1–c6`)
 
@@ -163,31 +214,3 @@ Jump decisions are made using the ALU flags:
 | `JNE`  | 1   | 0   | 1   | If out ≠ 0, jump   |
 | `JLE`  | 1   | 1   | 0   | If out ≤ 0, jump   |
 | `JMP`  | 1   | 1   | 1   | Unconditional jump |
-
-## Datapath Subsystem
-
-### RAM
-
-### CPU Registers
-
-- Accumulator Register
-  - **A register** — address / operand register
-- Destination Register
-  - **D register** — data register
-
-program from circuits
-
-// LOAD A, 0
-@0
-// LOAD A, 1
-@1
-// MOVE D, A
-D=A
-// LOAD A, 2
-@2
-// ADD A, D
-D=D+A
-// Set up the Jump Target
-@1
-// JNZ 1 (If D != 0, jump to target)
-D;JNE

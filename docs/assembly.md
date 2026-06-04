@@ -60,3 +60,23 @@ constant      ::= integer
 ```
 R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD
 ```
+
+### PC Program from earlier in HACK
+
+program from circuits
+
+```text
+// LOAD A, 0
+@0
+// LOAD A, 1
+@1
+// MOVE D, A
+D=A
+// LOAD A, 2
+@2
+// ADD A, D
+D=D+A
+// JNZ 1 (If D != 0, jump to address in A)
+@1
+D;JNE
+```

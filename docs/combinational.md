@@ -258,6 +258,44 @@ CHIP DMux8Way {
 <DMuxWay16Demo :ways="8" />
 :::
 
+## SysCall15 — System Call Mask
+
+0b0111 1111 1111 1111
+(@32767, 0b 0111 1111 1111 1111)
+
+bit[15] will always be 0 so set true.
+
+::: details Hardware Description
+
+```hdl
+CHIP SysCall15 {
+    IN in[15];
+    OUT out;
+
+    PARTS:
+    And(a=in[0],  b=in[1],  out=and0);
+    And(a=in[2],  b=in[3],  out=and1);
+    And(a=in[4],  b=in[5],  out=and2);
+    And(a=in[6],  b=in[7],  out=and3);
+    And(a=in[8],  b=in[9],  out=and4);
+    And(a=in[10], b=in[11], out=and5);
+    And(a=in[12], b=in[13], out=and6);
+    And(a=in[14], b=true, out=and7);
+
+    And(a=and0, b=and1, out=and00);
+    And(a=and2, b=and3, out=and01);
+    And(a=and4, b=and5, out=and02);
+    And(a=and6, b=and7, out=and03);
+
+    And(a=and00, b=and01, out=and000);
+    And(a=and02, b=and03, out=and001);
+
+    And(a=and000, b=and001, out=out);
+}
+```
+
+:::
+
 ## Arithmetic Circuits
 
 Consider the addition of two single bits. Depending on their values, the operation produces one of four possible outcomes:
@@ -402,9 +440,9 @@ CHIP Add16 {
 
 ---
 
-### Inc16 — 16-bit Incrementer
+### Inc16 — 16-bit Incrementor
 
-> **Also known as:** _PC incrementer_, _+1 unit_
+> **Also known as:** _PC incrementor_, _+1 unit_
 
 The **Inc16** unit increments a 16-bit input by 1.
 

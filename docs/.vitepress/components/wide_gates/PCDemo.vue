@@ -10,14 +10,14 @@ const pendingReset = ref(false);
 const program = [
   {
     addr: 0,
-    code: "LOAD A, 0",
+    code: "MOVE A, 0",
     action: () => {
       a.value = 0;
     },
   },
   {
     addr: 1,
-    code: "LOAD A, 1",
+    code: "MOVE A, 1",
     action: () => {
       a.value = 1;
     },
@@ -31,7 +31,7 @@ const program = [
   },
   {
     addr: 3,
-    code: "LOAD A, 2",
+    code: "MOVE A, 2",
     action: () => {
       a.value = 2;
     },

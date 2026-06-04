@@ -27,12 +27,12 @@ retain the previous state (`out(t)`).
 
 ## Memory Circuits
 
-Hack++ RAM and ROM are built as a hierarchy of addressed register banks. Each level increases capacity by integrating
+Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by integrating
 **eight** instances of the previous levels component. To address each interior component three bits are required
 (2^3 = 8). However, as the hierarchy increases in complexity there is a need to both select an interior component AND pass
 addressing information into that component.
 
-To identify what bits are addressing the eight previous components and what bits are passed into the single selected previous
+To identify what bits are addressing the eight interior components and what bits are passed into the single selected interior
 component the terms **hi** and **low** are used. Where **hi** references the three bits to select the it, and **low**
 references the remaining bits passed into it.
 
@@ -359,18 +359,9 @@ CHIP RAM16K {
 > **Also known as:** _instruction pointer_, _PC register_
 
 The **Program Counter (PC)** is a 16-bit stateful counter that tracks the ROM address of the instruction in execution and
-sequences to the next executable instruction. It supports three control behaviors — reset, load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple control signals are asserted in the
-same cycle.
-
-::: warning Execution Context
-To demonstrate the **Program Counter** and its control logic, this demo simulates a CPU executing a simple arithmetic loop that calculates `1 + 2 = 3`.
-
-**The Sequence:**
-
-- **Addresses 0–4:** Linear execution. The `inc` flag remains high to advance the PC to the next instruction.
-- **Address 5 (`JNZ 1`):** A conditional jump. Since the result in the `D` register is `3` (non-zero), the `load` flag goes high, forcing the PC to "jump" back to address `1` on the next cycle.
-- **Reset:** Click the manual **Reset** button to assert the `reset` flag. This has the highest priority and will force the PC back to `0x0000` regardless of other signals.
-  :::
+sequences to the next executable instruction. The execution of this sequencing is set by three control behaviors — reset,
+load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple
+control signals are asserted in the same cycle.
 
 ::: details Hardware Description
 
@@ -380,16 +371,69 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // State (t)
-    Register(in=result, load=true, out=count, out=out);
+    Register(in=result, load=true, out=current, out=out);
 
-    // Next-State (t+1)
-    Inc16(in=count, out=w0);
-    Mux16(a=count, b=w0, sel=inc, out=w1);
-    Mux16(a=w1, b=in, sel=load, out=w2);
-    Mux16(a=w2, b[0..15]=false, sel=reset, out=result);
+    Inc16(in=current, out=plusOne);
+    Mux16(a=current, b=plusOne, sel=inc, out=step1);
+    Mux16(a=step1, b=in, sel=load, out=step2);
+    Mux16(a=step2, b[0..15]=false, sel=reset, out=result);
+}
+
+```
+
+---
+
+```hdl
+CHIP PC {
+    IN in[16], load, inc, reset, request;
+    OUT out[16], kernel;
+
+    PARTS:
+    // STATE (t)
+    // Context Flag (1=kernel, 0=user)
+    Bit(in=update, load=loadUpdate, out=kernel);
+
+    // Link Register (Returns to user instruction++)
+    Register(in=plusOne, load=toKernel, out=returnAddr);
+
+    // Main Program Counter
+    Register(in=result, load=true, out=current, out=out);
+
+    // NEXT-STATE (t+1):
+    // Context
+    XOR(a=request, b=kernel, out=change);
+    MUX(a=change, b=true, sel=reset, out=update);
+    OR(a=reset, b=request, out=loadUpdate);
+
+    // Return
+    NOT(in=kernel, out=user);
+    AND(a=request, b=user, out=toKernel);
+    AND(a=request, b=kernel, out=toUser);
+
+    // Next Instruction
+    Inc16(in=current, out=plusOne);
+
+    // Instruction Priority (Low to High)
+    Mux16(a=current, b=plusOne, sel=inc, out=step1);
+    Mux16(a=step1, b=in, sel=load, out=step2);
+    Mux16(a=step2, b=returnAddr, sel=toUser, out=step3);
+    Mux16(a=step3, b=false, sel=reset, out=result);
 }
 ```
+
+:::
+
+::: warning Execution Context
+To demonstrate the **Program Counter** and its control logic, this demo simulates a CPU executing a simple arithmetic loop that calculates `1 + 2 = 3`.
+This loop is expressed using a pseudo register based assembly language that can be read as `Opcode [ Destination ] Source/Data`; where `[]` indicates
+that field is optional. So `MOVE A, O` becomes, "put a zero in register 'a'", or `JNZ 1` becomes "jump to instruction one if register 'd' is not zero."
+The actual HACK++ assembly will be discussed later.
+
+**The Sequence:**
+
+- **Addresses 0–4:** Linear execution. The `inc` flag remains high to advance the PC to the next instruction.
+- **Address 5 (`JNZ 1`):** A conditional jump. Since the result in the `D` register is `3` (non-zero), the `load` flag goes high, forcing the PC to "jump" back to address `1` on the next cycle.
+- **Reset:** Click the manual **Reset** button to assert the `reset` flag. This has the highest priority and will force the PC back to `0x0000` regardless of other signals.
 
 :::
 

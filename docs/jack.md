@@ -20,8 +20,12 @@ newline         := [\r\n]
 ::: warning Change HACK to HACK++
 
 The Jack language has been restricted to line comments only (e.g., // comment).
-Also, to keep the grammar simple, comments and whitespace are removed by the Jack
-lexer and are therefore not considered in the remainder of the compilation process.
+Also, to keep the grammar simple, these docs consider comments and whitespace to be
+removed by the Jack lexer and are therefore not considered in the remainder of the
+compilation process.
+
+That being said, the actual bytecode and assembly lexers will also remove inline comments
+as all three share the same line reader utility.
 
 :::
 
