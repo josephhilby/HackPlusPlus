@@ -342,18 +342,39 @@ CHIP Or16 {
 
 ---
 
-### Or16Way — Reduction OR
+### Or3/16Way — Reduction OR
 
 > **Also known as:** _Non-zero detector_
 
+The **Or3Way gate** reduces 3-bits to a single status bit by computing the logical OR of all inputs.
+
+It is a core component of **CPU flag generation**, most notably for helping the CPU set the PC’s load flag.
+
 The **Or16Way gate** reduces a 16-bit bus to a single status bit by computing the logical OR of all inputs.
 
-It is a core component of **flag generation**, most notably for helping compute the ALU’s zero flag (`zr`).
+It is a core component of **ALU flag generation**, most notably for helping compute the zero flag (`zr`).
 
-::: warning Change
+::: warning Change HACK to HACK++
 In the nand2tetris system this gate is made to be an `Or8Way gate`. However, the only use of this gate, in
-hardware, is in setting the ALU's zero flag. This is set by checking the ALU output (a 16-bit value). Because
-of this, the gate has been widened to account for the value size.
+hardware, is in setting the ALU's zero flag and CPU's jump condition. Because of this, the gate has been
+split into two and made as efficient as possible to allow for faster processing.
+
+Due to the simplicity of this circuit only the `Or3Way gate` demo will be provided.
+:::
+
+::: details Hardware Description
+
+```hdl
+CHIP Or3Way {
+    IN in[3];
+    OUT out;
+
+    PARTS:
+    Or(a=in[0],  b=in[1],  out=or0);
+    Or(a=in[2], b=or0, out=out);
+}
+```
+
 :::
 
 ::: details Hardware Description
@@ -387,8 +408,8 @@ CHIP Or16Way {
 
 :::
 
-::: tip OR16WAY(in)
+::: tip OR3WAY(in)
 
-<ReductionGateDemo gate="Or8Way" />
+<ReductionGateDemo />
 
 :::

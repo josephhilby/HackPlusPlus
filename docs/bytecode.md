@@ -17,8 +17,7 @@ non-terminal  ::= production rule
 ---               ---
 program       ::= { line }
 
-line          ::= [ command ] [ comment ] newline
-comment       ::= "//" { any_char_except_newline }
+line          ::= [ command ] newline
 
 command       ::= arithmetic | memory | branching | function
 
@@ -43,7 +42,7 @@ nlocals       ::= integer  (* number of locals allocated by callee *)
 nargs         ::= integer  (* number of args passed by caller *)
 ```
 
-### Legend
+#### Legend
 
 - `{ … }` = zero or more
 - `[ … ]` = optional (zero or one)

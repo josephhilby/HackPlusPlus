@@ -5,12 +5,12 @@
 From the system perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is
 hidden behind the Memory subsystem.
 
-| Address Range (Hex) | address[13..14] | Size   | Region   | Function                    |
+| Address Range (Hex) | address[14..13] | Size   | Region   | Function                    |
 | ------------------- | --------------: | ------ | -------- | --------------------------- |
-| `0x0000–0x3FFF`     |            `00` | 16K    | RAM      | General-purpose data memory |
-| `0x4000–0x5FFF`     |            `01` | 8K     | Screen   | Display framebuffer         |
-| `0x6000`            |            `10` | 1 word | Keyboard | Input register              |
-| `> 0x6000`          |            `11` | —      | Invalid  | Ignored / reads return `0`  |
+| `0x0000–0x3FFF`     |          `0b00` | 16K    | RAM      | General-purpose data memory |
+| `0x4000–0x5FFF`     |          `0b01` | 8K     | Screen   | Display framebuffer         |
+| `0x6000`            |          `0b10` | 1 word | Keyboard | Input register              |
+| `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
 
 SCREEN = 16384
 KBD = 24576

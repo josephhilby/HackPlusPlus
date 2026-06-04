@@ -95,9 +95,10 @@ CHIP ROM16K {
 }
 ```
 
+---
+
 ```hdl
 CHIP ROM32K {
-
     IN address[15];
     OUT out[16];
 
@@ -144,13 +145,15 @@ CHIP CPU {
     And(a=insC, b=instruction[4], out=loadD);
     And(a=insC, b=instruction[3], out=writeM);
 
-    // Datapath: Registers
-    DRegister(in=ALUout, load=loadD, out=x);
-
-    // Datapath: ALU Inputs and Computation
+    // Datapath: Select Y Input (Reg A or RAM)
     Mux16(a=outA, b=inM, sel=readMem, out=y);
+
+    // Datapath: Execute ALU Computation
     ALU(x=x, y=y, zx=zx, nx=nx, zy=zy, ny=ny, f=f, no=no,
         out=ALUout, out=outM, zr=zr, ng=ng);
+
+    // Datapath: Store ALU Computation
+    DRegister(in=ALUout, load=loadD, out=x);
 
     // Controlpath: Set Jump Condition
     And(a=instruction[2], b=true, out=lt0);
@@ -161,15 +164,15 @@ CHIP CPU {
     Or(a=ng, b=zr, out=leq0);
     Not(in=leq0, out=ps);
 
-    // Controlpath: Condition Evaluation
+    // Controlpath: Evaluate Jump Condition
     And(a=lt0, b=ng, out=jLt);
     And(a=eq0, b=zr, out=jEq);
     And(a=gt0, b=ps, out=jGt);
 
-    Or8Way(in[0]=jLt, in[1]=jEq, in[2]=jGt, in[3..7]=false, out=jump);
+    Or3Way(in[0]=jLt, in[1]=jEq, in[2]=jGt, out=jump);
     And(a=insC, b=jump, out=exeJump);
 
-    // Controlpath: Program Counter
+    // Controlpath: Set Program Counter (ROM)
     PC(in=outA, load=exeJump, inc=true, reset=reset, out[0..14]=pc);
 }
 ```

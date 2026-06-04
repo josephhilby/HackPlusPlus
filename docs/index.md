@@ -12,7 +12,7 @@ hero:
       link: /introduction
 #    - theme: alt
 #      text: Try the Live Computer
-#      link: ...
+#      link: { url }
 ---
 
 ## About the Project

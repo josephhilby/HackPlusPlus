@@ -17,8 +17,7 @@ non-terminal  ::= production rule
 ---               ---
 program       ::= { line }
 
-line          ::= [ insrtuction | label ] [ comment ] newline
-comment       ::= "//" { any_char_except_newline }
+line          ::= [ insrtuction | label ] newline
 
 instruction   ::= a_instruction | c_instruction
 
@@ -47,18 +46,16 @@ label         ::= "(" symbol ")"
 
 value         ::= constant | symbol
 
-constant      ::= integer (* 0 <= integer <= 32767 *)
+constant      ::= integer
 ```
 
-**Legend:**
+#### Legend
 
 - `{ … }` = zero or more
 - `[ … ]` = optional (zero or one)
 - `|` = alternative
-- Mnemonics for dest, comp, jump (e.g., `"AM"`, `"D+A"`, `"JEQ"`) are case-sensitive
-- Mnemonics for comp, jump (e.g., `"D+A"`, `"JEQ"`) are not comutive
 
-**Predefined Symbols**
+#### Predefined Symbols
 
 ```
 R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD

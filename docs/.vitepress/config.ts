@@ -62,7 +62,7 @@ export default withMermaid(
             { text: "Computer Subsystems", link: "/subsystem.md" },
             { text: "Assembly Language", link: "/assembly.md" },
             { text: "Bytecode Language", link: "/bytecode.md" },
-            { text: "High-Level Language", link: "/jack.md" },
+            { text: "Jack Language", link: "/jack.md" },
             { text: "Operating System", link: "/os.md" },
           ],
         },

@@ -12,13 +12,13 @@ const out = computed(() => (a.value.some((v) => v === 1) ? 1 : 0));
       <div class="label">in</div>
       <div class="bits">
         <div
-          v-for="i in 16"
-          :key="'a' + (16 - i)"
+          v-for="i in 3"
+          :key="'a' + (3 - i)"
           class="bit clickable"
-          :class="{ active: a[16 - i] }"
-          @click="a[16 - i] ^= 1"
+          :class="{ active: a[3 - i] }"
+          @click="a[3 - i] ^= 1"
         >
-          <span class="bit-val">{{ a[16 - i] }}</span>
+          <span class="bit-val">{{ a[3 - i] }}</span>
         </div>
       </div>
       <div class="decimal-value" style="visibility: hidden; border: none">
@@ -33,7 +33,7 @@ const out = computed(() => (a.value.some((v) => v === 1) ? 1 : 0));
       <div class="bits">
         <!-- Spacers to align the single output bit to the right (Bit 0 position) -->
         <div
-          v-for="i in 15"
+          v-for="i in 2"
           :key="'sp' + i"
           class="bit header"
           style="border: none"
