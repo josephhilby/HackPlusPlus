@@ -14,6 +14,7 @@ built strictly from their single-bit equivalents, preserving the abstraction lad
 - Routing Circuits:
   - `Mux → Mux16 → Mux4Way16 → Mux8Way16`
   - `DMux → DMux4Way → DMux8Way`
+  - `SysCall15`
 - Arithmetic Circuits:
   - `HalfAdder → FullAdder → Add16`
 
@@ -258,12 +259,22 @@ CHIP DMux8Way {
 <DMuxWay16Demo :ways="8" />
 :::
 
-## SysCall15 — System Call Mask
+### SysCall15 — System Call Mask
 
-0b0111 1111 1111 1111
-(@32767, 0b 0111 1111 1111 1111)
+::: warning Change HACK to HACK++
+This is a novel gate for the Hack++ implementation. This gate was made to allow for the Hack++ computer
+to separate its instruction memory into two sections, the first for the OS and the second for User
+Programs.
+:::
 
-bit[15] will always be 0 so set true.
+The **SysCall15 gate** flags the use of a specific address.
+
+It forms the basis for the Hack++ platform to implement context switching at a hardware level and
+separate its ROM space into Kernel (OS) and User Space.
+
+The address this circuit flags is:
+
+- `0b0111 1111 1111 1111` or `@32767`
 
 ::: details Hardware Description
 
@@ -273,6 +284,8 @@ CHIP SysCall15 {
     OUT out;
 
     PARTS:
+    // Level 1
+    // LSBs
     And(a=in[0],  b=in[1],  out=and0);
     And(a=in[2],  b=in[3],  out=and1);
     And(a=in[4],  b=in[5],  out=and2);
@@ -280,16 +293,20 @@ CHIP SysCall15 {
     And(a=in[8],  b=in[9],  out=and4);
     And(a=in[10], b=in[11], out=and5);
     And(a=in[12], b=in[13], out=and6);
+    // MSBs
     And(a=in[14], b=true, out=and7);
 
+    // Level 2
     And(a=and0, b=and1, out=and00);
     And(a=and2, b=and3, out=and01);
     And(a=and4, b=and5, out=and02);
     And(a=and6, b=and7, out=and03);
 
+    // Level 3
     And(a=and00, b=and01, out=and000);
     And(a=and02, b=and03, out=and001);
 
+    // Level 4
     And(a=and000, b=and001, out=out);
 }
 ```
@@ -412,6 +429,7 @@ CHIP Add16 {
     OUT out[16];
 
     PARTS:
+    // LSB
     HalfAdder(a=a[0],  b=b[0],  sum=out[0],  carry=carry0);
 
     FullAdder(a=a[1],  b=b[1],  c=carry0,  sum=out[1],  carry=carry1);
@@ -428,6 +446,8 @@ CHIP Add16 {
     FullAdder(a=a[12], b=b[12], c=carry11, sum=out[12], carry=carry12);
     FullAdder(a=a[13], b=b[13], c=carry12, sum=out[13], carry=carry13);
     FullAdder(a=a[14], b=b[14], c=carry13, sum=out[14], carry=carry14);
+
+    // MSB
     FullAdder(a=a[15], b=b[15], c=carry14, sum=out[15], carry=dead);
 }
 ```

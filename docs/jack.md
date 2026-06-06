@@ -64,7 +64,7 @@ statement       ::= letStatement | ifStatement | whileStatement
 letStatement    ::= "let" varName [ "[" expression "]" ] "=" expression ";"
 ifStatement     ::= "if" "(" expression ")" "{"
                        statements
-                       "}" [ "else" "{" statements "}" ]
+                    "}" [ "else" "{" statements "}" ]
 whileStatement  ::= "while" "(" expression ")" "{"
                        statements
                     "}"
@@ -81,7 +81,8 @@ term            ::= integerConstant | stringConstant | keywordConstant
                   | subroutineCall
 
 subroutineCall  ::= subroutineName "(" expressionList ")"
-                  | ( className | varName ) "." subroutineName "(" expressionList ")"
+                  | ( className | varName )
+                    "." subroutineName "(" expressionList ")"
 
 expressionList  ::= [ expression { "," expression } ]
 

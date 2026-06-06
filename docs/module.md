@@ -183,6 +183,10 @@ CHIP CPU {
 
 :::
 
+## Computer
+
+::: details Hardware Description
+
 ```hdl
 CHIP Computer {
     IN reset;
@@ -191,13 +195,15 @@ CHIP Computer {
     // OS / Instruction Memory (ROM)
     ROM16K(address=pc[0..13], out=instructionOS);
     ROM32K(address=pc, out=instructionProg);
-    MUX16(a=instructionProg, b=instructionOS, sel=kernel, out=instruction)
+    MUX16(a=instructionProg, b=instructionOS, sel=kernel, out=instruction);
 
-    // Data + Memory-Mapped I/O
+    // Data + Memory-Mapped I/O (RAM)
     Memory(in=in, load=load, address=address, out=inM);
 
-    // Central Processing Unit ()
+    // Central Processing Unit
     CPU(inM=inM, instruction=instruction, reset=reset,
         outM=in, writeM=load, addressM=address, pc=pc, kernel=kernel);
 }
 ```
+
+:::

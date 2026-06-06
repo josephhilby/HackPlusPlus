@@ -139,6 +139,7 @@ CHIP Register {
     OUT out[16];
 
     PARTS:
+    // LSB
     Bit(in=in[0],  load=load, out=out[0]);
     Bit(in=in[1],  load=load, out=out[1]);
     Bit(in=in[2],  load=load, out=out[2]);
@@ -154,6 +155,8 @@ CHIP Register {
     Bit(in=in[12], load=load, out=out[12]);
     Bit(in=in[13], load=load, out=out[13]);
     Bit(in=in[14], load=load, out=out[14]);
+
+    // MSB
     Bit(in=in[15], load=load, out=out[15]);
 }
 ```
@@ -371,54 +374,16 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
+    // STATE (t)
     Register(in=result, load=true, out=current, out=out);
 
+    // NEXT-STATE (t+1):
     Inc16(in=current, out=plusOne);
     Mux16(a=current, b=plusOne, sel=inc, out=step1);
     Mux16(a=step1, b=in, sel=load, out=step2);
     Mux16(a=step2, b[0..15]=false, sel=reset, out=result);
 }
 
-```
-
----
-
-```hdl
-CHIP PC {
-    IN in[16], load, inc, reset, request;
-    OUT out[16], kernel;
-
-    PARTS:
-    // STATE (t)
-    // Context Flag (1=kernel, 0=user)
-    Bit(in=update, load=loadUpdate, out=kernel);
-
-    // Link Register (Returns to user instruction++)
-    Register(in=plusOne, load=toKernel, out=returnAddr);
-
-    // Main Program Counter
-    Register(in=result, load=true, out=current, out=out);
-
-    // NEXT-STATE (t+1):
-    // Context
-    XOR(a=request, b=kernel, out=change);
-    MUX(a=change, b=true, sel=reset, out=update);
-    OR(a=reset, b=request, out=loadUpdate);
-
-    // Return
-    NOT(in=kernel, out=user);
-    AND(a=request, b=user, out=toKernel);
-    AND(a=request, b=kernel, out=toUser);
-
-    // Next Instruction
-    Inc16(in=current, out=plusOne);
-
-    // Instruction Priority (Low to High)
-    Mux16(a=current, b=plusOne, sel=inc, out=step1);
-    Mux16(a=step1, b=in, sel=load, out=step2);
-    Mux16(a=step2, b=returnAddr, sel=toUser, out=step3);
-    Mux16(a=step3, b=false, sel=reset, out=result);
-}
 ```
 
 :::
@@ -451,5 +416,50 @@ ELSE
 ```
 
 <PCDemo />
+
+:::
+
+### PC++ — Hack++ Program Counter
+
+::: details Hardware Description
+
+```hdl
+CHIP PC {
+    IN in[16], load, inc, reset, request;
+    OUT out[16], kernel;
+
+    PARTS:
+    // STATE (t)
+    // Context Flag (1=kernel, 0=user)
+    Bit(in=update, load=loadUpdate, out=kernel);
+
+    // Link Register (Returns to user instruction++)
+    Register(in=plusOne, load=toKernel, out=returnAddr);
+
+    // Main Program Counter
+    Register(in=result, load=true, out=current, out=out);
+
+    // NEXT-STATE (t+1):
+    // Context State Engine
+    XOR(a=request, b=kernel, out=change);
+    MUX(a=change, b=true, sel=reset, out=update);
+    OR(a=reset, b=request, out=loadUpdate);
+
+    // Hardware Trap Routing
+    NOT(in=kernel, out=user);
+    AND(a=request, b=user, out=toKernel);
+    AND(a=request, b=kernel, out=toUser);
+    OR(a=reset, b=toKernel, out=toInit);
+
+    // Instruction Increment
+    Inc16(in=current, out=plusOne);
+
+    // Instruction Priority (Low to High)
+    Mux16(a=current, b=plusOne, sel=inc, out=step1);
+    Mux16(a=step1, b=in, sel=load, out=step2);
+    Mux16(a=step2, b=returnAddr, sel=toUser, out=step3);
+    Mux16(a=step3, b=false, sel=toInit, out=result);
+}
+```
 
 :::

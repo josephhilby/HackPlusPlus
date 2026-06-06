@@ -385,6 +385,8 @@ CHIP Or16Way {
     OUT out;
 
     PARTS:
+    // Level 1
+    // LSBs
     Or(a=in[0],  b=in[1],  out=or0);
     Or(a=in[2],  b=in[3],  out=or1);
     Or(a=in[4],  b=in[5],  out=or2);
@@ -392,16 +394,20 @@ CHIP Or16Way {
     Or(a=in[8],  b=in[9],  out=or4);
     Or(a=in[10], b=in[11], out=or5);
     Or(a=in[12], b=in[13], out=or6);
+    // MSBs
     Or(a=in[14], b=in[15], out=or7);
 
+    // Level 2
     Or(a=or0, b=or1, out=or00);
     Or(a=or2, b=or3, out=or01);
     Or(a=or4, b=or5, out=or02);
     Or(a=or6, b=or7, out=or03);
 
+    // Level 3
     Or(a=or00, b=or01, out=or000);
     Or(a=or02, b=or03, out=or001);
 
+    // Level 4
     Or(a=or000, b=or001, out=out);
 }
 ```

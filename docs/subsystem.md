@@ -1,33 +1,46 @@
 # Computer Subsystems, (in progress)
 
+This section documents how the core hardware blocks of Hack++ integrate to form a functional, unified computing system. At this stage, individual primitives drop away, exposing the macro-level interaction between memory configurations, data routing lines, and the execution engine.
+
+::: warning The Big Picture
+The architecture balances system resources across four tightly integrated micro-architectural boundaries:
+
+- Memory Subsystem: Maps physical chips into a unified address window.
+- I/O Subsystems: Bridges human interactions straight to the data bus.
+- Datapath Subsystem: Moves and processes physical information.
+- Control Unit Subsystem: Coordinates execution streams, boot flows, and hardware traps.
+  :::
+
 ## Memory Subsystem
 
 From the system perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is
-hidden behind the Memory subsystem.
+handled within the Memory subsystem by the highest 2-bits `[14..13]`. Because 2^15 will produce 32K words this allows
+the system to address 4x 8K sections.
 
 | Address Range (Hex) | address[14..13] | Size   | Region   | Function                    |
 | ------------------- | --------------: | ------ | -------- | --------------------------- |
-| `0x0000–0x3FFF`     |          `0b00` | 16K    | RAM      | General-purpose data memory |
-| `0x4000–0x5FFF`     |          `0b01` | 8K     | Screen   | Display framebuffer         |
-| `0x6000`            |          `0b10` | 1 word | Keyboard | Input register              |
+| `0x0000–0x3FFC`     |   `0b00 / 0b01` | 16K    | RAM      | General-purpose data memory |
+| `0x4000–0x5FFF`     |          `0b10` | 8K     | Screen   | Display framebuffer         |
+| `0x6000`            |          `0b11` | 1 word | Keyboard | Input register              |
 | `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
 
 ### RAM Memory Map
 
 The Hack platform's RAM exposes 16K words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
 
-| Address Range (word) | ASM Name        | Usage                                                       |
-| -------------------- | --------------- | ----------------------------------------------------------- |
-| `RAM[0]`             | `R0`/`SP`       | Current top of the stack                                    |
-| `RAM[1]`             | `R1`/`LCL`      | Base of the current function's local segment                |
-| `RAM[2]`             | `R2`/`ARG`      | Base of the current function's argument segment             |
-| `RAM[3]`             | `R3`/`THIS`     | Base of the current function's `this` segment (heap object) |
-| `RAM[4]`             | `R4`/`THAT`     | Base of the current function's `that` segment (heap array)  |
-| `RAM[5..12]`         | `R5..12`/`TEMP` | Virtual Registers for current function's temporary storage  |
-| `RAM[13..15]`        | `R13..R15`      | General-purpose registers (`TMP`,`FRAME`,`RET` in Hack ++)  |
-| `RAM[16..255]`       | —               | Static variables (assigned at compile time)                 |
-| `RAM[256..2047]`     | —               | Stack                                                       |
-| `RAM[2048..16383]`   | —               | Heap                                                        |
+| Address Range (word) | ASM Name            | Usage                                                       |
+| -------------------- | ------------------- | ----------------------------------------------------------- |
+| `RAM[0]`             | `R0`/`SP`           | Current top of the stack                                    |
+| `RAM[1]`             | `R1`/`LCL`          | Base of the current function's local segment                |
+| `RAM[2]`             | `R2`/`ARG`          | Base of the current function's argument segment             |
+| `RAM[3]`             | `R3`/`THIS`         | Base of the current function's `this` segment (heap object) |
+| `RAM[4]`             | `R4`/`THAT`         | Base of the current function's `that` segment (heap array)  |
+| `RAM[5..12]`         | `R5..12`/`TEMP`     | Virtual Registers for current function's temporary storage  |
+| `RAM[13..15]`        | `R13..R15`          | General-purpose registers (`TMP`,`FRAME`,`RET` in Hack ++)  |
+| `RAM[16..255]`       | -                   | Static variables (indexed by class)                         |
+| `RAM[256..2044]`     | `S_ST`, `S_END`     | Stack (Grows downward, originally `256 -> 2047`)            |
+| `RAM[2045..16380]`   | `H_END`, `H_ST`     | Heap (Allocates upward, originally `16380 -> 2048`)         |
+| `RAM[16381..16383]`  | `SID`, `SA1`, `SA2` | Mailboxes for System Calls                                  |
 
 <p align="right">(<a href="#Acknowledgments">see Acknowledgments, Charles Stevenson</a>)</p>
 
@@ -84,12 +97,20 @@ Can:
 
 ### ROM
 
-Consists of 32K words of 16-bits
+The instruction memory is split into two physically isolated chips: a 32K-word User Program ROM and a 16K-word Kernel OS ROM. Switching between them is handled automatically via a hardware privilege bit (kernel) driven by the Program Counter.
 
-- OS (range in hex)
-  - Init (bootstrap)
-  - "System Calls"
-- Program (range in hex)
+#### The Boot & Trap Handshake Protocol
+
+Because a hardware reset and a software system call both vector to Kernel address 0x0000, the OS uses a low-overhead software handshake to determine the entry context.
+
+1. Cold Boot Detection (Hardware Initialization)
+   - The Mechanism: On power-on, physical RAM stabilizes with chaotic, non-zero garbage data (mirrored by the hardware simulator).
+   - The Result: The Kernel reads register R13. If it contains a non-zero value, a Cold Boot is identified. The Kernel branches to Sys.init to build the memory map, sets stack/heap boundaries, and overwrites R13 with 0x0000 to prime the system.
+
+2. System Call Interception (Software Traps)
+   - The Execution: A standard library (libj) wrapper loads the function ID into SID, packs arguments into SA1/SA2, and calls the magic hardware vector @32767 (0b0111111111111111).
+   - The Hardware Action: SysCall15 decoding logic instantly triggers the PC to snapshot the return track (returnAddr = PC + 1), flip kernel high, and jump to Kernel address 0x0000.
+   - The Kernel Action: The Kernel wakes up and reads R13. Because it is exactly 0x0000, the OS identifies a legitimate Software Interrupt. It bypasses the boot sequence, executes the task requested by SID, and returns to userspace by reloading the PC with returnAddr.
 
 ### Instructions
 
@@ -148,8 +169,9 @@ The `a` bit selects the ALU's `y` input:
 - `a = 0` → `y = A`
 - `a = 1` → `y = M` (i.e., `RAM[A]`)
 
-The `c1–c6` bits control the ALU’s internal pipeline (`zx, nx, zy, ny, f, no`). See docs/alu.md
-for the full control-bit semantics.
+The `c1–c6` bits control the ALU’s internal pipeline (`zx, nx, zy, ny, f, no`).
+
+::: details C-Instruction Comp Field
 
 | comp   | a   | c1  | c2  | c3  | c4  | c5  | c6  | effect                      |
 | ------ | --- | --- | --- | --- | --- | --- | --- | --------------------------- |
@@ -182,9 +204,13 @@ for the full control-bit semantics.
 | `D\|A` | 0   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and A       |
 | `D\|M` | 1   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and RAM[A]  |
 
+:::
+
 ##### Destination Control — `dest` field (`d1–d3`)
 
 The `dest` field controls which storage elements receive the ALU result.
+
+::: details C-Instruction Dest Field
 
 | dest   | d1  | d2  | d3  | Effect                             |
 | ------ | --- | --- | --- | ---------------------------------- |
@@ -197,12 +223,16 @@ The `dest` field controls which storage elements receive the ALU result.
 | `AD`   | 1   | 1   | 0   | A register and D register          |
 | `AMD`  | 1   | 1   | 1   | A register, RAM[A], and D register |
 
+:::
+
 ##### Jump Control — `jump` field (`j1–j3`)
 
 Jump decisions are made using the ALU flags:
 
 - `zr = 1` iff `out == 0`
 - `ng = 1` iff `out < 0` (two’s complement)
+
+::: details C-Instruction Jump Field
 
 | jump   | j1  | j2  | j3  | Effect             |
 | ------ | --- | --- | --- | ------------------ |
@@ -214,3 +244,5 @@ Jump decisions are made using the ALU flags:
 | `JNE`  | 1   | 0   | 1   | If out ≠ 0, jump   |
 | `JLE`  | 1   | 1   | 0   | If out ≤ 0, jump   |
 | `JMP`  | 1   | 1   | 1   | Unconditional jump |
+
+:::
