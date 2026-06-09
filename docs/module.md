@@ -1,4 +1,4 @@
-# Functional Modules, (in progress)
+# Modules, (in progress)
 
 ## Data Modules
 
@@ -24,7 +24,7 @@ CHIP Memory {
 
     // MMIO
     // Screen (0x4000–0x5FFF); sel = 0b10
-    Screen(in=in, load=scr, address=address[0..12], out=scrOut);
+    RAM8K(in=in, load=scr, address=address[0..12], out=scrOut);
 
     // Keyboard (0x6000); sel = 0b11
     Keyboard(out=keyOut);
@@ -37,81 +37,11 @@ CHIP Memory {
 
 :::
 
-### Arithmetic and Logic Unit — ALU
-
-::: details Hardware Description
-
-```hdl
-CHIP ALU {
-    IN  x[16], y[16],
-        zx, nx, zy, ny, f, no;
-
-    OUT out[16], zr, ng;
-
-    PARTS:
-    // Set xIn
-    Mux16(a=x, b[0..15]=false, sel=zx, out=x);
-    Not16(in=x, out=xNeg);
-    Mux16(a=x, b=xNeg, sel=nx, out=xIn);
-
-    // Set yIn
-    Mux16(a=y, b[0..15]=false, sel=zy, out=y);
-    Not16(in=y, out=yNeg);
-    Mux16(a=wy, b=yNeg, sel=ny, out=yIn);
-
-    // Compute f(xIn,yIn)
-    And16(a=xIn, b=yIn, out=and);
-    Add16(a=xIn, b=yIn, out=add);
-    Mux16(a=and, b=add, sel=f, out=result);
-
-    // Negate Result
-    Not16(in=result, out=nResult);
-    Mux16(a=result, b=nResult, sel=no,
-          out=out
-          out[15]=ng);
-
-    // Compute Zero Flag
-    Or16Way(in=out, out=notZr);
-    Not(in=notZr, out=zr);
-}
-```
-
-:::
-
 ## Control Modules
 
 ### Read Only Memory — ROM
 
 ::: details Hardware Description
-
-```hdl
-CHIP ROM16K {
-    IN address[14];
-    OUT out[16];
-
-    PARTS:
-    // implementation is omitted because it relies on
-    // a pre-loaded hardware state rather than clocked flip-flops.
-}
-```
-
----
-
-```hdl
-CHIP ROM32K {
-    IN address[15];
-    OUT out[16];
-
-    PARTS:
-    ROM16K(address=address[0..13], out=out0);
-    ROM16K(address=address[0..13], out=out1);
-
-    Mux16(a=out0, b=out1,
-          sel=address[14], out=out);
-}
-```
-
----
 
 ```hdl
 CHIP Instruction {
@@ -191,28 +121,6 @@ CHIP CPU {
     // Controlpath: Set Program Counter (ROM)
     PC(in=outA, load=exeJump, inc=true, reset=reset, request=request,
        out[0..14]=pc, kernel=kernel);
-}
-```
-
-:::
-
-::: details Hardware Interface Definition
-
-```hdl
-CHIP Computer {
-    IN reset;
-
-    PARTS:
-    // Central Processing Unit
-    CPU(reset=reset,
-        inD=inD, writeD=load, addrD=addrD, outD=outD,
-        inI=inI, kern=domain, outI=addrI);
-
-    // Data + Memory-Mapped I/O (RAM)
-    Memory(in=outD, load=load, address=addrD, out=inD);
-
-    // Application or OS (ROM)
-    Instruction(in=addrI, sel=domain, out=inI);
 }
 ```
 

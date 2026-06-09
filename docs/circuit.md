@@ -1,4 +1,4 @@
-# Combinational Circuits
+# Circuits
 
 This section documents the combinational circuits used by Hack++ for data routing and arithmetic operations. Unlike
 the previous sections primitive gates, which implement individual boolean operations, these components exist to perform
@@ -24,7 +24,9 @@ Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) a
 significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
 :::
 
-## Routing Circuits
+## Combinational Circuits
+
+### Routing Circuits
 
 These components do not compute new values; instead, they **select**, **fan in/out**, and **qualify**
 existing signals, forming the backbone of instruction decoding, register loading, memory writes, and control flow.
@@ -35,7 +37,7 @@ existing signals, forming the backbone of instruction decoding, register loading
 - **Fan-Out**: Demultiplexers (DMUX), one source → many destinations
   :::
 
-### MUX — Selector Circuit
+#### MUX — Selector Circuit
 
 > **Also known as:** _Selector_, _Data switch_
 
@@ -66,7 +68,7 @@ CHIP Mux {
 
 ---
 
-### Mux16 — Bus Selector
+#### Mux16 — Bus Selector
 
 The **Mux16 circuit** extends the single-bit MUX across a 16-bit bus, allowing entire words to be conditionally selected.
 
@@ -111,7 +113,7 @@ CHIP Mux16 {
 
 ---
 
-### Mux4Way16 — Word Selector (4-to-1)
+#### Mux4Way16 — Word Selector (4-to-1)
 
 The **Mux4Way16 gate** selects one of four 16-bit inputs using a 2-bit control signal.
 
@@ -142,7 +144,7 @@ CHIP Mux4Way16 {
 
 ---
 
-### Mux8Way16 — Word Selector (8-to-1)
+#### Mux8Way16 — Word Selector (8-to-1)
 
 The **Mux8Way16 gate** selects one of eight 16-bit inputs using a 3-bit control signal.
 
@@ -172,7 +174,7 @@ CHIP Mux8Way16 {
 
 ---
 
-### DMUX — Distributor Circuit
+#### DMUX — Distributor Circuit
 
 > **Also known as:** _Distributor_, _Write decoder_
 
@@ -202,7 +204,7 @@ CHIP DMux {
 
 ---
 
-### DMux4Way — Write Decoder (1-to-4)
+#### DMux4Way — Write Decoder (1-to-4)
 
 The **DMux4Way gate** routes a single control or data signal to one of four outputs.
 
@@ -233,7 +235,7 @@ CHIP DMux4Way {
 
 ---
 
-### DMux8Way — Write Decoder (1-to-8)
+#### DMux8Way — Write Decoder (1-to-8)
 
 The **DMux8Way gate** routes a single control or data signal to one of eight outputs.
 
@@ -259,7 +261,7 @@ CHIP DMux8Way {
 <DMuxWay16Demo :ways="8" />
 :::
 
-### SysCall15 — System Call Mask
+#### SysCall15 — System Call Mask
 
 ::: warning Change HACK to HACK++
 This is a novel gate for the Hack++ implementation. This gate was made to allow for the Hack++ computer
@@ -313,7 +315,7 @@ CHIP SysCall15 {
 
 :::
 
-## Arithmetic Circuits
+### Arithmetic Circuits
 
 Consider the addition of two single bits. Depending on their values, the operation produces one of four possible outcomes:
 
@@ -345,7 +347,7 @@ circuit to be scaled to the size of a word.
 <ArithmeticDemo type="full" />
 :::
 
-### HalfAdder — 1-bit Sum
+#### HalfAdder — 1-bit Sum
 
 > **Also known as:** _1-bit adder_, _sum/carry generator_
 
@@ -378,7 +380,7 @@ CHIP HalfAdder {
 
 ---
 
-### FullAdder — 1-bit Sum with Carry-In
+#### FullAdder — 1-bit Sum with Carry-In
 
 > **Also known as:** _carry-propagating adder cell_
 
@@ -412,7 +414,7 @@ CHIP FullAdder {
 
 ---
 
-### Add16 — 16-bit Ripple-Carry Adder
+#### Add16 — 16-bit Ripple-Carry Adder
 
 > **Also known as:** _ripple-carry adder_, _word adder_
 
@@ -460,7 +462,7 @@ CHIP Add16 {
 
 ---
 
-### Inc16 — 16-bit Incrementor
+#### Inc16 — 16-bit Incrementor
 
 > **Also known as:** _PC incrementor_, _+1 unit_
 
@@ -485,4 +487,133 @@ OUT out[16];
 
 ::: tip INC16
 <Inc16Demo />
+:::
+
+::: details Hardware Description
+
+```hdl
+CHIP ROM16K {
+    IN address[14];
+    OUT out[16];
+
+    PARTS:
+    // implementation is omitted because it relies on
+    // a pre-loaded hardware state rather than clocked flip-flops.
+}
+```
+
+---
+
+```hdl
+CHIP ROM32K {
+    IN address[15];
+    OUT out[16];
+
+    PARTS:
+    ROM16K(address=address[0..13], out=out0);
+    ROM16K(address=address[0..13], out=out1);
+
+    Mux16(a=out0, b=out1,
+          sel=address[14], out=out);
+}
+```
+
+:::
+
+## Sequential Circuits
+
+This section documents the stateful (time dependent) building blocks of the Hack++ hardware stack.
+
+Unlike combinational logic — which maps inputs to outputs without regard to time — sequential components
+**store state across time cycles**. This introduces time as an input (`t`, `t+1`) and enables the construction
+of program counters, registers, and eventually memory.
+
+**Cycle semantics (`t` → `t+1`):**
+Borrowing the nand2tetris timing schema, combinational outputs are reflected as signals in the _current_ cycle (`t`),
+while state updates become visible in the _next_ cycle (`t+1`).
+
+::: info Basic State Pattern
+
+```text
+IF flagged:
+  out(t+1) = state
+ELSE:
+  out(t+1) = out(t)
+```
+
+This can be read as: if the conditional flag is `1` at time `t` (`reset(t)`, `load(t)`, `inc(t)`), then modify
+the component to accept a new state (`0`, `in(t)`,`out(t) + 1`) to be set (or latched) by `t+1`. If no flag is set then
+retain the previous state (`out(t)`).
+
+:::
+
+### Memory Circuits
+
+::: warning The Plan
+As before the single-bit circuits will be combined to accommodate word size computations. However, as state can now
+be maintained over time, these wide circuits can then be combined to allow the storage and retrieval of previously
+computed words.
+
+- `DFF → Bit → Register → RAM8 → RAM64 → RAM512 → RAM4K → RAM16K`
+
+**Bit ordering (bus convention)**
+Declarations define **width** (e.g., `in[16]` is 16 bits wide), while usage defines **index**.
+Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
+:::
+
+#### DFF — Data Flip Flop
+
+> **Also known as:** _1-bit latch_
+
+A DFF is the core unit on which all sequential circuits are built. This circuit receives an signal form the
+computers clock, and at the end of each time unit (cycle) updates its output to match the input from the previous
+cycle.
+
+::: tip DFF Logic
+
+```text
+out(t+1) = in(t)
+```
+
+<DFFDemo />
+:::
+
+#### Bit — 1-bit Register
+
+> **Also known as:** _storage cell_
+
+The **Bit** consists of a DFF wrapped in some additional conditional logic that allows some control over
+what previous clock cycle value the DFF accepts.
+
+It is implemented by feeding the DFF’s previous output back and a new input through a MUX:
+
+- when `load=0`, the cell recirculates its output and holds its value
+- when `load=1`, the cell captures the new input and updates its value
+
+::: details Hardware Description
+
+```hdl
+CHIP Bit {
+    IN in, load;
+    OUT out;
+
+    PARTS:
+    Mux(a=dff, b=in, sel=load, out=mux);
+    DFF(in=mux, out=dff, out=out);
+}
+```
+
+:::
+
+::: tip Bit Logic
+
+```text
+IF load(t) == 1:
+    out(t+1) = in(t)
+ELSE:
+    out(t+1) = out(t)
+```
+
+<BitDemo />
 :::

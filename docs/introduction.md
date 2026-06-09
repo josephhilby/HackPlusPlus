@@ -55,8 +55,8 @@ To build this architecture from the ground up, our hardware implementation scale
 ::: info Hardware Breakdown Levels
 
 - **Modules (CPU, Memory, Instruction):** The macro-level components that define the top-level computer.
-- **Components (ALU, PC, Register, Register Bank, etc.):** Complex circuits designed to fulfill a specific modules required behavior.
-- **Combinational & Sequential Circuits (Mux, Add, Bit, etc.):** Composite implementations of logic gates, allowing for atomic level machine behavior and time-dependent state.
+- **Components (ALU, PC, Register, Register Bank, etc.):** Complex circuits designed to fulfill a module required behavior.
+- **Circuits (Mux, Add, Bit, etc.):** Composite implementations of logic gates, allowing for atomic level machine behavior and time-dependent state.
 - **Boolean Logic Gates (Not, And, Or, Xor):** Time-independent logical behavior.
 
 :::
@@ -67,7 +67,7 @@ A software program in execution is ultimately a stream of binary values written 
 concepts—such as printing characters, graphics, and user input—do not exist within the core hardware, but must be constructed above
 it.
 
-### The User-Kernel Model
+### User-Kernel Model
 
 To protect system integrity and abstract hardware complexities from the application developer, we adhere to a strict User-Kernel
 model. This architecture divides the software subsystem into two distinct operational domains:
@@ -79,10 +79,10 @@ model. This architecture divides the software subsystem into two distinct operat
 
 :::
 
-### Software Toolchain & Transformation
+### Software Toolchain
 
-While the runtime is governed by the User-Kernel model, building programs directly in native binary is inefficient. We utilize an
-external compilation toolchain to translate high-level syntax down to execution-ready machine code through several layers:
+Building programs directly in native binary is inefficient. To avoid this, we will utilize an external compilation toolchain
+to translate high-level syntax down to execution-ready machine code through several layers:
 
 ::: info Intermediate Representations
 
