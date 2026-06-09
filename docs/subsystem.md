@@ -3,13 +3,29 @@
 This section documents how the core hardware blocks of Hack++ integrate to form a functional, unified computing system. At this stage, individual primitives drop away, exposing the macro-level interaction between memory configurations, data routing lines, and the execution engine.
 
 ::: warning The Big Picture
+
 The architecture balances system resources across four tightly integrated micro-architectural boundaries:
 
 - Memory Subsystem: Maps physical chips into a unified address window.
 - I/O Subsystems: Bridges human interactions straight to the data bus.
 - Datapath Subsystem: Moves and processes physical information.
 - Control Unit Subsystem: Coordinates execution streams, boot flows, and hardware traps.
-  :::
+
+:::
+
+::: tip The Von Neumann Subsystems
+
+1. **Central Processing Unit (CPU):** The primary execution engine of the computer, formed by the tight integration of two core subsystems:
+   - **Control Unit:** The operational "brain." Driven by a Program Counter (PC), it continuously fetches instructions from memory, decodes them, and asserts the control signals required to orchestrate the entire machine.
+   - **Datapath:** The operational "muscle." Composed of the Arithmetic Logic Unit (ALU) and internal registers, it routes hardware signals and executes all mathematical and logical operations.
+2. **Memory Systems:** The physical storage units containing binary states, structurally partitioned by access patterns:
+   - **Random Access Memory (RAM):** Dedicated volatile storage for maintaining intermediate data states, variables, and dynamic runtime stacks.
+   - **Read-Only Memory (ROM):** Dedicated non-volatile storage housing the foundational instruction sets, initialization routines, or program code.
+3. **Input & Output (I/O) via MMIO:** The peripheral interfaces connecting the compute engine to the external environment. Rather than utilizing dedicated I/O ports, the system implements **Memory-Mapped I/O (MMIO)**, assigning peripherals directly to reserved segments of the unified memory map:
+   - **Input (Keyboard):** Continuously polls the physical hardware interface and updates a dedicated memory address with the corresponding character keycode.
+   - **Output (Screen):** Rasterizes visual data directly from a designated "Screen Memory Map" (framebuffer) segment of RAM, projecting the binary states onto the physical display interface.
+
+:::
 
 ## Memory Subsystem
 

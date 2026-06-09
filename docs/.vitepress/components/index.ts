@@ -37,3 +37,6 @@ export { default as RegisterBankDemo } from "./wide_gates/RegisterBankDemo.vue";
 
 // Truth Table
 export { default as TruthTable } from "./table/TruthTable.vue";
+
+// Graph
+export { default as SystemHierarchy } from "./graph/SystemHierarchy.vue";
