@@ -4,7 +4,7 @@ Before diving into implementation, we will decompose our ultimate goal—buildin
 
 <SystemHierarchy />
 
-::: details Computer Hardware Interface
+::: details Hardware Interface
 
 ```hdl
 CHIP Computer {
@@ -13,8 +13,8 @@ CHIP Computer {
     PARTS:
     // Central Processing Unit
     CPU(reset=reset,
-        inD=inD, writeD=load, addrD=addrD, outD=outD,  // Databus
-        inI=inI, kern=domain, outI=addrI);             // Controlbus
+        inD=inD, writeD=load, addrD=addrD, outD=outD,  // Datapath
+        inI=inI, kern=domain, outI=addrI);             // Controlpath
 
     // Data + Memory-Mapped I/O (RAM)
     Memory(in=outD, load=load, address=addrD, out=inD);
@@ -22,6 +22,46 @@ CHIP Computer {
     // Application or OS (ROM)
     Instruction(in=addrI, sel=domain, out=inI);
 }
+```
+
+:::
+
+::: details Software Interface
+
+```text
+                          ( Reset Vector )
+                         [ Hardware Reset ]
+                                  │
+                                  ▼
+               ┌──────────────────────────────────────┐
+               │         KERNEL MODE (kern = 1)       │◄───────┐
+               │                                      │        │
+               │  • Addr 0x0000                       │        │
+               │  • Check Boot Flag:                  │        │
+               │    - Cold init  -OR-                 │        │
+               │      Request Dispatcher (by SID #)   │        │
+               └──────────────────┬───────────────────┘        │
+                                  │                   [ User Calls <Libj> ]
+                        [ Lower to User Mode ]             LR Saved
+                       Mailboxes Set (SA1, SA2)*   Mailboxes Set (SID, SA1, SA2)
+                            LR Retrieved**                Trap Vector
+                             Trap Return                       │
+                                  │                            │
+                                  ▼                            │
+               ┌──────────────────────────────────────┐        │
+               │          USER MODE (kern = 0)        │        │
+               │                                      │        │
+               │  • Runs Users-Space Loop             │        │
+               │  • Direct 'hardware' access blocked  │────────┘
+               └──────────────────┬───────────────────┘
+                                  │
+                          [ Hardware Reset ]
+                                  │
+                                 ...
+                       ( back to Reset Vector )
+
+* Mailboxes used for returning ptr (malloc), char (keyboard), etc.
+** Link Register (LR) not used on cold boot (link to 0x0000)
 ```
 
 :::
