@@ -19,7 +19,8 @@ const formatListWithAmpersand = (items: string[] | string): string => {
 
 const generatedPaths = computed(() => {
   const rootX = 400;
-  const rootY = 65;
+  // Pushed rootY down slightly because the root card is taller now
+  const rootY = 110;
   const childWidth = 250;
   const totalChildren = props.graphData.children.length;
 
@@ -30,11 +31,13 @@ const generatedPaths = computed(() => {
         : 275;
 
     const targetX = childX + childWidth / 2;
-    const targetY = 110;
+    // Pushed children down to Y=170 to give the root details breathing room
+    const targetY = 170;
 
     return {
       d: `M ${rootX} ${rootY} L ${targetX} ${targetY}`,
       childX,
+      targetY,
     };
   });
 });
@@ -44,7 +47,7 @@ const generatedPaths = computed(() => {
   <div class="system-hierarchy-container">
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 800 240"
+      viewBox="0 0 800 320"
       class="hierarchy-svg"
     >
       <template v-for="path in generatedPaths" :key="path.d">
@@ -52,19 +55,33 @@ const generatedPaths = computed(() => {
       </template>
 
       <g transform="translate(275, 20)">
-        <rect width="250" height="45" class="node-rect" />
-        <text x="125" y="27" class="text-main">
+        <rect width="250" height="90" class="node-rect" />
+        <text x="125" y="27" class="text-main" text-anchor="middle">
           <tspan style="text-transform: uppercase">
             {{ props.graphData.root.type }}:
           </tspan>
           {{ props.graphData.root.name }}
         </text>
+
+        <template
+          v-for="(detail, dIdx) in props.graphData.root.details"
+          :key="dIdx"
+        >
+          <text x="15" :y="52 + dIdx * 22" text-anchor="start" class="text-sub">
+            <tspan v-if="detail.prefix" class="label-prefix">
+              {{ detail.prefix }}
+            </tspan>
+            {{ formatListWithAmpersand(detail.value) }}
+          </text>
+        </template>
       </g>
 
       <template v-for="(child, idx) in props.graphData.children" :key="idx">
-        <g :transform="`translate(${generatedPaths[idx].childX}, 110)`">
-          <rect width="250" height="40" class="node-rect" />
-          <text x="125" y="25" class="text-main">
+        <g
+          :transform="`translate(${generatedPaths[idx].childX}, ${generatedPaths[idx].targetY})`"
+        >
+          <rect width="250" height="90" class="node-rect" />
+          <text x="125" y="27" class="text-main" text-anchor="middle">
             <tspan style="text-transform: uppercase">{{ child.type }}:</tspan>
             {{ child.name }}
           </text>
@@ -72,8 +89,8 @@ const generatedPaths = computed(() => {
 
         <template v-for="(detail, dIdx) in child.details" :key="dIdx">
           <text
-            :x="generatedPaths[idx].childX"
-            :y="185 + dIdx * 30"
+            :x="generatedPaths[idx].childX + 15"
+            :y="generatedPaths[idx].targetY + 50 + dIdx * 22"
             text-anchor="start"
             class="text-sub"
           >

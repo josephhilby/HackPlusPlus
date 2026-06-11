@@ -270,7 +270,7 @@ control signals are asserted in the same cycle.
 To demonstrate the **Program Counter** and its hardware-isolated vector logic, this simulation mimics a secure system boot followed
 by a rolling user-to-kernel service loop.
 
-**The Sequence:**
+::: details The Sequence:
 
 - **Cold Boot (Manual Reset):** Clicking the **Reset** button asserts the `reset` flag with absolute priority. The hardware forces the system to boot securely into Kernel Mode (`kern = 1`) and vectors the program counter to address `0x0000` in the Kernel Bank.
 - **Kernel Initialization (ROM 1):** The Kernel evaluates whether this is a cold start or a user initiated trap. On a cold boot, it executes an initialization routine, clears its boot flag (`CLR BOOT`) in register `D`, and triggers `MGK` to securely drop the execution state down into User Space at address `0x0000`.
