@@ -69,7 +69,7 @@ instruction capacity.
 
 ## Hardware Subsystem
 
-Rather than a single monolithic entity, a computer's hardware is an ecosystem of cooperating modules that collect input, execute
+Rather than a single monolithic entity, a computer's hardware is best thought of as an ecosystem of cooperating modules that collect input, execute
 instructions, manipulate data, and deliver output.
 
 ::: details Hardware Diagram
@@ -148,7 +148,7 @@ it.
                                   │                            |
                         [ Lower to User Mode ]       [ User Calls <Libj> ]
                        Mailboxes Set (SA1, SA2)*           LR Saved
-                            LR Retrieved**         Mailboxes Set (SID, SA1, SA2)
+                            LR Retrieved**       Mailboxes Set (SID, SA1, SA2)
                              Trap Return                  Trap Vector
                                   │                            │
                                   ▼                            │
