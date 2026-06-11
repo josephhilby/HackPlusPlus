@@ -53,13 +53,17 @@ the desired ALU computation, RAM destination for the result, and ROM jump criter
 
 ::: warning Trap Vector
 
-Our addressable RAM space ends at `0x6000`, leaving a reserved "hole" in the A-Instruction address space from `0x6001` to `0x7FFF`. We designate `0x7FFF` within this gap
-as a "Magic Address." When the CPU detects a jump to this location—triggered by the sequence `@32767` followed by `0;JMP`—it triggers an atomic context switch.
+Our addressable RAM space ends at `0x6000`, leaving a reserved "hole" in the A-Instruction address space from `0x6001` to `0x7FFF`. We designate the final address,
+`0x7FFF`, as a "Magic Address." To prevent user program conflicts, our assembler prohibits user programs from referencing this location-the last addressable word in ROM.
 
-- The Switch: The CPU intercepts the jump and toggles the domain bit.
+For the sacrifice of a single instruction word, we gain a dedicated parallel `32K` instruction space for the OS. When the CPU detects a jump to `0x7FFF`—triggered by the
+sequence `@32767` followed by `0;JMP`—it triggers an atomic context switch:
+
+- The Switch: The CPU intercepts the jump and toggles the `kernel flag` bit.
 - Bank Switching: This bit-flip redirects the Instruction module, instantly swapping the active ROM bank between User and Kernel modes.
 
-This implementation provides a hardened, hardware-enforced barrier that isolates application logic from system resources while effectively doubling our total instruction capacity.
+This implementation provides a hardened, hardware-enforced barrier that isolates application logic from system resources while effectively doubling our total
+instruction capacity.
 
 :::
 
