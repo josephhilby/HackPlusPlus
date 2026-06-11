@@ -257,6 +257,24 @@ CHIP RAM16K {
 
 </details>
 
+### RAM Memory Map
+
+The inside the `Memory()` module, the RAM16 component `16K` words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
+
+| Address Range (word) | ASM Name            | Usage                                                       |
+| -------------------- | ------------------- | ----------------------------------------------------------- |
+| `RAM[0]`             | `R0`/`SP`           | Current top of the stack                                    |
+| `RAM[1]`             | `R1`/`LCL`          | Base of the current function's local segment                |
+| `RAM[2]`             | `R2`/`ARG`          | Base of the current function's argument segment             |
+| `RAM[3]`             | `R3`/`THIS`         | Base of the current function's `this` segment (heap object) |
+| `RAM[4]`             | `R4`/`THAT`         | Base of the current function's `that` segment (heap array)  |
+| `RAM[5..12]`         | `R5..12`/`TEMP`     | Virtual Registers for current function's temporary storage  |
+| `RAM[13..15]`        | `R13..R15`          | General-purpose registers (`TMP`,`FRAME`,`RET` in Hack ++)  |
+| `RAM[16..255]`       | -                   | Static variables (indexed by class)                         |
+| `RAM[256..2044]`     | `S_ST`, `S_END`     | Stack (Grows downward, originally `256 -> 2047`)            |
+| `RAM[2045..16380]`   | `H_END`, `H_ST`     | Heap (Allocates upward, originally `16380 -> 2048`)         |
+| `RAM[16381..16383]`  | `SID`, `SA1`, `SA2` | Mailboxes for System Calls                                  |
+
 ## PC — Program Counter
 
 > **Also known as:** _instruction pointer_, _PC register_
@@ -390,3 +408,6 @@ CHIP ALU {
 ```
 
 :::
+
+**Two’s complement arithmetic**
+All arithmetic is performed on 16-bit two’s complement values.

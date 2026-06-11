@@ -1,22 +1,22 @@
 # Hack++ Reference
 
-Before exploring the granular details of Hack++, we must first establish the foundational contract between hardware and software. By decomposing the
-system into these two primary domains, we can then define the architectural constraints—a 16-bit ISA, Harvard-based separation, and a privileged
-User-Kernel model—that will enforce a strict separation of concerns and ensure system integrity across every subsequent module.
+Before exploring the granular details of Hack++, we will first decompose the system into its primary hardware and software subsystems.
+By establishing these two domains early, we can best define the overall architectural constraints—16-bit ISA, the Harvard-based
+physical separation, and the privileged User-Kernel model. This top-down approach allows us to enforce a strict separation of concerns
+between these two domains.
 
 <SystemHierarchy />
 
 ## Hack++ System
 
-At the absolute foundation of the Hack++ architecture is a **16-bit word and instruction size**. This single choice dictates the width of our datapaths,
+At the absolute foundation of the Hack++ architecture is a **16-bit word and fixed instruction size**. This single choice dictates the width of our datapaths,
 storage structures, and software instructions.
 
 ::: tip 16-Bit Model
 
-- **Data Size:** Every internal CPU register, and memory location in RAM or ROM, stores exactly one 16-bit value
-  (2 bytes, or 4 nybbles), between `0` to `65,535`, or `64Kib`.
+- **Data Size:** Every internal CPU register, and memory location in RAM or ROM, stores exactly one 16-bit value, between `0` to `65,535`, or `64Kib`.
 - **Instruction Size:** To account for the systems two instruction types, the first bit of each instruction is reserved as
-  a flag that signifies its type (a.k.a., its opcode). This further reduces the values to `0` to `32,767`, or `32Kib`.
+  a flag that signifies its type (a.k.a., its opcode). This further reduces the values to `0` to `32,767`, and gives a total addressable space of `32K`.
 
 :::
 
@@ -29,41 +29,36 @@ and the C-Instruction (Compute or Control)."
 
 ::: tip A-Instruction (Address or Constant)
 
-A opcode of `0` will denote an `a_instruction`, with the remaining 15 bits as the binary value of an integer between `0` and `32,767`.
-This integer could be used as an address in RAM or ROM, or constant value to be loaded in a register to be computed.
+An opcode of `0` will denote an `a_instruction`, with the remaining 15 bits encoding an integer between `0` and `32,767`.
+This integer could be used as an address in RAM or ROM, or constant value to be loaded and computed.
 
 ```
-0b 0vvv vvvv vvvv vvvv
-   ^     address
+0b 0 vvv vvvv vvvv vvvv
+   ^      address
 ```
 
 :::
 
 ::: tip C-Instruction (Compute or Control)
 
-A opcode of `1` will denote a `c_instruction`, the following two `ones` are unused, and the remaining groups (a, comp, dest, and jump) will control
-the desired ALU computation, RAM destination for the result, and ROM jump criteria. This will be expanded on later.
+An opcode of `1` will denote a `c_instruction`, the following two `ones` are unused, and the remaining groups (a, comp, dest, and jump) will control
+the desired ALU computation, RAM destination, or ROM jump criteria. _This will be expanded on later_.
 
 ```
-0b 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
-   ^          comp           dest     jump
+0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+   ^           comp           dest     jump
 ```
 
 :::
 
-::: warning Trap Vector
+::: warning Trap Vector (The Magic Address)
 
-Our addressable RAM space ends at `0x6000`, leaving a reserved "hole" in the A-Instruction address space from `0x6001` to `0x7FFF`. We designate the final address,
-`0x7FFF`, as a "Magic Address." To prevent user program conflicts, our assembler prohibits user programs from referencing this location-the last addressable word in ROM.
+When the CPU detects a jump to `0x7FFF`—initiated by the sequence `@32767` `0;JMP`—it triggers an atomic context switch:
 
-For the sacrifice of a single instruction word, we gain a dedicated parallel `32K` instruction space for the OS. When the CPU detects a jump to `0x7FFF`—triggered by the
-sequence `@32767` followed by `0;JMP`—it triggers an atomic context switch:
+- **The Intercept:** The CPU intercepts the jump and toggles the `kernel flag` bit.
+- **ROM Switching:** This bit-flip redirects the `Instruction()` module, instantly swapping the active ROM bank between User and Kernel.
 
-- The Switch: The CPU intercepts the jump and toggles the `kernel flag` bit.
-- Bank Switching: This bit-flip redirects the Instruction module, instantly swapping the active ROM bank between User and Kernel modes.
-
-This implementation provides a hardened, hardware-enforced barrier that isolates application logic from system resources while effectively doubling our total
-instruction capacity.
+_`0x7FFF` is an unused `Memory()` address and the final addressable `Instruction()`. To prevent conflicts, our assembler prohibits assembled programs from referencing this location outside of a context switch. So, for the sacrifice of a single instruction word, we gain a dedicated parallel instruction space for the OS._
 
 :::
 
@@ -76,7 +71,7 @@ instructions, manipulate data, and deliver output.
 
 ```hdl
 CHIP Computer {
-    IN reset;
+    IN reset, keyboard[16];
 
     PARTS:
     // Central Processing Unit
@@ -85,7 +80,7 @@ CHIP Computer {
         inI=inI, kern=domain, outI=addrI);             // Controlpath
 
     // Data + Memory-Mapped I/O (RAM)
-    Memory(in=outD, load=load, address=addrD, out=inD);
+    Memory(key=keyboard, in=outD, load=load, address=addrD, out=inD);
 
     // Application or OS (ROM)
     Instruction(in=addrI, sel=domain, out=inI);

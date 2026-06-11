@@ -1,14 +1,24 @@
 # Modules, (in progress)
 
-## Data Modules
+## Memory Module
 
-### Random Access Memory — RAM16K & MMIO
+From the computers perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is
+handled within the `Memory()` subsystem by the highest 2-bits `address[13..14]` allowing the module to access and
+address `4x 8K` sections.
+
+| Address Range (Hex) | address[13..14] | Size   | Region   | Function                    |
+| ------------------- | --------------: | ------ | -------- | --------------------------- |
+| `0x0000–0x1FFF`     |          `0b00` | 16K    | RAM 1/2  | General-purpose data memory |
+| `0x2000–0x3FFF`     |          `0b01` | 16K    | RAM 2/2  | General-purpose data memory |
+| `0x4000–0x5FFF`     |          `0b10` | 8K     | Screen   | Display framebuffer         |
+| `0x6000`            |          `0b11` | 1 word | Keyboard | Input register              |
+| `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
 
 ::: details Hardware Description
 
 ```hdl
 CHIP Memory {
-    IN in[16], load, address[15];
+    IN keyboard[16], in[16], load, address[15];
     OUT out[16];
 
     PARTS:
@@ -16,10 +26,8 @@ CHIP Memory {
     DMux4Way(in=load, sel=address[13..14],
              a=mem1, b=mem2, c=scr, d=key);
 
-    // Combine the two write quadrants into the single RAM16K
-    Or(a=mem1, b=mem2, out=mem);
-
     // RAM (0x0000–0x3FFF); sel = { 0b00, 0b01 }
+    Or(a=mem1, b=mem2, out=mem);
     RAM16K(in=in, load=mem, address=address[0..13], out=memOut);
 
     // MMIO
@@ -27,19 +35,23 @@ CHIP Memory {
     RAM8K(in=in, load=scr, address=address[0..12], out=scrOut);
 
     // Keyboard (0x6000); sel = 0b11
-    Keyboard(out=keyOut);
+    Or16Way(in=keyboard, out=isPressed);
+    Mux16(a=false, b=keyboard, sel=isPressed, out=keyIn);
+    Register(in=keyIn, load=true, out=keyOut);
+
+    // Return 0 for addr > 0x6000
+    Or16Way(in[0..12]=address[0..12], in[13..14]=false, out=ovr6000);
+    Mux16(a=keyOut, b=false, sel=ovr6000, out=keyRtn);
 
     // Select the read region
-    Mux4Way16(a=memOut, b=memOut, c=scrOut, d=keyOut,
+    Mux4Way16(a=memOut, b=memOut, c=scrOut, d=keyRtn,
               sel=address[13..14], out=out);
 }
 ```
 
 :::
 
-## Control Modules
-
-### Read Only Memory — ROM
+## Instruction Module
 
 ::: details Hardware Description
 
@@ -48,15 +60,21 @@ CHIP Instruction {
     IN address[16], sel;
     OUT out[16];
 
+    PARTS:
+    // Kernel Space
     ROM16K(address=address[0..13], out=instructionOS);
+
+    // User Space
     ROM32K(address=address, out=instructionProg);
-    MUX16(a=instructionProg, b=instructionOS, sel=kernel, out=instruction);
+
+    // Select the read region
+    MUX16(a=instructionProg, b=instructionOS, sel=sel, out=instruction);
 }
 ```
 
 :::
 
-### Central Processing Unit — CPU
+## CPU Module
 
 ::: details Hardware Description
 
@@ -69,7 +87,7 @@ CHIP CPU {
     // A-Instruction Handling
     Not(in=instruction[15], out=isA);
     Mux16(a=instruction, b=ALUout, sel=instruction[15], out=inA);
-    ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
+    Register(in=inA, load=loadA, out=outA, out[0..14]=addressM);
 
     // Context Switch
     SysCall15(in=addressM, out=request);
@@ -99,7 +117,7 @@ CHIP CPU {
         out=ALUout, out=outM, zr=zr, ng=ng);
 
     // Datapath: Store ALU Computation
-    DRegister(in=ALUout, load=loadD, out=x);
+    Register(in=ALUout, load=loadD, out=x);
 
     // Controlpath: Set Jump Condition
     And(a=instruction[2], b=true, out=lt0);

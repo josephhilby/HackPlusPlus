@@ -58,7 +58,7 @@ constant      ::= integer
 #### Predefined Symbols
 
 ```
-R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD
+R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD, S_ST, S_END, H_ST, H_END, SID, SA1, SA2
 ```
 
 ### PC Program from earlier in HACK

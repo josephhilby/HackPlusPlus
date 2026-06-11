@@ -66,7 +66,7 @@ export default withMermaid(
             { text: "Modules", link: "/module.md" },
             { text: "Components", link: "/component.md" },
             { text: "Circuits", link: "/circuit.md" },
-            { text: "Logic Gates", link: "/boolean.md" },
+            { text: "Gates", link: "/boolean.md" },
           ],
         },
         {
