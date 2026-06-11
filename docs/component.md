@@ -257,7 +257,7 @@ CHIP RAM16K {
 
 </details>
 
-### RAM Memory Map
+#### RAM Memory Map
 
 The inside the `Memory()` module, the RAM16 component `16K` words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
 
