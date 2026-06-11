@@ -1,26 +1,6 @@
 # Components
 
-Hack++ RAM is built as a hierarchy of addressed register banks. Each level increases capacity by integrating
-**eight** instances of the previous levels component. To address each interior component three bits are required
-(2^3 = 8). However, as the hierarchy increases in complexity there is a need to both select an interior component AND pass
-addressing information into that component.
-
-To identify what bits are addressing the eight interior components and what bits are passed into the single selected interior
-component the terms **hi** and **low** are used. Where **hi** references the three bits to select the it, and **low**
-references the remaining bits passed into it.
-
-#### Memory Circuit Hierarchy
-
-|       Chip | Words | Address bits | Built from    | Address split                             |
-| ---------: | ----: | -----------: | ------------- | ----------------------------------------- |
-| `Register` |     1 |            0 | 8× `Bit`      | none                                      |
-|     `RAM8` |     8 |            3 | 8× `Register` | `sel = address[0..2]`                     |
-|    `RAM64` |    64 |            6 | 8× `RAM8`     | `hi=address[3..5]`, `lo=address[0..2]`    |
-|   `RAM512` |   512 |            9 | 8× `RAM64`    | `hi=address[6..8]`, `lo=address[0..5]`    |
-|    `RAM4K` |  4096 |           12 | 8× `RAM512`   | `hi=address[9..11]`, `lo=address[0..8]`   |
-|   `RAM16K` | 16384 |           14 | 8× `RAM4K`    | `hi=address[11..13]`, `lo=address[0..11]` |
-
-## Register — 16-bit Word Register
+## Register
 
 > **Also known as:** _word register_, _general-purpose register_
 
@@ -28,8 +8,8 @@ The **Register** is a 16-bit state element used throughout the CPU and memory hi
 enable across 16 `Bit` cells, producing a word-sized storage primitive.
 
 ::: warning Note:
-The remaining hardware described in these docs will quickly grow in complexity. To account for this, when prudent, 16-bit words
-will be translated into hex - denoted with a prefix of `0x` - for brevity.
+The remaining hardware described in these docs will quickly grow in complexity. To account for this, when prudent, words
+will be translated from `16-bit` (bin) into `4-nybble` (hex)-called this because two nybbles makes one byte.
 
 :::
 
@@ -78,15 +58,52 @@ ELSE:
 
 :::
 
----
+## Register Bank
 
-## Register Bank — 8-Word Register Bank
+> **Also known as:** _register file_
 
-> **Also known as:** _register file (8×16)_
+A **Register Bank** is a series of `n` registers, assembled as a memory hierarchy. It applies a single `load` enable
+across all `n` registers, then routes the new `in` state to a single register, according to the provided address (`addr`).
 
-The **RAM8** is the smallest addressable memory: eight 16-bit registers with a 3-bit address.
+::: tip Register Bank Logic
 
-::: details Hardware Description
+```text
+IF load(t) == 1:
+    Register[ADDR](t+1) = in(t)
+ELSE:
+    Bank(t+1) = Bank(t)
+```
+
+<RegisterBankDemo />
+
+:::
+
+### Memory Hierarchy
+
+In order to achieve a bank of size `n`, increasingly larger banks are built by integrating eight instances from the
+previous level. To select one of those eight components, we will need three dedicated bits (2^3=8). As this hierarchy
+scales, there becomes a need to simultaneously select a target component and pass the remaining addressing information
+into that component.
+
+::: tip Hi-Lo Address Split
+
+To distinguish between these roles, we will group the address bits into two categories:
+
+1. `hi`: Three bits used to select the interior component.
+2. `lo`: The remaining bits that are passed into the selected interior component.
+
+:::
+
+|       Chip | Words | Address bits | Built from    | Address split                             |
+| ---------: | ----: | -----------: | ------------- | ----------------------------------------- |
+| `Register` |     1 |            0 | 8× `Bit`      | none                                      |
+|     `RAM8` |     8 |            3 | 8× `Register` | `sel = address[0..2]`                     |
+|    `RAM64` |    64 |            6 | 8× `RAM8`     | `hi=address[3..5]`, `lo=address[0..2]`    |
+|   `RAM512` |   512 |            9 | 8× `RAM64`    | `hi=address[6..8]`, `lo=address[0..5]`    |
+|    `RAM4K` |  4096 |           12 | 8× `RAM512`   | `hi=address[9..11]`, `lo=address[0..8]`   |
+|   `RAM16K` | 16384 |           14 | 8× `RAM4K`    | `hi=address[11..13]`, `lo=address[0..11]` |
+
+::: details RAM8
 
 ```hdl
 CHIP RAM8 {
@@ -115,30 +132,7 @@ CHIP RAM8 {
 
 :::
 
-::: tip Register Bank Logic
-
-```text
-IF load(t) == 1:
-    Register[ADDR](t+1) = in(t)
-ELSE:
-    Bank(t+1) = Bank(t)
-```
-
-<RegisterBankDemo />
-
-:::
-
----
-
-### RAM64 / RAM512 / RAM4K / RAM16K — Hierarchical RAM
-
-The remaining RAM blocks repeat the same decode/store/select pattern, each time stacking 8× of the previous level.
-
-To keep this reference readable, their full HDL is included below in collapsible sections. But no demo or behavior
-will be provided.
-
-<details>
-<summary><strong>RAM64 — 64-word memory (8× RAM8)</strong></summary>
+::: details RAM64
 
 ```hdl
 CHIP RAM64 {
@@ -165,10 +159,9 @@ CHIP RAM64 {
 }
 ```
 
-</details>
+:::
 
-<details>
-<summary><strong>RAM512 — 512-word memory (8× RAM64)</strong></summary>
+::: details RAM512
 
 ```hdl
 CHIP RAM512 {
@@ -195,10 +188,9 @@ CHIP RAM512 {
 }
 ```
 
-</details>
+:::
 
-<details>
-<summary><strong>RAM4K — 4096-word memory (8× RAM512)</strong></summary>
+::: details RAM4K
 
 ```hdl
 CHIP RAM4K {
@@ -225,10 +217,9 @@ CHIP RAM4K {
 }
 ```
 
-</details>
+:::
 
-<details>
-<summary><strong>RAM16K — 16384-word memory (8× RAM4K)</strong></summary>
+::: details RAM16K
 
 ```hdl
 CHIP RAM16K {
@@ -255,9 +246,9 @@ CHIP RAM16K {
 }
 ```
 
-</details>
+:::
 
-#### RAM Memory Map
+### RAM Memory Map
 
 The inside the `Memory()` module, the RAM16 component `16K` words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
 
@@ -275,7 +266,7 @@ The inside the `Memory()` module, the RAM16 component `16K` words of 16-bits at 
 | `RAM[2045..16380]`   | `H_END`, `H_ST`     | Heap (Allocates upward, originally `16380 -> 2048`)         |
 | `RAM[16381..16383]`  | `SID`, `SA1`, `SA2` | Mailboxes for System Calls                                  |
 
-## PC — Program Counter
+## Program Counter
 
 > **Also known as:** _instruction pointer_, _PC register_
 
@@ -368,7 +359,7 @@ ELSE
 
 :::
 
-## Arithmetic and Logic Unit — ALU
+## Arithmetic and Logic Unit
 
 ::: details Hardware Description
 

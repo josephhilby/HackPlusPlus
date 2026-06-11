@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import "./graph.css";
 import { computed } from "vue";
-import { DEFAULT_GRAPH_DATA } from "./data";
+import { DEFAULT_GRAPH_DATA, HARDWARE_GRAPH_DATA } from "./data";
 
 const props = defineProps({
-  graphData: {
-    type: Object,
-    default: () => DEFAULT_GRAPH_DATA,
+  dataType: {
+    type: String,
+    required: true,
   },
 });
+
+const DATA_MAP: Record<string, any> = {
+  default: DEFAULT_GRAPH_DATA,
+  hardware: HARDWARE_GRAPH_DATA,
+};
+
+const graphData = computed(
+  () => DATA_MAP[props.dataType] || DEFAULT_GRAPH_DATA,
+);
 
 const formatListWithAmpersand = (items: string[] | string): string => {
   if (!Array.isArray(items)) return items;
@@ -19,23 +28,26 @@ const formatListWithAmpersand = (items: string[] | string): string => {
 
 const generatedPaths = computed(() => {
   const rootX = 400;
-  // Pushed rootY down slightly because the root card is taller now
   const rootY = 110;
   const childWidth = 250;
-  const totalChildren = props.graphData.children.length;
+  const svgWidth = 800;
 
-  return props.graphData.children.map((_child: any, idx: number) => {
-    const childX =
-      totalChildren > 1
-        ? 75 + idx * ((800 - 150 - childWidth) / (totalChildren - 1))
-        : 275;
+  const children = graphData.value.children;
+  const totalChildren = children.length;
 
-    const targetX = childX + childWidth / 2;
-    // Pushed children down to Y=170 to give the root details breathing room
+  return children.map((_child: any, idx: number) => {
+    // Dynamic spacing logic:
+    // 1. Calculate the total width occupied by all child boxes
+    // 2. Divide the remaining space equally to create margins
+    const gap = 20; // Space between nodes
+    const totalWidth = totalChildren * childWidth + (totalChildren - 1) * gap;
+    const startX = (svgWidth - totalWidth) / 2;
+
+    const childX = startX + idx * (childWidth + gap);
     const targetY = 170;
 
     return {
-      d: `M ${rootX} ${rootY} L ${targetX} ${targetY}`,
+      d: `M ${rootX} ${rootY} L ${childX + childWidth / 2} ${targetY}`,
       childX,
       targetY,
     };
@@ -58,15 +70,12 @@ const generatedPaths = computed(() => {
         <rect width="250" height="90" class="node-rect" />
         <text x="125" y="27" class="text-main" text-anchor="middle">
           <tspan style="text-transform: uppercase">
-            {{ props.graphData.root.type }}:
+            {{ graphData.root.type }}:
           </tspan>
-          {{ props.graphData.root.name }}
+          {{ graphData.root.name }}
         </text>
 
-        <template
-          v-for="(detail, dIdx) in props.graphData.root.details"
-          :key="dIdx"
-        >
+        <template v-for="(detail, dIdx) in graphData.root.details" :key="dIdx">
           <text x="15" :y="52 + dIdx * 22" text-anchor="start" class="text-sub">
             <tspan v-if="detail.prefix" class="label-prefix">
               {{ detail.prefix }}
@@ -76,7 +85,7 @@ const generatedPaths = computed(() => {
         </template>
       </g>
 
-      <template v-for="(child, idx) in props.graphData.children" :key="idx">
+      <template v-for="(child, idx) in graphData.children" :key="idx">
         <g
           :transform="`translate(${generatedPaths[idx].childX}, ${generatedPaths[idx].targetY})`"
         >

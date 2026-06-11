@@ -1,4 +1,8 @@
-# Modules, (in progress)
+# Modules
+
+Continuing this top down deconstruction, we arrive at the hardware subsystems modules.
+
+<SystemHierarchy dataType="hardware" />
 
 ## Memory Module
 
@@ -64,11 +68,11 @@ CHIP Instruction {
     OUT out[16];
 
     PARTS:
-    // Kernel Space
-    ROM16K(address=address[0..13], out=instructionOS);
-
-    // User Space
+    // User Space (ROM 0)
     ROM32K(address=address, out=instructionProg);
+
+    // Kernel Space (ROM 1)
+    ROM16K(address=address[0..13], out=instructionOS);
 
     // Select the read region
     MUX16(a=instructionProg, b=instructionOS, sel=sel, out=instruction);
@@ -78,6 +82,8 @@ CHIP Instruction {
 :::
 
 ## CPU Module
+
+Single-Cycle Deterministic Controller
 
 ::: details Hardware Description
 
@@ -149,21 +155,37 @@ CHIP CPU {
 
 ### Instruction Set Architecture
 
-#### ALU Control — `comp` field (`a, c1–c6`)
+#### The A-Instruction
 
-The `a` bit selects the ALU's `y` input:
+```
+0b 0 vvv vvvv vvvv vvvv
+   ^      integer
+```
+
+#### The C-Instruction
+
+```
+0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+   ^           comp           dest     jump
+```
+
+::: tip COMP (a, c1, c2, c3, c4, c5, c6)
+
+The `comp` field controls the ALU's computation.
+
+The `a` bit selects the ALU's `y` input source:
 
 - `a = 0` → `y = A-Register`
 - `a = 1` → `y = RAM[A-Register]`
 
-The `c1–c6` bits control the ALU’s internal pipeline (`zx, nx, zy, ny, f, no`).
+The `c1–c6` bits set flags that control the ALU’s internal pipeline:
 
-- `c1` = zero x-input.
-- `c2` = negate x-input.
-- `c3` = zero y-input.
-- `c4` = negate y-input.
-- `c5` = select `add(x,y)` or `and(x,y)` function.
-- `c6` = negate result.
+- `c1`/`zx` → zero `x` input.
+- `c2`/`nx` → negate `x` input.
+- `c3`/`zy` → zero `y` input.
+- `c4`/`ny` → negate `y` input.
+- `c5`/`f` → select `add(x,y)` or `and(x,y)` function.
+- `c6`/`no` → negate `result`.
 
 ::: details Comp Field
 
@@ -200,13 +222,13 @@ The `c1–c6` bits control the ALU’s internal pipeline (`zx, nx, zy, ny, f, no
 
 :::
 
-#### Destination Control — `dest` field (`d1–d3`)
+::: tip DEST (d1, d2, d3)
 
-The `dest` field controls which storage elements receive the ALU result.
+The `dest` field controls which storage element(s) (`A`,`M`,`D`) receive the ALU result.
 
 ::: details Dest Field
 
-| dest   | d1  | d2  | d3  | Effect                             |
+| dest   | d1  | d2  | d3  | effect                             |
 | ------ | --- | --- | --- | ---------------------------------- |
 | `null` | 0   | 0   | 0   | Value is not stored                |
 | `M`    | 0   | 0   | 1   | RAM[A]                             |
@@ -219,16 +241,17 @@ The `dest` field controls which storage elements receive the ALU result.
 
 :::
 
-#### Jump Control — `jump` field (`j1–j3`)
+::: tip JUMP (j1, j2, j3)
 
-Jump decisions are made using the ALU flags:
+The `jump` field sets a condition that must be met for a jump to occur. To validate that condition
+ALU flags are used:
 
-- `zr = 1` iff `result == 0`
-- `ng = 1` iff `result < 0` (two’s complement)
+- If ALU output is zero → `zr = 1`
+- If ALU output is negative (two’s complement) → `ng = 1`
 
 ::: details Jump Field
 
-| jump   | j1  | j2  | j3  | Effect             |
+| jump   | j1  | j2  | j3  | effect             |
 | ------ | --- | --- | --- | ------------------ |
 | `null` | 0   | 0   | 0   | No jump            |
 | `JGT`  | 0   | 0   | 1   | If out > 0, jump   |

@@ -1,11 +1,10 @@
 # Hack++ Reference
 
 Before exploring the granular details of Hack++, we will first decompose the system into its primary hardware and software subsystems.
-By establishing these two domains early, we can best define the overall architectural constraints—16-bit ISA, the Harvard-based
-physical separation, and the privileged User-Kernel model. This top-down approach allows us to enforce a strict separation of concerns
-between these two domains.
+By establishing these two domains early, we can select the best high-level architectural specifications for this project—16-bit ISA, the
+Harvard-based physical separation, and the privileged User-Kernel model.
 
-<SystemHierarchy />
+<SystemHierarchy dataType="default" />
 
 ## Hack++ System
 
@@ -24,8 +23,10 @@ storage structures, and software instructions.
 
 Within this constraint, we define our Instruction Set Architecture (ISA) as the essential bridge between hardware and software. On the software
 side, the ISA provides a set of binary codes that command machine behavior; on the hardware side, it acts as the architectural specification that
-hard-wires those commands into physical logic. This ISA is composed of two fundamental execution patterns: the A-Instruction (Address/Constant selection)
-and the C-Instruction (Compute or Control)."
+hard-wires those commands into physical logic.
+
+Our ISA will be composed of two fundamental execution patterns: the `a_instruction` (Address/Constant selection) and the `c_instruction`
+(Compute or Control)."
 
 ::: tip A-Instruction (Address or Constant)
 
@@ -34,7 +35,7 @@ This integer could be used as an address in RAM or ROM, or constant value to be 
 
 ```
 0b 0 vvv vvvv vvvv vvvv
-   ^      address
+   ^      integer
 ```
 
 :::
@@ -48,17 +49,6 @@ the desired ALU computation, RAM destination, or ROM jump criteria. _This will b
 0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
    ^           comp           dest     jump
 ```
-
-:::
-
-::: warning Trap Vector (The Magic Address)
-
-When the CPU detects a jump to `0x7FFF`—initiated by the sequence `@32767` `0;JMP`—it triggers an atomic context switch:
-
-- **The Intercept:** The CPU intercepts the jump and toggles the `kernel flag` bit.
-- **ROM Switching:** This bit-flip redirects the `Instruction()` module, instantly swapping the active ROM bank between User and Kernel.
-
-_`0x7FFF` is an unused `Memory()` address and the final addressable `Instruction()`. To prevent conflicts, our assembler prohibits assembled programs from referencing this location outside of a context switch. So, for the sacrifice of a single instruction word, we gain a dedicated parallel instruction space for the OS._
 
 :::
 
@@ -91,7 +81,7 @@ CHIP Computer {
 
 ### Harvard Model
 
-To orchestrate these components we employ the Harvard model, which completely separates instructions and data into distinct
+To orchestrate these components we employ the Harvard model, which completely separates instructions and data into separate
 physical modules. This explicit boundary removes instruction code-space segmentation from our memory management requirements,
 simplifying our runtime environment.
 
@@ -104,26 +94,17 @@ simplifying our runtime environment.
 :::
 
 Additionally, this architectural split complements the software-level User-Kernel model, allowing us to isolate
-hardware-enforced context switches entirely within a single CPU-driven component: the `Instruction()` module.
-
-### Hardware Breakdown Levels
-
-To build this architecture from the ground up, our hardware implementation scales through four distinct layers of abstraction:
-
-::: info Hardware Breakdown Levels
-
-- **Modules (CPU, Memory, Instruction):** The macro-level components that define the top-level computer.
-- **Components (ALU, PC, Register, Register Bank, etc.):** Complex circuits designed to fulfill a module required behavior.
-- **Circuits (Mux, Add, Bit, etc.):** Composite implementations of logic gates, allowing for atomic level machine behavior and time-dependent state.
-- **Boolean Logic Gates (Not, And, Or, Xor):** Time-independent logical behavior.
-
-:::
+hardware-enforced context switches entirely within a single CPU-driven component, the `Instruction()` module.
 
 ## Software Subsystem
 
 A software program in execution is ultimately a stream of binary values written for the hardware's native instruction set. High-level
 concepts—such as printing characters, graphics, and user input—do not exist within the core hardware, but must be constructed above
 it.
+
+To relieve the user of this responsibility we will construct an Operating System (OS), that will be exposed to the user via a simple
+standard library `<libj>`. This OS will handle all hardware communications as well as add a few helper functions to help overcome the
+ISA's relatively limited functionality.
 
 ::: details Software Diagram
 
@@ -167,8 +148,8 @@ it.
 
 ### User-Kernel Model
 
-To protect system integrity and abstract hardware complexities from the application developer, we adhere to a strict User-Kernel
-model. This architecture divides the software subsystem into two distinct operational domains:
+To protect the OS from the user and their program, we adhere to a strict User-Kernel model. This architecture divides the software subsystem
+into two distinct operational domains:
 
 ::: tip User-Kernel Model
 
@@ -177,16 +158,17 @@ model. This architecture divides the software subsystem into two distinct operat
 
 :::
 
-### Software Toolchain
+To navigate between these two spaces we will use a Trap Vector, a specialized instruction sequence that has a unique hardcoded CPU response. Briefly
+taking control from the `Instruction()` module, setting the computer in a specific state, then returning control.
 
-Building programs directly in native binary is inefficient. To avoid this, we will utilize an external compilation toolchain
-to translate high-level syntax down to execution-ready machine code through several layers:
+::: warning Trap Vector (The Magic Address)
 
-::: info Intermediate Representations
+When the CPU detects a jump to `0x7FFF`—initiated by the sequence `@32767` `0;JMP`—it triggers a context switch:
 
-- **High-Level Language (Jack):** A human-readable, structured, object-oriented language used to write both user applications and the underlying OS classes.
-- **VM Bytecode:** A platform-independent intermediate representation that establishes stack-based operations and virtual memory segments.
-- **Assembly (ISA):** A human-readable text representation of the hardware's exact instruction set architecture.
-- **Machine Binary:** The final stream of raw ones and zeros executed directly by the CPU.
+- **The Intercept:** The CPU intercepts the jump and toggles the `kernel flag` bit.
+- **The Context Save:** The CPU saves a return address in a special link register (LR).
+- **ROM Switching:** This bit-flip redirects the `Instruction()` module, instantly swapping the active ROM bank between User and Kernel.
+
+_`0x7FFF` is an unused `Memory()` address and the final addressable `Instruction()`. To prevent conflicts, our assembler prohibits assembled programs from referencing this location outside of a context switch. So, for the sacrifice of a single instruction word, we gain a dedicated parallel instruction space for the OS._
 
 :::

@@ -3,7 +3,7 @@ export const DEFAULT_GRAPH_DATA = {
     type: "system",
     name: "Hack++",
     details: [
-      { prefix: "", value: "16-Bit Fixed-Instruction Model" },
+      { prefix: "", value: "16-Bit Fixed-Instruction Arch" },
       { prefix: "Subsystems:", value: ["Hardware", "Software"] },
     ],
   },
@@ -13,7 +13,7 @@ export const DEFAULT_GRAPH_DATA = {
       name: "Hardware",
       details: [
         { prefix: "", value: "Harvard Model" },
-        { prefix: "Modules:", value: ["CPU", "RAM", "ROM"] },
+        { prefix: "Modules:", value: ["CPU", "Mem", "Inst"] },
       ],
     },
     {
@@ -22,9 +22,49 @@ export const DEFAULT_GRAPH_DATA = {
       details: [
         {
           prefix: "",
-          value: "User-Kernel Model",
+          value: "User-Kernel Split",
         },
-        { prefix: "Domains:", value: ["Application", "OS"] },
+        { prefix: "Domains:", value: ["User App", "OS"] },
+      ],
+    },
+  ],
+};
+
+export const HARDWARE_GRAPH_DATA = {
+  root: {
+    type: "subsystem",
+    name: "Hardware",
+    details: [
+      { prefix: "", value: "Harvard Model" },
+      { prefix: "Modules:", value: ["Mem", "Inst", "CPU"] },
+    ],
+  },
+  children: [
+    {
+      type: "module",
+      name: "Memory",
+      details: [
+        {
+          prefix: "",
+          value: "Memory Mapping",
+        },
+        { prefix: "Components:", value: ["RAM", "MMIO"] },
+      ],
+    },
+    {
+      type: "module",
+      name: "Instruction",
+      details: [
+        { prefix: "", value: "Privilege Levels" },
+        { prefix: "Components:", value: ["ROM0", "ROM1"] },
+      ],
+    },
+    {
+      type: "module",
+      name: "CPU",
+      details: [
+        { prefix: "", value: "Single-Cycle Deterministic" },
+        { prefix: "Components:", value: ["PC", "ALU", "Registers"] },
       ],
     },
   ],
