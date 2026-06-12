@@ -19,7 +19,7 @@ storage structures, and software instructions.
 
 :::
 
-### Hardware-Software Interface
+### Interface
 
 Within this constraint, we define our Instruction Set Architecture (ISA) as the essential bridge between hardware and software. On the software
 side, the ISA provides a set of binary codes that command machine behavior; on the hardware side, it acts as the architectural specification that
@@ -43,7 +43,7 @@ This integer could be used as an address in RAM or ROM, or constant value to be 
 ::: tip C-Instruction (Compute or Control)
 
 An opcode of `1` will denote a `c_instruction`, the following two `ones` are unused, and the remaining groups (a, comp, dest, and jump) will control
-the desired ALU computation, RAM destination, or ROM jump criteria. _This will be expanded on later_.
+the desired ALU computation, RAM destination, or ROM jump criteria. _This will be expanded on in the next section_.
 
 ```
 0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3

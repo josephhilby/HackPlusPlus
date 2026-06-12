@@ -70,11 +70,21 @@ KBD = 24576
 The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF`, each bit represents a screen pixel.
 
 - 131,072 pixels
-- 256 rows
-- 512 cols
-- word = SCREEN + 32r + (c/16)
-- pixel = RAM[word][c % 16]
+- 256 rows (16 words / column)
+- 512 cols (32 words / row)
+- word = SCREEN + (32 x row) + (col / 16)
+- offset = col % 16
 - 1 = black, 0 = white
+
+```text
+    Row Index | Start Address | End Address
+  +-----------+---------------+-------------+
+  | Row 0     | 0x4000        | 0x401F      |
+  | Row 1     | 0x4020        | 0x403F      |
+  | ...       | ...           | ...         |
+  | Row 255   | 0x5FE0        | 0x5FFF      |
+  +-----------+---------------+-------------+
+```
 
 ### Keyboard Memory map
 

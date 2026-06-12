@@ -1,4 +1,4 @@
-## TODO
+# OS, (in progress)
 
 ### HACK to HACK++
 
@@ -58,3 +58,21 @@ size = 4 if S_PDT, 7 if L_PDT
 
 ptr = x_PDT + (table_index << size)
 table_index = (ptr - x_PDT) >> size
+
+#### Screen Map
+
+The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF`, each bit represents a screen pixel.
+
+- 131,072 pixels
+- 256 rows (16 words / column)
+- 512 cols (32 words / row)
+- `word = SCREEN + (32 x row) + (col / 16)`
+- `offset = col % 16`
+- 1 = black, 0 = white
+
+| Row Index | Start Address | End Address |
+| --------- | ------------- | ----------- |
+| Row 0     | 0x4000        | 0x401F      |
+| Row 1     | 0x4020        | 0x403F      |
+| ...       | ...           | ...         |
+| Row 255   | 0x5FE0        | 0x5FFF      |

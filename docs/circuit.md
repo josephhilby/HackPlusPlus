@@ -489,6 +489,8 @@ OUT out[16];
 <Inc16Demo />
 :::
 
+### Instruction Circuits
+
 ::: details Hardware Description
 
 ```hdl

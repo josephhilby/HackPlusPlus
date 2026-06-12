@@ -1,8 +1,31 @@
 # Modules
 
-Continuing this top down deconstruction, we arrive at the hardware subsystems modules.
+Continuing this top down deconstruction, we arrive at the hardware subsystems modules. As before these will be subdivided into
+smaller entities (components) and an overall architectural specification will be selected to help solidify separation of concerns
+and module interface.
 
 <SystemHierarchy dataType="hardware" />
+
+## Hardware Subsystem
+
+As discussed in the last section the Hack++ hardware follows the Harvard model. From this model we derive our three modules:
+`Memory()`, `Instruction()`, and `CPU()`.
+
+### Interface
+
+#### The A-Instruction
+
+```
+0b 0 vvv vvvv vvvv vvvv
+   ^      address
+```
+
+#### The C-Instruction
+
+```
+0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+   ^           comp           dest     jump
+```
 
 ## Memory Module
 
@@ -47,16 +70,18 @@ CHIP Memory {
 
 :::
 
-| Address Range (Hex) | address[13..14] | Size   | Region   | Function                    |
-| ------------------- | --------------: | ------ | -------- | --------------------------- |
-| `0x0000–0x1FFF`     |          `0b00` | 16K    | RAM 1/2  | General-purpose data memory |
-| `0x2000–0x3FFF`     |          `0b01` | 16K    | RAM 2/2  | General-purpose data memory |
-| `0x4000–0x5FFF`     |          `0b10` | 8K     | Screen   | Display framebuffer         |
-| `0x6000`            |          `0b11` | 1 word | Keyboard | Input register              |
-| `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
+### Memory Map
 
 Of these addressable sections two are combined into a single `16K` section for RAM, one is used for
 the screen MMIO, and the last is a single address for the keyboard MMIO.
+
+| Address Range (Hex) | address[13..14] | Size   | Region   | Function                    |
+| ------------------- | --------------: | ------ | -------- | --------------------------- |
+| `0x0000–0x1FFF`     |          `0b00` | 16K    | RAM16    | General-purpose data memory |
+| `0x2000–0x3FFF`     |          `0b01` | 16K    | RAM16    | General-purpose data memory |
+| `0x4000–0x5FFF`     |          `0b10` | 8K     | Screen   | Display framebuffer         |
+| `0x6000`            |          `0b11` | 1 word | Keyboard | Input register              |
+| `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
 
 ## Instruction Module
 
@@ -80,6 +105,8 @@ CHIP Instruction {
 ```
 
 :::
+
+### Privilege Levels
 
 ## CPU Module
 
@@ -153,113 +180,4 @@ CHIP CPU {
 
 :::
 
-### Instruction Set Architecture
-
-#### The A-Instruction
-
-```
-0b 0 vvv vvvv vvvv vvvv
-   ^      integer
-```
-
-#### The C-Instruction
-
-```
-0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
-   ^           comp           dest     jump
-```
-
-::: tip COMP (a, c1, c2, c3, c4, c5, c6)
-
-The `comp` field controls the ALU's computation.
-
-The `a` bit selects the ALU's `y` input source:
-
-- `a = 0` → `y = A-Register`
-- `a = 1` → `y = RAM[A-Register]`
-
-The `c1–c6` bits set flags that control the ALU’s internal pipeline:
-
-- `c1`/`zx` → zero `x` input.
-- `c2`/`nx` → negate `x` input.
-- `c3`/`zy` → zero `y` input.
-- `c4`/`ny` → negate `y` input.
-- `c5`/`f` → select `add(x,y)` or `and(x,y)` function.
-- `c6`/`no` → negate `result`.
-
-::: details Comp Field
-
-| comp   | a   | c1  | c2  | c3  | c4  | c5  | c6  | effect                      |
-| ------ | --- | --- | --- | --- | --- | --- | --- | --------------------------- |
-| `0`    | 0   | 1   | 0   | 1   | 0   | 1   | 0   | Constant 0                  |
-| `1`    | 0   | 1   | 1   | 1   | 1   | 1   | 1   | Constant 1                  |
-| `-1`   | 0   | 1   | 1   | 1   | 0   | 1   | 0   | Constant -1                 |
-| `D`    | 0   | 0   | 0   | 1   | 1   | 0   | 0   | D register                  |
-| `A`    | 0   | 1   | 1   | 0   | 0   | 0   | 0   | A register                  |
-| `M`    | 1   | 1   | 1   | 0   | 0   | 0   | 0   | RAM[A] value                |
-| `!D`   | 0   | 0   | 0   | 1   | 1   | 0   | 1   | Bitwise NOT of D            |
-| `!A`   | 0   | 1   | 1   | 0   | 0   | 0   | 1   | Bitwise NOT of A            |
-| `!M`   | 1   | 1   | 1   | 0   | 0   | 0   | 1   | Bitwise NOT of RAM[A]       |
-| `-D`   | 0   | 0   | 0   | 1   | 1   | 1   | 1   | Negation of D               |
-| `-A`   | 0   | 1   | 1   | 0   | 0   | 1   | 1   | Negation of A               |
-| `-M`   | 1   | 1   | 1   | 0   | 0   | 1   | 1   | Negation of RAM[A]          |
-| `D+1`  | 0   | 0   | 1   | 1   | 1   | 1   | 1   | D plus 1                    |
-| `A+1`  | 0   | 1   | 1   | 0   | 1   | 1   | 1   | A plus 1                    |
-| `M+1`  | 1   | 1   | 1   | 0   | 1   | 1   | 1   | RAM[A] plus 1               |
-| `D-1`  | 0   | 0   | 0   | 1   | 1   | 1   | 0   | D minus 1                   |
-| `A-1`  | 0   | 1   | 1   | 0   | 0   | 1   | 0   | A minus 1                   |
-| `M-1`  | 1   | 1   | 1   | 0   | 0   | 1   | 0   | RAM[A] minus 1              |
-| `D+A`  | 0   | 0   | 0   | 0   | 0   | 1   | 0   | D plus A                    |
-| `D+M`  | 1   | 0   | 0   | 0   | 0   | 1   | 0   | D plus RAM[A]               |
-| `D-A`  | 0   | 0   | 1   | 0   | 0   | 1   | 1   | D minus A                   |
-| `D-M`  | 1   | 0   | 1   | 0   | 0   | 1   | 1   | D minus RAM[A]              |
-| `A-D`  | 0   | 0   | 0   | 0   | 1   | 1   | 1   | A minus D                   |
-| `M-D`  | 1   | 0   | 0   | 0   | 1   | 1   | 1   | RAM[A] minus D              |
-| `D&A`  | 0   | 0   | 0   | 0   | 0   | 0   | 0   | Bitwise AND of D and A      |
-| `D&M`  | 1   | 0   | 0   | 0   | 0   | 0   | 0   | Bitwise AND of D and RAM[A] |
-| `D\|A` | 0   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and A       |
-| `D\|M` | 1   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and RAM[A]  |
-
-:::
-
-::: tip DEST (d1, d2, d3)
-
-The `dest` field controls which storage element(s) (`A`,`M`,`D`) receive the ALU result.
-
-::: details Dest Field
-
-| dest   | d1  | d2  | d3  | effect                             |
-| ------ | --- | --- | --- | ---------------------------------- |
-| `null` | 0   | 0   | 0   | Value is not stored                |
-| `M`    | 0   | 0   | 1   | RAM[A]                             |
-| `D`    | 0   | 1   | 0   | D register                         |
-| `MD`   | 0   | 1   | 1   | RAM[A] and D register              |
-| `A`    | 1   | 0   | 0   | A register                         |
-| `AM`   | 1   | 0   | 1   | A register and RAM[A]              |
-| `AD`   | 1   | 1   | 0   | A register and D register          |
-| `AMD`  | 1   | 1   | 1   | A register, RAM[A], and D register |
-
-:::
-
-::: tip JUMP (j1, j2, j3)
-
-The `jump` field sets a condition that must be met for a jump to occur. To validate that condition
-ALU flags are used:
-
-- If ALU output is zero → `zr = 1`
-- If ALU output is negative (two’s complement) → `ng = 1`
-
-::: details Jump Field
-
-| jump   | j1  | j2  | j3  | effect             |
-| ------ | --- | --- | --- | ------------------ |
-| `null` | 0   | 0   | 0   | No jump            |
-| `JGT`  | 0   | 0   | 1   | If out > 0, jump   |
-| `JEQ`  | 0   | 1   | 0   | If out = 0, jump   |
-| `JGE`  | 0   | 1   | 1   | If out ≥ 0, jump   |
-| `JLT`  | 1   | 0   | 0   | If out < 0, jump   |
-| `JNE`  | 1   | 0   | 1   | If out ≠ 0, jump   |
-| `JLE`  | 1   | 1   | 0   | If out ≤ 0, jump   |
-| `JMP`  | 1   | 1   | 1   | Unconditional jump |
-
-:::
+### Single Cycle Deterministic

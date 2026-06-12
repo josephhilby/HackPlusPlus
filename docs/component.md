@@ -1,5 +1,8 @@
 # Components
 
+Moving down from subsystems and modules that follow an architectural specifications, we now arrive in components. These
+implement specific deterministic behavior rather then...
+
 ## Register
 
 > **Also known as:** _word register_, _general-purpose register_
@@ -65,25 +68,16 @@ ELSE:
 A **Register Bank** is a series of `n` registers, assembled as a memory hierarchy. It applies a single `load` enable
 across all `n` registers, then routes the new `in` state to a single register, according to the provided address (`addr`).
 
-::: tip Register Bank Logic
-
-```text
-IF load(t) == 1:
-    Register[ADDR](t+1) = in(t)
-ELSE:
-    Bank(t+1) = Bank(t)
-```
-
-<RegisterBankDemo />
-
-:::
-
-### Memory Hierarchy
-
 In order to achieve a bank of size `n`, increasingly larger banks are built by integrating eight instances from the
 previous level. To select one of those eight components, we will need three dedicated bits (2^3=8). As this hierarchy
 scales, there becomes a need to simultaneously select a target component and pass the remaining addressing information
 into that component.
+
+<details closed>
+  <summary style="cursor: pointer;">
+    <b>Memory Hierarchy (8-4K)</b>
+  </summary>
+  <div style="padding-left: 24px;">
 
 ::: tip Hi-Lo Address Split
 
@@ -219,6 +213,9 @@ CHIP RAM4K {
 
 :::
 
+  </div>
+</details>
+
 ::: details RAM16K
 
 ```hdl
@@ -248,23 +245,18 @@ CHIP RAM16K {
 
 :::
 
-### RAM Memory Map
+::: tip Register Bank (RAM8) Logic
 
-The inside the `Memory()` module, the RAM16 component `16K` words of 16-bits at address `0x0000–0x3FFF`, mapped as follows:
+```text
+IF load(t) == 1:
+    Register[ADDR](t+1) = in(t)
+ELSE:
+    Bank(t+1) = Bank(t)
+```
 
-| Address Range (word) | ASM Name            | Usage                                                       |
-| -------------------- | ------------------- | ----------------------------------------------------------- |
-| `RAM[0]`             | `R0`/`SP`           | Current top of the stack                                    |
-| `RAM[1]`             | `R1`/`LCL`          | Base of the current function's local segment                |
-| `RAM[2]`             | `R2`/`ARG`          | Base of the current function's argument segment             |
-| `RAM[3]`             | `R3`/`THIS`         | Base of the current function's `this` segment (heap object) |
-| `RAM[4]`             | `R4`/`THAT`         | Base of the current function's `that` segment (heap array)  |
-| `RAM[5..12]`         | `R5..12`/`TEMP`     | Virtual Registers for current function's temporary storage  |
-| `RAM[13..15]`        | `R13..R15`          | General-purpose registers (`TMP`,`FRAME`,`RET` in Hack ++)  |
-| `RAM[16..255]`       | -                   | Static variables (indexed by class)                         |
-| `RAM[256..2044]`     | `S_ST`, `S_END`     | Stack (Grows downward, originally `256 -> 2047`)            |
-| `RAM[2045..16380]`   | `H_END`, `H_ST`     | Heap (Allocates upward, originally `16380 -> 2048`)         |
-| `RAM[16381..16383]`  | `SID`, `SA1`, `SA2` | Mailboxes for System Calls                                  |
+<RegisterBankDemo />
+
+:::
 
 ## Program Counter
 
@@ -402,3 +394,98 @@ CHIP ALU {
 
 **Two’s complement arithmetic**
 All arithmetic is performed on 16-bit two’s complement values.
+
+::: tip COMP (a, c1, c2, c3, c4, c5, c6)
+
+The `comp` field controls the ALU's computation.
+
+The `a` bit selects the ALU's `y` input source:
+
+- `a = 0` → `y = A-Register`
+- `a = 1` → `y = RAM[A-Register]`
+
+The `c1–c6` bits set flags that control the ALU’s internal pipeline:
+
+- `c1`/`zx` → zero `x` input.
+- `c2`/`nx` → negate `x` input.
+- `c3`/`zy` → zero `y` input.
+- `c4`/`ny` → negate `y` input.
+- `c5`/`f` → select `add(x,y)` or `and(x,y)` function.
+- `c6`/`no` → negate `result`.
+
+::: details Comp Field
+
+| comp   | a   | c1  | c2  | c3  | c4  | c5  | c6  | effect                      |
+| ------ | --- | --- | --- | --- | --- | --- | --- | --------------------------- |
+| `0`    | 0   | 1   | 0   | 1   | 0   | 1   | 0   | Constant 0                  |
+| `1`    | 0   | 1   | 1   | 1   | 1   | 1   | 1   | Constant 1                  |
+| `-1`   | 0   | 1   | 1   | 1   | 0   | 1   | 0   | Constant -1                 |
+| `D`    | 0   | 0   | 0   | 1   | 1   | 0   | 0   | D register                  |
+| `A`    | 0   | 1   | 1   | 0   | 0   | 0   | 0   | A register                  |
+| `M`    | 1   | 1   | 1   | 0   | 0   | 0   | 0   | RAM[A] value                |
+| `!D`   | 0   | 0   | 0   | 1   | 1   | 0   | 1   | Bitwise NOT of D            |
+| `!A`   | 0   | 1   | 1   | 0   | 0   | 0   | 1   | Bitwise NOT of A            |
+| `!M`   | 1   | 1   | 1   | 0   | 0   | 0   | 1   | Bitwise NOT of RAM[A]       |
+| `-D`   | 0   | 0   | 0   | 1   | 1   | 1   | 1   | Negation of D               |
+| `-A`   | 0   | 1   | 1   | 0   | 0   | 1   | 1   | Negation of A               |
+| `-M`   | 1   | 1   | 1   | 0   | 0   | 1   | 1   | Negation of RAM[A]          |
+| `D+1`  | 0   | 0   | 1   | 1   | 1   | 1   | 1   | D plus 1                    |
+| `A+1`  | 0   | 1   | 1   | 0   | 1   | 1   | 1   | A plus 1                    |
+| `M+1`  | 1   | 1   | 1   | 0   | 1   | 1   | 1   | RAM[A] plus 1               |
+| `D-1`  | 0   | 0   | 0   | 1   | 1   | 1   | 0   | D minus 1                   |
+| `A-1`  | 0   | 1   | 1   | 0   | 0   | 1   | 0   | A minus 1                   |
+| `M-1`  | 1   | 1   | 1   | 0   | 0   | 1   | 0   | RAM[A] minus 1              |
+| `D+A`  | 0   | 0   | 0   | 0   | 0   | 1   | 0   | D plus A                    |
+| `D+M`  | 1   | 0   | 0   | 0   | 0   | 1   | 0   | D plus RAM[A]               |
+| `D-A`  | 0   | 0   | 1   | 0   | 0   | 1   | 1   | D minus A                   |
+| `D-M`  | 1   | 0   | 1   | 0   | 0   | 1   | 1   | D minus RAM[A]              |
+| `A-D`  | 0   | 0   | 0   | 0   | 1   | 1   | 1   | A minus D                   |
+| `M-D`  | 1   | 0   | 0   | 0   | 1   | 1   | 1   | RAM[A] minus D              |
+| `D&A`  | 0   | 0   | 0   | 0   | 0   | 0   | 0   | Bitwise AND of D and A      |
+| `D&M`  | 1   | 0   | 0   | 0   | 0   | 0   | 0   | Bitwise AND of D and RAM[A] |
+| `D\|A` | 0   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and A       |
+| `D\|M` | 1   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and RAM[A]  |
+
+:::
+
+::: tip DEST (d1, d2, d3)
+
+The `dest` field controls which storage element(s) (`A`,`M`,`D`) receive the ALU result.
+
+::: details Dest Field
+
+| dest   | d1  | d2  | d3  | effect                             |
+| ------ | --- | --- | --- | ---------------------------------- |
+| `null` | 0   | 0   | 0   | Value is not stored                |
+| `M`    | 0   | 0   | 1   | RAM[A]                             |
+| `D`    | 0   | 1   | 0   | D register                         |
+| `MD`   | 0   | 1   | 1   | RAM[A] and D register              |
+| `A`    | 1   | 0   | 0   | A register                         |
+| `AM`   | 1   | 0   | 1   | A register and RAM[A]              |
+| `AD`   | 1   | 1   | 0   | A register and D register          |
+| `AMD`  | 1   | 1   | 1   | A register, RAM[A], and D register |
+
+:::
+
+::: tip JUMP (j1, j2, j3)
+
+The `jump` field sets a condition that must be met for a jump to occur. To validate that condition
+ALU flags are used:
+
+- If ALU output is zero → `zr = 1`
+- If ALU output is negative (two’s complement) → `ng = 1`
+
+::: details Jump Field
+
+| jump   | j1  | j2  | j3  | effect             |
+| ------ | --- | --- | --- | ------------------ |
+| `null` | 0   | 0   | 0   | No jump            |
+| `JGT`  | 0   | 0   | 1   | If out > 0, jump   |
+| `JEQ`  | 0   | 1   | 0   | If out = 0, jump   |
+| `JGE`  | 0   | 1   | 1   | If out ≥ 0, jump   |
+| `JLT`  | 1   | 0   | 0   | If out < 0, jump   |
+| `JNE`  | 1   | 0   | 1   | If out ≠ 0, jump   |
+| `JLE`  | 1   | 1   | 0   | If out ≤ 0, jump   |
+| `JMP`  | 1   | 1   | 1   | Unconditional jump |
+
+:::

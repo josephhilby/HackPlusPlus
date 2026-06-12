@@ -69,3 +69,26 @@ export const HARDWARE_GRAPH_DATA = {
     },
   ],
 };
+
+export const SOFTWARE_GRAPH_DATA = {
+  root: {
+    type: "subsystem",
+    name: "Software",
+    details: [
+      { prefix: "", value: "User-Kernel Split" },
+      { prefix: "Domains:", value: ["User App", "OS"] },
+    ],
+  },
+  children: [
+    {
+      type: "domain",
+      name: "User App",
+      details: [{ prefix: "", value: "Application Programs" }],
+    },
+    {
+      type: "domain",
+      name: "OS",
+      details: [{ prefix: "", value: "Operating System" }],
+    },
+  ],
+};

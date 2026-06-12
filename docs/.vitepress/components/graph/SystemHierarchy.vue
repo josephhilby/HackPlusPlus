@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import "./graph.css";
 import { computed } from "vue";
-import { DEFAULT_GRAPH_DATA, HARDWARE_GRAPH_DATA } from "./data";
+import {
+  DEFAULT_GRAPH_DATA,
+  HARDWARE_GRAPH_DATA,
+  SOFTWARE_GRAPH_DATA,
+} from "./data";
 
 const props = defineProps({
   dataType: {
@@ -13,6 +17,7 @@ const props = defineProps({
 const DATA_MAP: Record<string, any> = {
   default: DEFAULT_GRAPH_DATA,
   hardware: HARDWARE_GRAPH_DATA,
+  software: SOFTWARE_GRAPH_DATA,
 };
 
 const graphData = computed(
