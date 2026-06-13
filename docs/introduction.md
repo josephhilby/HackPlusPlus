@@ -1,53 +1,52 @@
 # Hack++ Reference
 
 Before exploring the granular details of Hack++, we will first decompose the system into its primary hardware and software subsystems.
-By establishing these two domains early, we can select the best high-level architectural specifications for this project—16-bit ISA, the
+By establishing these two domains early, we can select the best high-level architectural specifications for this project — 16-bit ISA, the
 Harvard-based physical separation, and the privileged User-Kernel model.
 
 <SystemHierarchy dataType="default" />
 
 ## Hack++ System
 
-At the absolute foundation of the Hack++ architecture is a **16-bit word and fixed instruction size**. This single choice dictates the width of our datapaths,
+At the absolute foundation of the Hack++ architecture is a **16-bit word and fixed instruction size**. This 16-bit size will dictate the width of all datapaths
 storage structures, and software instructions.
 
-::: tip 16-Bit Model
+### Instruction Set Architecture
 
-- **Data Size:** Every internal CPU register, and memory location in RAM or ROM, stores exactly one 16-bit value, between `0` to `65,535`, or `64Kib`.
-- **Instruction Size:** To account for the systems two instruction types, the first bit of each instruction is reserved as
-  a flag that signifies its type (a.k.a., its opcode). This further reduces the values to `0` to `32,767`, and gives a total addressable space of `32K`.
+Within this constraint, we can start to define our **Instruction Set Architecture (ISA)** — the essential bridge between hardware and software.
+
+::: warning The ISA
+
+- On the `software` side, the ISA provides a set of binary codes that can be invoked to command machine behavior.
+- On the `hardware` side, the ISA acts as the architectural specification that hard-wires those commands into physical logic.
 
 :::
 
-### Interface
+The ISA will be composed of two fundamental instruction types: the `a_instruction` (Address/Constant selection) and the `c_instruction`
+(Compute or Control). To choose between these two, the first bit in an instruction will be used to denote what type is being selected
+(a.k.a., opcode).
 
-Within this constraint, we define our Instruction Set Architecture (ISA) as the essential bridge between hardware and software. On the software
-side, the ISA provides a set of binary codes that command machine behavior; on the hardware side, it acts as the architectural specification that
-hard-wires those commands into physical logic.
-
-Our ISA will be composed of two fundamental execution patterns: the `a_instruction` (Address/Constant selection) and the `c_instruction`
-(Compute or Control)."
+_This limits all consents and addresses to `32K`._
 
 ::: tip A-Instruction (Address or Constant)
 
-An opcode of `0` will denote an `a_instruction`, with the remaining 15 bits encoding an integer between `0` and `32,767`.
-This integer could be used as an address in RAM or ROM, or constant value to be loaded and computed.
+An opcode of `0` will denote an `a_instruction`, with the remaining 15-bits encoding an integer between `0` and `32,767`.
+This integer could be used as an address in the `Memory()` / `Instruction()` module, or constant value to be loaded and computed.
 
 ```
-0b 0 vvv vvvv vvvv vvvv
-   ^      integer
+ opcode integer
 ```
 
 :::
 
 ::: tip C-Instruction (Compute or Control)
 
-An opcode of `1` will denote a `c_instruction`, the following two `ones` are unused, and the remaining groups (a, comp, dest, and jump) will control
-the desired ALU computation, RAM destination, or ROM jump criteria. _This will be expanded on in the next section_.
+An opcode of `1` will denote a `c_instruction`, the next two groups (a & compute) will set the desired `CPU()` computation. Following that a
+destination group will control the location in `Memory()` where the output is placed and, finally, the jump group will control the
+`Instruction()` jump criteria.
 
 ```
-0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
-   ^           comp           dest     jump
+ opcode compute destination jump
 ```
 
 :::

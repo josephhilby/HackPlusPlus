@@ -1,37 +1,25 @@
 # Modules
 
-Continuing this top down deconstruction, we arrive at the hardware subsystems modules. As before these will be subdivided into
+Continuing this top-down deconstruction, we arrive at the hardware subsystems modules. As before, these will be subdivided into
 smaller entities (components) and an overall architectural specification will be selected to help solidify separation of concerns
 and module interface.
 
 <SystemHierarchy dataType="hardware" />
-
-## Hardware Subsystem
-
-As discussed in the last section the Hack++ hardware follows the Harvard model. From this model we derive our three modules:
-`Memory()`, `Instruction()`, and `CPU()`.
-
-### Interface
-
-#### The A-Instruction
-
-```
-0b 0 vvv vvvv vvvv vvvv
-   ^      address
-```
-
-#### The C-Instruction
-
-```
-0b 1 11 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
-   ^           comp           dest     jump
-```
 
 ## Memory Module
 
 From the computers perspective, the CPU observes a **single, flat, 15-bit address space**. The physical routing is
 handled within the `Memory()` subsystem by the highest 2-bits `address[13..14]` allowing the module to access and
 address `4x 8K` sections.
+
+::: tip `Memory()`
+
+```
+ 0       vv          v vvvv vvvv vvvv
+ opcode  sections    address
+```
+
+:::
 
 ::: details Hardware Description
 
@@ -75,15 +63,24 @@ CHIP Memory {
 Of these addressable sections two are combined into a single `16K` section for RAM, one is used for
 the screen MMIO, and the last is a single address for the keyboard MMIO.
 
-| Address Range (Hex) | address[13..14] | Size   | Region   | Function                    |
-| ------------------- | --------------: | ------ | -------- | --------------------------- |
-| `0x0000–0x1FFF`     |          `0b00` | 16K    | RAM16    | General-purpose data memory |
-| `0x2000–0x3FFF`     |          `0b01` | 16K    | RAM16    | General-purpose data memory |
-| `0x4000–0x5FFF`     |          `0b10` | 8K     | Screen   | Display framebuffer         |
-| `0x6000`            |          `0b11` | 1 word | Keyboard | Input register              |
-| `> 0x6000`          |          `0b11` | —      | Invalid  | Ignored (reads return `0`)  |
+| Address Range (Hex) |       address bits | Component | Region   | Function                    |
+| ------------------- | -----------------: | --------- | -------- | --------------------------- |
+| `0x0000–0x3FFF`     | { `0b00`, `0b01` } | RAM16K    | RAM      | General-purpose data memory |
+| `0x4000–0x5FFF`     |             `0b10` | RAM8K     | Screen   | Screen framebuffer          |
+| `0x6000`            |             `0b11` | Register  | Keyboard | Key press input register    |
+
+_Note: Anything over `0x6000` is ignored and returns a `0`._
 
 ## Instruction Module
+
+::: tip `Instruction()`
+
+```
+ 0        vvv vvvv vvvv vvvv
+ opcode   address
+```
+
+:::
 
 ::: details Hardware Description
 
@@ -111,6 +108,22 @@ CHIP Instruction {
 ## CPU Module
 
 Single-Cycle Deterministic Controller
+
+::: tip `CPU()`
+
+```
+ 0        vvv vvvv vvvv vvvv
+ opcode   integer
+```
+
+---
+
+```
+ 1       11        acccccc   ddd    jjj
+ opcode  unused    comp      dest   jump
+```
+
+:::
 
 ::: details Hardware Description
 

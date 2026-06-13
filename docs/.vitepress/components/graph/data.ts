@@ -13,7 +13,7 @@ export const DEFAULT_GRAPH_DATA = {
       name: "Hardware",
       details: [
         { prefix: "", value: "Harvard Model" },
-        { prefix: "Modules:", value: ["CPU", "Mem", "Inst"] },
+        { prefix: "Modules:", value: ["Mem", "Inst", "CPU"] },
       ],
     },
     {
@@ -48,7 +48,7 @@ export const HARDWARE_GRAPH_DATA = {
           prefix: "",
           value: "Memory Mapping",
         },
-        { prefix: "Components:", value: ["RAM", "MMIO"] },
+        { prefix: "Components:", value: ["RAM16K", "RAM8K", "Reg."] },
       ],
     },
     {
@@ -56,7 +56,7 @@ export const HARDWARE_GRAPH_DATA = {
       name: "Instruction",
       details: [
         { prefix: "", value: "Privilege Levels" },
-        { prefix: "Components:", value: ["ROM0", "ROM1"] },
+        { prefix: "Components:", value: ["ROM32K", "ROM16K"] },
       ],
     },
     {
@@ -64,7 +64,7 @@ export const HARDWARE_GRAPH_DATA = {
       name: "CPU",
       details: [
         { prefix: "", value: "Single-Cycle Deterministic" },
-        { prefix: "Components:", value: ["PC", "ALU", "Registers"] },
+        { prefix: "Components:", value: ["PC", "ALU", "Register"] },
       ],
     },
   ],

@@ -7,13 +7,31 @@ then control is back to software. this will require a bootstrap that first check
 
 ```
 (KERNEL_ENTRY)
-    @R13     //
+    // If R13 is 0, trap.
+    // Else, cold boot.
+    @R13
     D=M
-    @SESSION_IS_ACTIVE
-    D;JEQ    // If R13 == 0, the session is active! Skip cold boot.
+    @KERNEL_TRAP
+    D;JEQ
+
+    // Cold Boot
+    @256
+    D=A
+    @SP
+    M=D
+    @LCL
+    M=0
+    @ARG
+    M=0
+    // Call Sys.init
+
+(KERNEL_TRAP)
+    // Call Sys.trap
 ```
 
-Need to write an OS syscall router so that every user program will have a `libj` (library jack) that will contain the system call IDs (one-to-one map to os functions). these can be loaded at the bottom of the heap. labels `SID` (SID != 0), `SA1`, `SA2` to pass id, and two args to the kernel.
+Need to write an OS syscall router (Sys.trap) so that every user program will have a `libj` (library jack) that will contain
+the system call IDs (one-to-one map to os functions). these can be loaded at the bottom of the heap. labels `SID`
+(SID != 0), `SA1`, `SA2` to pass id, and two args to the kernel.
 
 need to wrap every libj syscall with a magic number in R13 (0x0000)
 
@@ -35,11 +53,11 @@ Use small and large page sizes to divide up the 14,336 heap into 112 uniform 128
 #### Page Descriptor Tables
 
 - Small: Index 0..63 for small pages
-  - S_HD for curr head index (first free page)
-  - S_PDT for zero index addr (first indexed page)
+  - S_HD for zero index addr (first indexed page)
+  - S_CURR for curr head index (first free page)
 - Large: Index 0..103 for large pages
-  - L_HD for curr head index
-  - L_PDT for zero index addr
+  - L_HD for zero index addr
+  - L_CURR for curr head index
 
 ```text
 Bit:   15         9  8   7   6   5        0
@@ -54,14 +72,15 @@ Bit:   15         9  8   7   6   5        0
 - T (End List?): 0 = false, 1 = true
 
 Mapping
-size = 4 if S_PDT, 7 if L_PDT
 
-ptr = x_PDT + (table_index << size)
-table_index = (ptr - x_PDT) >> size
+- size = 4 if S_HD, 7 if L_HD
+- `ptr = x_HD + (table_index << size)`
+- `table_index = (ptr - x_HD) >> size`
 
 #### Screen Map
 
-The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF`, each bit represents a screen pixel.
+The Hack platform screen exposes 8K words of 16-bits at address `0x4000–0x5FFF`,
+each bit represents a screen pixel.
 
 - 131,072 pixels
 - 256 rows (16 words / column)

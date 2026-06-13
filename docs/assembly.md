@@ -58,8 +58,15 @@ constant      ::= integer
 #### Predefined Symbols
 
 ```
-R1..R15, SP, LCL, ARG, THIS, THAT, TEMP, SCREEN, KBD, S_ST, S_END, H_ST, H_END, SID, SA1, SA2
+RAM Segments: R1..R15, TEMP, STACK, HEAP, SCREEN, KBD, MAIL
+Stack Segments: SP, LCL, ARG, THIS, THAT
+HEAP Segments: S_HD, S_CURR, L_HD, L_CURR
 ```
+
+- `@constant`
+- `@LABEL`
+- `(LABEL)`
+- `dest = comp; jump`
 
 ### PC Program from earlier in HACK
 

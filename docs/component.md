@@ -395,7 +395,12 @@ CHIP ALU {
 **Two’s complement arithmetic**
 All arithmetic is performed on 16-bit two’s complement values.
 
-::: tip COMP (a, c1, c2, c3, c4, c5, c6)
+```
+0b 1 11 a c1 c2 c3 c4 c5 c6  d1 d2 d3  j1 j2 j3
+   ^           comp            dest      jump
+```
+
+::: tip COMP
 
 The `comp` field controls the ALU's computation.
 
@@ -448,7 +453,7 @@ The `c1–c6` bits set flags that control the ALU’s internal pipeline:
 
 :::
 
-::: tip DEST (d1, d2, d3)
+::: tip DEST
 
 The `dest` field controls which storage element(s) (`A`,`M`,`D`) receive the ALU result.
 
@@ -467,7 +472,7 @@ The `dest` field controls which storage element(s) (`A`,`M`,`D`) receive the ALU
 
 :::
 
-::: tip JUMP (j1, j2, j3)
+::: tip JUMP
 
 The `jump` field sets a condition that must be met for a jump to occur. To validate that condition
 ALU flags are used:
