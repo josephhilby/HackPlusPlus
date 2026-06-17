@@ -44,7 +44,7 @@ export default withMermaid(
     },
 
     themeConfig: {
-      outline: { level: [2, 3] },
+      outline: { level: [2, 4] },
       nav: [
         { text: "Docs", link: "/" },
         { text: "GitHub", link: "https://github.com/josephhilby/HackPlusPlus" },

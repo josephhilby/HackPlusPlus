@@ -133,7 +133,7 @@ void generate_bootstrap(FILE *out) {
   snprintf(filename, sizeof(filename), "%s", "Bootstrap");
   current_function[0] = '\0';
 
-  // reset SP
+  // reset SP (also reset LCL, ARG, to 256 and THIS, THAT to 0 for good measure)
   fprintf(out,
           "@256\n"
           "D=A\n"

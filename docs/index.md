@@ -17,10 +17,10 @@ hero:
 
 ## About the Project
 
-Hack++ is an extended computer platform that explores how to build a complete programmable machine from
-a single primitive digital logic gate (NAND). Beginning with the construction of basic logic gates, the project
-incrementally builds the memory system, CPU, and supporting software toolchain needed to execute programs. It serves as
-a systems-level demonstration of the relationship between boolean logic, hardware architecture, and software execution.
+Hack++ seeks to be an iterative improvement of the original Nand2Tetris Hack computer model. These docs explore this improved
+system by deconstructing it, from its high-level abstractions down to its underlying digital logic.
+
+The system itself is implemented as an emulated computer that run in the users browser.
 
 ::: warning Note:
 This project is currently incomplete. It has been published in an attempt at learning in public. It

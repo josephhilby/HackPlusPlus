@@ -67,7 +67,7 @@ complete, every other gate in this system can be expressed as a composition of N
 The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal
 inversion, and two’s-complement arithmetic throughout the datapath and control logic.
 
-::: details Hardware Description
+::: details Not Description
 
 ```hdl
 CHIP Not {
@@ -96,7 +96,7 @@ CHIP Not {
 The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely
 used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
-::: details Hardware Description
+::: details And Description
 
 ```hdl
 CHIP And {
@@ -128,9 +128,9 @@ The **OR gate** aggregates multiple signal sources into a single logical result.
 It is commonly used for: flag reduction (`zr`, jump conditions), multi-source control logic, and datapath signal
 merging.
 
-_Note: Derived using De Morgan’s Law._
+- _Note: Derived using De Morgan’s Law._
 
-::: details Hardware Description
+::: details Or Description
 
 ```hdl
 CHIP Or {
@@ -163,7 +163,7 @@ The **XOR gate** produces a high output when its inputs differ.
 It is the fundamental building block of **binary addition**, forming the sum path in half-adders, full-adders,
 and the ALU’s arithmetic pipeline.
 
-::: details Hardware Description
+::: details Xor Description
 
 ```hdl
 CHIP Xor {
@@ -213,7 +213,7 @@ The **Not16 gate** performs a parallel bitwise inversion across a 16-bit input b
 It is used in: ALU output negation (`no` control bit), two’s complement formation (via downstream adders),
 general-purpose bus inversion and masking
 
-::: details Hardware Description
+::: details Not16 Description
 
 ```hdl
 CHIP Not16 {
@@ -260,7 +260,7 @@ The **And16 gate** computes a parallel logical AND across two 16-bit input buses
 It is used for: masking intermediate ALU results, qualifying memory addresses, and conditional propagation of data
 paths.
 
-::: details Hardware Description
+::: details And16 Description
 
 ```hdl
 CHIP And16 {
@@ -304,7 +304,7 @@ The **Or16 gate** computes a parallel logical OR across two 16-bit input buses.
 
 It is used for: merging ALU intermediate results, combining bus sources, and forming reduction trees for flag logic.
 
-::: details Hardware Description
+::: details Or16 Description
 
 ```hdl
 CHIP Or16 {
@@ -362,7 +362,7 @@ split into two and made as efficient as possible to allow for faster processing.
 Due to the simplicity of these circuits only the `Or3Way gate` demo will be provided.
 :::
 
-::: details Hardware Description
+::: details Or3Way Description
 
 ```hdl
 CHIP Or3Way {
@@ -377,7 +377,7 @@ CHIP Or3Way {
 
 :::
 
-::: details Hardware Description
+::: details Or16Way Description
 
 ```hdl
 CHIP Or16Way {

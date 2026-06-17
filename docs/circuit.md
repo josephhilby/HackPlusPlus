@@ -45,7 +45,7 @@ The **Multiplexer (MUX)** selects exactly one of two inputs based on a single co
 
 It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
 
-::: details Hardware Description
+::: details Mux Description
 
 ```hdl
 CHIP Mux {
@@ -78,7 +78,7 @@ It is heavily used in:
 - Instruction decoding
 - PC source selection
 
-::: details Hardware Description
+::: details Mux16 Description
 
 ```hdl
 CHIP Mux16 {
@@ -122,7 +122,7 @@ It is typically used in:
 - Multi-source bus arbitration
 - ROM and memory bank selection
 
-::: details Hardware Description
+::: details Mux4Way16 Description
 
 ```hdl
 CHIP Mux4Way16 {
@@ -150,7 +150,7 @@ The **Mux8Way16 gate** selects one of eight 16-bit inputs using a 3-bit control 
 
 It forms the basis of hierarchical bus selection and large fan-in datapaths.
 
-::: details Hardware Description
+::: details Mux8Way16 Description
 
 ```hdl
 CHIP Mux8Way16 {
@@ -182,7 +182,7 @@ The **Demultiplexer (DMUX)** routes a single input to exactly one of two outputs
 
 It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
 
-::: details Hardware Description
+::: details DMux Description
 
 ```hdl
 CHIP DMux {
@@ -213,7 +213,7 @@ It is used in:
 - Register file write selection
 - Memory region decoding
 
-::: details Hardware Description
+::: details DMux4Way Description
 
 ```hdl
 CHIP DMux4Way {
@@ -241,7 +241,7 @@ The **DMux8Way gate** routes a single control or data signal to one of eight out
 
 It forms the basis of hierarchical write decoding for large memory blocks and register banks.
 
-::: details Hardware Description
+::: details DMux8Way Description
 
 ```hdl
 CHIP DMux8Way {
@@ -278,7 +278,7 @@ The address this circuit flags is:
 
 - `0b0111 1111 1111 1111` or `@32767`
 
-::: details Hardware Description
+::: details SysCall15 Description
 
 ```hdl
 CHIP SysCall15 {
@@ -358,7 +358,7 @@ The **HalfAdder** computes the sum of two one-bit inputs, producing:
 
 It is the base primitive of multi-bit addition.
 
-::: details Hardware Description
+::: details HalfAdder Description
 
 ```hdl
 CHIP HalfAdder {
@@ -391,7 +391,7 @@ The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 
-::: details Hardware Description
+::: details FullAdder Description
 
 ```hdl
 CHIP FullAdder {
@@ -423,7 +423,7 @@ The **Add16** unit adds two 16-bit two’s complement values.
 Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored,
 matching the Hack arithmetic model (mod 2^16).
 
-::: details Hardware Description
+::: details Add16 Description
 
 ```hdl
 CHIP Add16 {
@@ -471,7 +471,7 @@ The **Inc16** unit increments a 16-bit input by 1.
 It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential
 address generation (e.g., `PC+1`).
 
-::: details Hardware Description
+::: details Inc16 Description
 
 ```hdl
 CHIP Inc16 {
@@ -491,7 +491,7 @@ OUT out[16];
 
 ### Instruction Circuits
 
-::: details Hardware Description
+::: details ROM16K and ROM32K Description
 
 ```hdl
 CHIP ROM16K {
@@ -593,7 +593,7 @@ It is implemented by feeding the DFF’s previous output back and a new input th
 - when `load=0`, the cell recirculates its output and holds its value
 - when `load=1`, the cell captures the new input and updates its value
 
-::: details Hardware Description
+::: details Bit Description
 
 ```hdl
 CHIP Bit {

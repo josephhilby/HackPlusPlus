@@ -16,7 +16,7 @@ will be translated from `16-bit` (bin) into `4-nybble` (hex)-called this because
 
 :::
 
-::: details Hardware Description
+::: details Register Description
 
 ```hdl
 CHIP Register {
@@ -97,7 +97,7 @@ To distinguish between these roles, we will group the address bits into two cate
 |    `RAM4K` |  4096 |           12 | 8× `RAM512`   | `hi=address[9..11]`, `lo=address[0..8]`   |
 |   `RAM16K` | 16384 |           14 | 8× `RAM4K`    | `hi=address[11..13]`, `lo=address[0..11]` |
 
-::: details RAM8
+::: details RAM8 Description
 
 ```hdl
 CHIP RAM8 {
@@ -126,7 +126,7 @@ CHIP RAM8 {
 
 :::
 
-::: details RAM64
+::: details RAM64 Description
 
 ```hdl
 CHIP RAM64 {
@@ -155,7 +155,7 @@ CHIP RAM64 {
 
 :::
 
-::: details RAM512
+::: details RAM512 Description
 
 ```hdl
 CHIP RAM512 {
@@ -184,7 +184,7 @@ CHIP RAM512 {
 
 :::
 
-::: details RAM4K
+::: details RAM4K Description
 
 ```hdl
 CHIP RAM4K {
@@ -216,7 +216,7 @@ CHIP RAM4K {
   </div>
 </details>
 
-::: details RAM16K
+::: details RAM16K Description
 
 ```hdl
 CHIP RAM16K {
@@ -267,21 +267,7 @@ sequences to the next executable instruction. The execution of this sequencing i
 load, and increment — with a defined priority order. This priority ordering guarantees deterministic behavior when multiple
 control signals are asserted in the same cycle.
 
-::: warning Execution Context
-To demonstrate the **Program Counter** and its hardware-isolated vector logic, this simulation mimics a secure system boot followed
-by a rolling user-to-kernel service loop.
-
-::: details The Sequence:
-
-- **Cold Boot (Manual Reset):** Clicking the **Reset** button asserts the `reset` flag with absolute priority. The hardware forces the system to boot securely into Kernel Mode (`kern = 1`) and vectors the program counter to address `0x0000` in the Kernel Bank.
-- **Kernel Initialization (ROM 1):** The Kernel evaluates whether this is a cold start or a user initiated trap. On a cold boot, it executes an initialization routine, clears its boot flag (`CLR BOOT`) in register `D`, and triggers `MGK` to securely drop the execution state down into User Space at address `0x0000`.
-- **User Space Execution (ROM 0):** The CPU sets up an initial data state (`MOVE A, 1`) and hits the magic instruction (`MGK`). The hardware instantly intercepts this as a deliberate system call trap, saves the next sequential user address (`0x0002`) into the Link Register (`LR`), sets `kern = 1`, and vectors the PC right back to `0x0000` inside the Kernel.
-- **Kernel Trap Handler (ROM 1):** The Kernel wakes up at `0x0000` again. Because the boot flag already clear, the conditional branch fails, letting the CPU step linearly into the trap routine (`ADD A, 1`) to handle the user's request. It hits `MGK` at the end of the handler to drop back to User Space at the exact address stored in `LR`.
-- **The Infinite Loop:** User space resumes progress exactly where it left off, executes a standard jump (`JMP 1`) to reset its local block, and strikes the `MGK` trap again—creating a continuous, rolling cycle of protected domain transitions.
-
-:::
-
-::: details Hardware Description
+::: details PC Description
 
 ```hdl
 CHIP PC {
@@ -290,7 +276,7 @@ CHIP PC {
 
     PARTS:
     // STATE (t)
-    // Context Flag (1=kernel, 0=user)
+    // Kernel Flag (1=kernel, 0=user)
     Bit(in=update, load=loadUpdate, out=kernel);
 
     // Link Register (Returns to user instruction++)
@@ -351,9 +337,23 @@ ELSE
 
 :::
 
-## Arithmetic and Logic Unit
+::: warning Demo Context
+To demonstrate the **Program Counter** and its hardware-isolated vector logic, this simulation mimics a secure system boot followed
+by a rolling user-to-kernel service loop.
 
-::: details Hardware Description
+::: details The Program Sequence:
+
+- **Cold Boot (Manual Reset):** Clicking the **Reset** button asserts the `reset` flag with absolute priority. The hardware forces the system to boot securely into Kernel Mode (`kern = 1`) and vectors the program counter to address `0x0000` in the Kernel Bank.
+- **Kernel Initialization (ROM 1):** The Kernel evaluates whether this is a cold start or a user initiated trap. On a cold boot, it executes an initialization routine, clears its boot flag (`CLR BOOT`) in register `D`, and triggers `MGK` to securely drop the execution state down into User Space at address `0x0000`.
+- **User Space Execution (ROM 0):** The CPU sets up an initial data state (`MOVE A, 1`) and hits the magic instruction (`MGK`). The hardware instantly intercepts this as a deliberate system call trap, saves the next sequential user address (`0x0002`) into the Link Register (`LR`), sets `kern = 1`, and vectors the PC right back to `0x0000` inside the Kernel.
+- **Kernel Trap Handler (ROM 1):** The Kernel wakes up at `0x0000` again. Because the boot flag already clear, the conditional branch fails, letting the CPU step linearly into the trap routine (`ADD A, 1`) to handle the user's request. It hits `MGK` at the end of the handler to drop back to User Space at the exact address stored in `LR`.
+- **The Infinite Loop:** User space resumes progress exactly where it left off, executes a standard jump (`JMP 1`) to reset its local block, and strikes the `MGK` trap again—creating a continuous, rolling cycle of protected domain transitions.
+
+:::
+
+## ALU
+
+::: details ALU Description
 
 ```hdl
 CHIP ALU {
@@ -389,108 +389,5 @@ CHIP ALU {
     Not(in=notZr, out=zr);
 }
 ```
-
-:::
-
-**Two’s complement arithmetic**
-All arithmetic is performed on 16-bit two’s complement values.
-
-```
-0b 1 11 a c1 c2 c3 c4 c5 c6  d1 d2 d3  j1 j2 j3
-   ^           comp            dest      jump
-```
-
-::: tip COMP
-
-The `comp` field controls the ALU's computation.
-
-The `a` bit selects the ALU's `y` input source:
-
-- `a = 0` → `y = A-Register`
-- `a = 1` → `y = RAM[A-Register]`
-
-The `c1–c6` bits set flags that control the ALU’s internal pipeline:
-
-- `c1`/`zx` → zero `x` input.
-- `c2`/`nx` → negate `x` input.
-- `c3`/`zy` → zero `y` input.
-- `c4`/`ny` → negate `y` input.
-- `c5`/`f` → select `add(x,y)` or `and(x,y)` function.
-- `c6`/`no` → negate `result`.
-
-::: details Comp Field
-
-| comp   | a   | c1  | c2  | c3  | c4  | c5  | c6  | effect                      |
-| ------ | --- | --- | --- | --- | --- | --- | --- | --------------------------- |
-| `0`    | 0   | 1   | 0   | 1   | 0   | 1   | 0   | Constant 0                  |
-| `1`    | 0   | 1   | 1   | 1   | 1   | 1   | 1   | Constant 1                  |
-| `-1`   | 0   | 1   | 1   | 1   | 0   | 1   | 0   | Constant -1                 |
-| `D`    | 0   | 0   | 0   | 1   | 1   | 0   | 0   | D register                  |
-| `A`    | 0   | 1   | 1   | 0   | 0   | 0   | 0   | A register                  |
-| `M`    | 1   | 1   | 1   | 0   | 0   | 0   | 0   | RAM[A] value                |
-| `!D`   | 0   | 0   | 0   | 1   | 1   | 0   | 1   | Bitwise NOT of D            |
-| `!A`   | 0   | 1   | 1   | 0   | 0   | 0   | 1   | Bitwise NOT of A            |
-| `!M`   | 1   | 1   | 1   | 0   | 0   | 0   | 1   | Bitwise NOT of RAM[A]       |
-| `-D`   | 0   | 0   | 0   | 1   | 1   | 1   | 1   | Negation of D               |
-| `-A`   | 0   | 1   | 1   | 0   | 0   | 1   | 1   | Negation of A               |
-| `-M`   | 1   | 1   | 1   | 0   | 0   | 1   | 1   | Negation of RAM[A]          |
-| `D+1`  | 0   | 0   | 1   | 1   | 1   | 1   | 1   | D plus 1                    |
-| `A+1`  | 0   | 1   | 1   | 0   | 1   | 1   | 1   | A plus 1                    |
-| `M+1`  | 1   | 1   | 1   | 0   | 1   | 1   | 1   | RAM[A] plus 1               |
-| `D-1`  | 0   | 0   | 0   | 1   | 1   | 1   | 0   | D minus 1                   |
-| `A-1`  | 0   | 1   | 1   | 0   | 0   | 1   | 0   | A minus 1                   |
-| `M-1`  | 1   | 1   | 1   | 0   | 0   | 1   | 0   | RAM[A] minus 1              |
-| `D+A`  | 0   | 0   | 0   | 0   | 0   | 1   | 0   | D plus A                    |
-| `D+M`  | 1   | 0   | 0   | 0   | 0   | 1   | 0   | D plus RAM[A]               |
-| `D-A`  | 0   | 0   | 1   | 0   | 0   | 1   | 1   | D minus A                   |
-| `D-M`  | 1   | 0   | 1   | 0   | 0   | 1   | 1   | D minus RAM[A]              |
-| `A-D`  | 0   | 0   | 0   | 0   | 1   | 1   | 1   | A minus D                   |
-| `M-D`  | 1   | 0   | 0   | 0   | 1   | 1   | 1   | RAM[A] minus D              |
-| `D&A`  | 0   | 0   | 0   | 0   | 0   | 0   | 0   | Bitwise AND of D and A      |
-| `D&M`  | 1   | 0   | 0   | 0   | 0   | 0   | 0   | Bitwise AND of D and RAM[A] |
-| `D\|A` | 0   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and A       |
-| `D\|M` | 1   | 0   | 1   | 0   | 1   | 0   | 1   | Bitwise OR of D and RAM[A]  |
-
-:::
-
-::: tip DEST
-
-The `dest` field controls which storage element(s) (`A`,`M`,`D`) receive the ALU result.
-
-::: details Dest Field
-
-| dest   | d1  | d2  | d3  | effect                             |
-| ------ | --- | --- | --- | ---------------------------------- |
-| `null` | 0   | 0   | 0   | Value is not stored                |
-| `M`    | 0   | 0   | 1   | RAM[A]                             |
-| `D`    | 0   | 1   | 0   | D register                         |
-| `MD`   | 0   | 1   | 1   | RAM[A] and D register              |
-| `A`    | 1   | 0   | 0   | A register                         |
-| `AM`   | 1   | 0   | 1   | A register and RAM[A]              |
-| `AD`   | 1   | 1   | 0   | A register and D register          |
-| `AMD`  | 1   | 1   | 1   | A register, RAM[A], and D register |
-
-:::
-
-::: tip JUMP
-
-The `jump` field sets a condition that must be met for a jump to occur. To validate that condition
-ALU flags are used:
-
-- If ALU output is zero → `zr = 1`
-- If ALU output is negative (two’s complement) → `ng = 1`
-
-::: details Jump Field
-
-| jump   | j1  | j2  | j3  | effect             |
-| ------ | --- | --- | --- | ------------------ |
-| `null` | 0   | 0   | 0   | No jump            |
-| `JGT`  | 0   | 0   | 1   | If out > 0, jump   |
-| `JEQ`  | 0   | 1   | 0   | If out = 0, jump   |
-| `JGE`  | 0   | 1   | 1   | If out ≥ 0, jump   |
-| `JLT`  | 1   | 0   | 0   | If out < 0, jump   |
-| `JNE`  | 1   | 0   | 1   | If out ≠ 0, jump   |
-| `JLE`  | 1   | 1   | 0   | If out ≤ 0, jump   |
-| `JMP`  | 1   | 1   | 1   | Unconditional jump |
 
 :::
