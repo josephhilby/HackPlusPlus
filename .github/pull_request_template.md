@@ -1,8 +1,6 @@
 Type of change
 
-- [ ] New feature
-- [ ] Bug Fix
-- [ ] Refactor
+- New feature / Bug Fix / Refactor
 
 Implements/Fixes:
 
