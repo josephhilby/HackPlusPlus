@@ -1,4 +1,4 @@
-# Combinational Circuits
+# Circuits
 
 This section documents the combinational circuits used by Hack++ for data routing and arithmetic operations. Unlike
 the previous sections primitive gates, which implement individual boolean operations, these components exist to perform
@@ -14,6 +14,7 @@ built strictly from their single-bit equivalents, preserving the abstraction lad
 - Routing Circuits:
   - `Mux → Mux16 → Mux4Way16 → Mux8Way16`
   - `DMux → DMux4Way → DMux8Way`
+  - `SysCall15`
 - Arithmetic Circuits:
   - `HalfAdder → FullAdder → Add16`
 
@@ -23,7 +24,9 @@ Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) a
 significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
 :::
 
-## Routing Circuits
+## Combinational Circuits
+
+### Routing Circuits
 
 These components do not compute new values; instead, they **select**, **fan in/out**, and **qualify**
 existing signals, forming the backbone of instruction decoding, register loading, memory writes, and control flow.
@@ -34,7 +37,7 @@ existing signals, forming the backbone of instruction decoding, register loading
 - **Fan-Out**: Demultiplexers (DMUX), one source → many destinations
   :::
 
-### MUX — Selector Circuit
+#### MUX — Selector Circuit
 
 > **Also known as:** _Selector_, _Data switch_
 
@@ -42,7 +45,7 @@ The **Multiplexer (MUX)** selects exactly one of two inputs based on a single co
 
 It is the fundamental building block of instruction decoding, ALU input selection, and register loading.
 
-::: details Hardware Description
+::: details Mux Description
 
 ```hdl
 CHIP Mux {
@@ -65,7 +68,7 @@ CHIP Mux {
 
 ---
 
-### Mux16 — Bus Selector
+#### Mux16 — Bus Selector
 
 The **Mux16 circuit** extends the single-bit MUX across a 16-bit bus, allowing entire words to be conditionally selected.
 
@@ -75,7 +78,7 @@ It is heavily used in:
 - Instruction decoding
 - PC source selection
 
-::: details Hardware Description
+::: details Mux16 Description
 
 ```hdl
 CHIP Mux16 {
@@ -110,7 +113,7 @@ CHIP Mux16 {
 
 ---
 
-### Mux4Way16 — Word Selector (4-to-1)
+#### Mux4Way16 — Word Selector (4-to-1)
 
 The **Mux4Way16 gate** selects one of four 16-bit inputs using a 2-bit control signal.
 
@@ -119,7 +122,7 @@ It is typically used in:
 - Multi-source bus arbitration
 - ROM and memory bank selection
 
-::: details Hardware Description
+::: details Mux4Way16 Description
 
 ```hdl
 CHIP Mux4Way16 {
@@ -141,13 +144,13 @@ CHIP Mux4Way16 {
 
 ---
 
-### Mux8Way16 — Word Selector (8-to-1)
+#### Mux8Way16 — Word Selector (8-to-1)
 
 The **Mux8Way16 gate** selects one of eight 16-bit inputs using a 3-bit control signal.
 
 It forms the basis of hierarchical bus selection and large fan-in datapaths.
 
-::: details Hardware Description
+::: details Mux8Way16 Description
 
 ```hdl
 CHIP Mux8Way16 {
@@ -171,7 +174,7 @@ CHIP Mux8Way16 {
 
 ---
 
-### DMUX — Distributor Circuit
+#### DMUX — Distributor Circuit
 
 > **Also known as:** _Distributor_, _Write decoder_
 
@@ -179,7 +182,7 @@ The **Demultiplexer (DMUX)** routes a single input to exactly one of two outputs
 
 It is used to implement **write enables**, **register selection**, and **memory-mapped output routing**.
 
-::: details Hardware Description
+::: details DMux Description
 
 ```hdl
 CHIP DMux {
@@ -201,7 +204,7 @@ CHIP DMux {
 
 ---
 
-### DMux4Way — Write Decoder (1-to-4)
+#### DMux4Way — Write Decoder (1-to-4)
 
 The **DMux4Way gate** routes a single control or data signal to one of four outputs.
 
@@ -210,7 +213,7 @@ It is used in:
 - Register file write selection
 - Memory region decoding
 
-::: details Hardware Description
+::: details DMux4Way Description
 
 ```hdl
 CHIP DMux4Way {
@@ -232,13 +235,13 @@ CHIP DMux4Way {
 
 ---
 
-### DMux8Way — Write Decoder (1-to-8)
+#### DMux8Way — Write Decoder (1-to-8)
 
 The **DMux8Way gate** routes a single control or data signal to one of eight outputs.
 
 It forms the basis of hierarchical write decoding for large memory blocks and register banks.
 
-::: details Hardware Description
+::: details DMux8Way Description
 
 ```hdl
 CHIP DMux8Way {
@@ -258,7 +261,61 @@ CHIP DMux8Way {
 <DMuxWay16Demo :ways="8" />
 :::
 
-## Arithmetic Circuits
+#### SysCall15 — System Call Mask
+
+::: warning Change HACK to HACK++
+This is a novel gate for the Hack++ implementation. This gate was made to allow for the Hack++ computer
+to separate its instruction memory into two sections, the first for the OS and the second for User
+Programs.
+:::
+
+The **SysCall15 gate** flags the use of a specific address.
+
+It forms the basis for the Hack++ platform to implement context switching at a hardware level and
+separate its ROM space into Kernel (OS) and User Space.
+
+The address this circuit flags is:
+
+- `0b0111 1111 1111 1111` or `@32767`
+
+::: details SysCall15 Description
+
+```hdl
+CHIP SysCall15 {
+    IN in[15];
+    OUT out;
+
+    PARTS:
+    // Level 1
+    // LSBs
+    And(a=in[0],  b=in[1],  out=and0);
+    And(a=in[2],  b=in[3],  out=and1);
+    And(a=in[4],  b=in[5],  out=and2);
+    And(a=in[6],  b=in[7],  out=and3);
+    And(a=in[8],  b=in[9],  out=and4);
+    And(a=in[10], b=in[11], out=and5);
+    And(a=in[12], b=in[13], out=and6);
+    // MSBs
+    And(a=in[14], b=true, out=and7);
+
+    // Level 2
+    And(a=and0, b=and1, out=and00);
+    And(a=and2, b=and3, out=and01);
+    And(a=and4, b=and5, out=and02);
+    And(a=and6, b=and7, out=and03);
+
+    // Level 3
+    And(a=and00, b=and01, out=and000);
+    And(a=and02, b=and03, out=and001);
+
+    // Level 4
+    And(a=and000, b=and001, out=out);
+}
+```
+
+:::
+
+### Arithmetic Circuits
 
 Consider the addition of two single bits. Depending on their values, the operation produces one of four possible outcomes:
 
@@ -290,7 +347,7 @@ circuit to be scaled to the size of a word.
 <ArithmeticDemo type="full" />
 :::
 
-### HalfAdder — 1-bit Sum
+#### HalfAdder — 1-bit Sum
 
 > **Also known as:** _1-bit adder_, _sum/carry generator_
 
@@ -301,7 +358,7 @@ The **HalfAdder** computes the sum of two one-bit inputs, producing:
 
 It is the base primitive of multi-bit addition.
 
-::: details Hardware Description
+::: details HalfAdder Description
 
 ```hdl
 CHIP HalfAdder {
@@ -323,7 +380,7 @@ CHIP HalfAdder {
 
 ---
 
-### FullAdder — 1-bit Sum with Carry-In
+#### FullAdder — 1-bit Sum with Carry-In
 
 > **Also known as:** _carry-propagating adder cell_
 
@@ -334,7 +391,7 @@ The **FullAdder** computes the sum of three one-bit inputs (`a`, `b`, and carry-
 
 It is constructed from two half adders plus an OR gate to combine carry outputs.
 
-::: details Hardware Description
+::: details FullAdder Description
 
 ```hdl
 CHIP FullAdder {
@@ -357,7 +414,7 @@ CHIP FullAdder {
 
 ---
 
-### Add16 — 16-bit Ripple-Carry Adder
+#### Add16 — 16-bit Ripple-Carry Adder
 
 > **Also known as:** _ripple-carry adder_, _word adder_
 
@@ -366,7 +423,7 @@ The **Add16** unit adds two 16-bit two’s complement values.
 Carries propagate from the LSB upward in a ripple-carry chain. The final carry-out from bit 15 is ignored,
 matching the Hack arithmetic model (mod 2^16).
 
-::: details Hardware Description
+::: details Add16 Description
 
 ```hdl
 CHIP Add16 {
@@ -374,6 +431,7 @@ CHIP Add16 {
     OUT out[16];
 
     PARTS:
+    // LSB
     HalfAdder(a=a[0],  b=b[0],  sum=out[0],  carry=carry0);
 
     FullAdder(a=a[1],  b=b[1],  c=carry0,  sum=out[1],  carry=carry1);
@@ -390,6 +448,8 @@ CHIP Add16 {
     FullAdder(a=a[12], b=b[12], c=carry11, sum=out[12], carry=carry12);
     FullAdder(a=a[13], b=b[13], c=carry12, sum=out[13], carry=carry13);
     FullAdder(a=a[14], b=b[14], c=carry13, sum=out[14], carry=carry14);
+
+    // MSB
     FullAdder(a=a[15], b=b[15], c=carry14, sum=out[15], carry=dead);
 }
 ```
@@ -402,16 +462,16 @@ CHIP Add16 {
 
 ---
 
-### Inc16 — 16-bit Incrementer
+#### Inc16 — 16-bit Incrementor
 
-> **Also known as:** _PC incrementer_, _+1 unit_
+> **Also known as:** _PC incrementor_, _+1 unit_
 
 The **Inc16** unit increments a 16-bit input by 1.
 
 It is implemented by adding the constant value `1` to the input bus. This is frequently used for sequential
 address generation (e.g., `PC+1`).
 
-::: details Hardware Description
+::: details Inc16 Description
 
 ```hdl
 CHIP Inc16 {
@@ -427,4 +487,135 @@ OUT out[16];
 
 ::: tip INC16
 <Inc16Demo />
+:::
+
+### Instruction Circuits
+
+::: details ROM16K and ROM32K Description
+
+```hdl
+CHIP ROM16K {
+    IN address[14];
+    OUT out[16];
+
+    PARTS:
+    // implementation is omitted because it relies on
+    // a pre-loaded hardware state rather than clocked flip-flops.
+}
+```
+
+---
+
+```hdl
+CHIP ROM32K {
+    IN address[15];
+    OUT out[16];
+
+    PARTS:
+    ROM16K(address=address[0..13], out=out0);
+    ROM16K(address=address[0..13], out=out1);
+
+    Mux16(a=out0, b=out1,
+          sel=address[14], out=out);
+}
+```
+
+:::
+
+## Sequential Circuits
+
+This section documents the stateful (time dependent) building blocks of the Hack++ hardware stack.
+
+Unlike combinational logic — which maps inputs to outputs without regard to time — sequential components
+**store state across time cycles**. This introduces time as an input (`t`, `t+1`) and enables the construction
+of program counters, registers, and eventually memory.
+
+**Cycle semantics (`t` → `t+1`):**
+Borrowing the nand2tetris timing schema, combinational outputs are reflected as signals in the _current_ cycle (`t`),
+while state updates become visible in the _next_ cycle (`t+1`).
+
+::: info Basic State Pattern
+
+```text
+IF flagged:
+  out(t+1) = state
+ELSE:
+  out(t+1) = out(t)
+```
+
+This can be read as: if the conditional flag is `1` at time `t` (`reset(t)`, `load(t)`, `inc(t)`), then modify
+the component to accept a new state (`0`, `in(t)`,`out(t) + 1`) to be set (or latched) by `t+1`. If no flag is set then
+retain the previous state (`out(t)`).
+
+:::
+
+### Memory Circuits
+
+::: warning The Plan
+As before the single-bit circuits will be combined to accommodate word size computations. However, as state can now
+be maintained over time, these wide circuits can then be combined to allow the storage and retrieval of previously
+computed words.
+
+- `DFF → Bit → Register → RAM8 → RAM64 → RAM512 → RAM4K → RAM16K`
+
+**Bit ordering (bus convention)**
+Declarations define **width** (e.g., `in[16]` is 16 bits wide), while usage defines **index**.
+Signals use a 0-indexed convention: `in[0]` is the least significant bit (LSB) and `in[15]` is the most
+significant bit (MSB). This is keeping with the nand2tetris hdl convention, not a memory endianness rule.
+:::
+
+#### DFF — Data Flip Flop
+
+> **Also known as:** _1-bit latch_
+
+A DFF is the core unit on which all sequential circuits are built. This circuit receives an signal form the
+computers clock, and at the end of each time unit (cycle) updates its output to match the input from the previous
+cycle.
+
+::: tip DFF Logic
+
+```text
+out(t+1) = in(t)
+```
+
+<DFFDemo />
+:::
+
+#### Bit — 1-bit Register
+
+> **Also known as:** _storage cell_
+
+The **Bit** consists of a DFF wrapped in some additional conditional logic that allows some control over
+what previous clock cycle value the DFF accepts.
+
+It is implemented by feeding the DFF’s previous output back and a new input through a MUX:
+
+- when `load=0`, the cell recirculates its output and holds its value
+- when `load=1`, the cell captures the new input and updates its value
+
+::: details Bit Description
+
+```hdl
+CHIP Bit {
+    IN in, load;
+    OUT out;
+
+    PARTS:
+    Mux(a=dff, b=in, sel=load, out=mux);
+    DFF(in=mux, out=dff, out=out);
+}
+```
+
+:::
+
+::: tip Bit Logic
+
+```text
+IF load(t) == 1:
+    out(t+1) = in(t)
+ELSE:
+    out(t+1) = out(t)
+```
+
+<BitDemo />
 :::

@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import MachineClient from "../runtime/machineClient";
+import { MachineState, UseMachineProps } from "../types";
+import MachineClient from "../runtime/machineClient.js";
 
-export default function useMachine({ onFramebuffer }) {
-  const machineRef = useRef(null);
+export default function useMachine({ onFramebuffer }: UseMachineProps) {
+  const machineRef = useRef<MachineClient | null>(null);
 
-  const [runtimeStatus, setRuntimeStatus] = useState(
+  const [runtimeStatus, setRuntimeStatus] = useState<string>(
     "Initializing Hack++ runtime...",
   );
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState<string>("");
 
-  const [machineState, setMachineState] = useState({
+  const [machineState, setMachineState] = useState<MachineState>({
     pc: 0,
     flags: 0,
     cycles: 0,
@@ -50,7 +51,7 @@ export default function useMachine({ onFramebuffer }) {
     };
   }, []);
 
-  function getReadyMachine() {
+  function getReadyMachine(): MachineClient | null {
     const machine = machineRef.current;
 
     if (!machine || !machine.isReady()) {
@@ -74,7 +75,10 @@ export default function useMachine({ onFramebuffer }) {
     }
   }
 
-  async function applyMachineUpdate(action, options = {}) {
+  async function applyMachineUpdate(
+    action: (machine: MachineClient) => Promise<any>,
+    options: { programId?: string; refreshScreen?: boolean } = {},
+  ) {
     try {
       const machine = getReadyMachine();
       if (!machine) return;

@@ -1,4 +1,6 @@
-export function formatMachineState(machineState) {
+import { MachineState } from "../types";
+
+export function formatMachineState(machineState: MachineState | null) {
   if (!machineState) return "IDLE";
 
   const { pc = 0, flags = 0 } = machineState;

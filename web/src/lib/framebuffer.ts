@@ -1,10 +1,9 @@
-const WIDTH = 512;
-const HEIGHT = 256;
-const WORDS_PER_ROW = 32;
+import { WIDTH, HEIGHT, WORDS_PER_ROW } from "../types";
 
-export { WIDTH, HEIGHT };
-
-export function renderFramebufferToCanvas(canvas, framebuffer) {
+export function renderFramebufferToCanvas(
+  canvas: HTMLCanvasElement | null,
+  framebuffer: Uint16Array,
+) {
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
@@ -19,17 +18,17 @@ export function renderFramebufferToCanvas(canvas, framebuffer) {
 
   for (let row = 0; row < HEIGHT; row++) {
     for (let w = 0; w < WORDS_PER_ROW; w++) {
-      const word = framebuffer[wordIndex++] ?? 0;
+      const word: number = framebuffer[wordIndex++] ?? 0;
 
       for (let bit = 0; bit < 16; bit++) {
-        const x = w * 16 + bit;
-        const y = row;
-        const i = (y * WIDTH + x) * 4;
+        const x: number = w * 16 + bit;
+        const y: number = row;
+        const i: number = (y * WIDTH + x) * 4;
 
-        const on = (word >> bit) & 1;
+        const on: number = (word >> bit) & 1;
 
         if (on) {
-          const glow = (Math.random() * 10) | 0;
+          const glow: number = (Math.random() * 10) | 0;
 
           data[i + 0] = 90 + (glow >> 1);
           data[i + 1] = 235 + glow;

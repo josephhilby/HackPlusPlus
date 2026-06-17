@@ -1,17 +1,16 @@
 import computerModuleUrl from "./wasm/computer.js?url";
+import { MachineState, Program, WasmModule } from "../types";
 
 export default class MachineClient {
-  constructor() {
-    this.module = null;
-    this.instance = null;
-  }
+  private module: WasmModule | null = null;
+  private instance: WasmModule | null = null;
 
-  async init() {
+  async init(): Promise<void> {
     const createModule = (await import(/* @vite-ignore */ computerModuleUrl))
       .default;
 
     this.module = await createModule();
-    this.instance = this.module;
+    this.instance = this.module as WasmModule;
 
     this.instance._init();
   }
@@ -20,7 +19,9 @@ export default class MachineClient {
     return !!this.instance;
   }
 
-  async load(program) {
+  async load(program: Program): Promise<MachineState> {
+    if (!this.instance) throw new Error("Machine not initialized");
+
     const response = await fetch(program.bin);
     const text = await response.text();
 
@@ -53,32 +54,34 @@ export default class MachineClient {
     return this.getState();
   }
 
-  async run() {
-    this.instance._run();
+  async run(): Promise<MachineState> {
+    this.instance!._run();
     return this.getState();
   }
 
-  async stop() {
-    this.instance._stop();
+  async stop(): Promise<MachineState> {
+    this.instance!._stop();
     return this.getState();
   }
 
-  async step() {
-    this.instance._step();
+  async step(): Promise<MachineState> {
+    this.instance!._step();
     return this.getState();
   }
 
-  async reset() {
-    this.instance._reset();
+  async reset(): Promise<MachineState> {
+    this.instance!._reset();
     return this.getState();
   }
 
-  async setKeyboard(value) {
-    this.instance._set_keyboard(value);
+  async setKeyboard(value: number): Promise<MachineState> {
+    this.instance!._set_keyboard(value);
     return this.getState();
   }
 
-  async getState() {
+  async getState(): Promise<MachineState> {
+    if (!this.instance) throw new Error("Machine not initialized");
+
     const ptr = this.instance._get_state_ptr();
     const view = new DataView(this.instance.HEAPU8.buffer);
 
@@ -93,7 +96,9 @@ export default class MachineClient {
     };
   }
 
-  async getFramebuffer() {
+  async getFramebuffer(): Promise<Uint16Array> {
+    if (!this.instance) throw new Error("Machine not initialized");
+
     const ptr = this.instance._get_framebuffer_ptr();
     const length = 8192;
 

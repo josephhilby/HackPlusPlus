@@ -1,3 +1,5 @@
+import { MachineControlsProps } from "../../types";
+
 import "./MachineControls.css";
 
 export default function MachineControls({
@@ -9,7 +11,7 @@ export default function MachineControls({
   canStep,
   canReset,
   canToggleRun,
-}) {
+}: MachineControlsProps) {
   const isRunning = machineState === "running";
   const primaryLabel = isRunning ? "Stop" : "Run";
   const primaryAction = isRunning ? onStop : onRun;

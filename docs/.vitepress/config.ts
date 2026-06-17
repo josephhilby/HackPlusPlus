@@ -44,26 +44,40 @@ export default withMermaid(
     },
 
     themeConfig: {
-      outline: { level: [2, 3] },
+      outline: { level: [2, 4] },
       nav: [
         { text: "Docs", link: "/" },
         { text: "GitHub", link: "https://github.com/josephhilby/HackPlusPlus" },
       ],
       sidebar: [
         {
-          text: "Hack++ Docs",
+          // Top-level meta links
+          text: "Getting Started",
           items: [
             { text: "Home", link: "/" },
             { text: "Introduction", link: "/introduction.md" },
-            { text: "Boolean Logic Gates", link: "/boolean.md" },
-            { text: "Combinational Circuits", link: "/combinational.md" },
-            { text: "Sequential Circuits", link: "/sequential.md" },
-            { text: "Functional Modules", link: "/module.md" },
-            { text: "Computer Subsystems", link: "/subsystem.md" },
-            { text: "Assembly Language", link: "/assembly.md" },
-            { text: "Bytecode Language", link: "/bytecode.md" },
-            { text: "High-Level Language", link: "/jack.md" },
+          ],
+        },
+        {
+          // Hardware Stack Group
+          text: "Hardware Subsystem",
+          collapsed: false,
+          items: [
+            { text: "Modules", link: "/module.md" },
+            { text: "Components", link: "/component.md" },
+            { text: "Circuits", link: "/circuit.md" },
+            { text: "Gates", link: "/boolean.md" },
+          ],
+        },
+        {
+          // Software Stack Group
+          text: "Software Subsystem",
+          collapsed: false,
+          items: [
             { text: "Operating System", link: "/os.md" },
+            { text: "Jack", link: "/jack.md" },
+            { text: "Bytecode", link: "/bytecode.md" },
+            { text: "Assembly", link: "/assembly.md" },
           ],
         },
       ],

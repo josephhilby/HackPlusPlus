@@ -1,130 +1,155 @@
 # Hack++ Reference
 
-Before diving into specifics, I would like to take a brief moment to conceptually talk about what a
-computer is, what a program is, and how these abstractions work together to make them. So...
+Before examining the hardware and software subsystems in isolation, we begin by analyzing the Hack++ system as an integrated whole.
+This approach helps us define our core architectural specifications at a high level — 16-bit ISA, Harvard-based memory separation, and
+a privileged User-Kernel model — establishing a unified foundation prior to diving down into lower-level specificity.
 
-## What is a computer?
+<SystemHierarchy dataType="default" />
 
-**A computer** is an aggregation of five cooperating subsystems that collect input, execute instructions, operate on data, and give output.
+## Hack++
 
-::: warning Definition
-**Data** is a set of quantifiable values that can represent user input, intermediate state, or computed results, among other things.
+At the absolute foundation of the Hack++ architecture is a **16-bit word and fixed instruction size**. This 16-bit size will dictate many
+future design decision including: datapath width, storage structure size, and software instructions.
+
+Within this constraint, we can start to define our **Instruction Set Architecture (ISA)** — the essential bridge between hardware and software.
+
+::: info The ISA
+
+- On the `software` side, the ISA provides a set of binary codes that can be invoked to command machine behavior.
+- On the `hardware` side, the ISA acts as the architectural specification that hard-wires those commands into physical logic.
+
 :::
 
-::: tip Computer Subsystems
+Our ISA will be composed of two fundamental instruction types: the `a_instruction` (Address/Constant selection) and the `c_instruction`
+(Compute or Control). To distinguish between the two, the first bit (a.k.a., opcode) in any instruction will be reserved to denote its type.
 
-1. **Input:** Receives program instructions and user input from the external environment.
-2. **Output:** Returns intermediate states and computed results to the external environment.
-3. **Memory:** Stores program instructions and data.
-4. **Datapath:** Moves and performs arithmetic and logical operations on data.
-5. **Control Unit:** Interprets program instructions and orchestrates their requested operations.
-   :::
+> - _Note: Consuming a bit for the opcode will limit all consents and addresses to `32K`._
 
-## What is a program?
+::: tip A-Instruction (Address or Constant)
 
-**A program** is a set of instructions transformed through multiple cooperating abstractions, progressively
-moving from abstract human intent to specific machine execution. This lowering process occurs across three distinct phases:
+An opcode of `0` will denote an `a_instruction`, leaving the remaining 15-bits able to encode an integer between `0` and `32,767`.
+This integer could be used as an address in the `Memory()` or `Instruction()` modules, or a constant value to be loaded into the
+`CPU()` and computed.
 
-::: info Program Lowering
-
-1. **Design-Time:** Transforms an abstract conceptual idea into structured, expressive high-level source code.
-2. **Compile-Time:** Analyzes and lowers that source code into progressively simpler lower-level intermediate representations (IR) and, eventually, machine code.
-3. **Runtime:** Executes the machine code on target hardware using defined paradigms for resource orchestration.
-   :::
-
-::: warning Note
-This Compile-Time to Runtime boundary is unique to a compiled program. While the project's software toolchain utilizes a
-bytecode virtual machine, it functions as the backend of a two-tier compiler rather than as an interpreter.
-:::
-
-## The Abstraction Ladders
-
-These two primary abstractions form the conceptual framework for Hack++. At a high level they show both how the hardware components
-are organized and how the software instructions are lowered. Using this as a base, we can start to layer on the more specific implementation
-details of the Hack++ hardware and Jack programming language.
-
-### Software Abstraction Ladder
-
-The Jack programming language is a high-level object-oriented programming language where every file represents a class.
-It utilizes a two-tier compiler with a stack-based virtual machine (backend) to compile its code from high level source code (File.jack),
-to bytecode (File.vm), to assembly (File.asm), and finally a simple assembler to move the assembly to machine code binary (File.hack).
-
-### Hardware Abstraction Ladder
-
-The Hack++ computer is constructed through a strict hierarchy of increasingly complex and capable structures. Each layer is built exclusively
-from those defined below it, progressively assembling gates, circuits, modules, and subsystems.
-
-At the base of this all is a single universal primitive: **NAND**.
-
-::: info Hardware
-
-1. **Universal Primitive (NAND):** The foundational hardware building block from which all subsequent layers are derived.
-2. **Boolean Logic Gates (Not, And, Or, Xor):** The logical, mathematical representations of atomic level machine behavior.
-3. **Combinational & Sequential Circuits (Mux, Add, Bit, etc.):** The embodied, composite implementations of logic gates, introducing complex behavior and time-dependent state.
-4. **Functional Modules (CPU, ALU, RAM, etc.):** Complete, self-contained complex circuits dedicated to executing a single, highly specific task.
-5. **Subsystems (Control Unit, Datapath, Memory, Input, and Output):** The macroscopic components compose a computer.
-   :::
-
-### Cooperating Abstractions
-
-The software and hardware ladders represent opposite developmental trajectories that converge at a single point: the Computer. This is the nexus
-where compiled software meets the physical subsystems engineered to execute it.
-
-```mermaid
----
-config:
-  look: handDrawn
-  theme: neutral
----
-graph TD
-    %% Left Side: Software Abstraction Ladder (Builds Down)
-    subgraph Software [<font color='#38bdf8'><b>Software Ladder</b></font>]
-        Jack([File.jack])
-        VM([File.vm])
-        Asm([File.asm])
-        Hack([File.hack])
-
-        Jack --> VM
-        VM --> Asm
-        Asm --> Hack
-    end
-
-    %% Right Side: Hardware Abstraction Ladder (Builds Up)
-    subgraph Hardware [<font color='#34d399'><b>Hardware Ladder</b></font>]
-        Subsystems[[Subsystems]]
-        Modules[[Functional Modules]]
-        Circuits[[Circuits]]
-        Gates[[Boolean Logic Gates]]
-        NAND[[Universal Primitive]]
-
-        Modules -.-> Subsystems
-        Circuits -.-> Modules
-        Gates -.-> Circuits
-        NAND -.-> Gates
-    end
-
-    %% Central Convergence Node
-    Computer{Computer}
-
-    %% Cross-boundary connections using unique line types
-    Hack ===> Computer
-    Subsystems ==> Computer
-
-    %% Stable Inline CSS Styling (Nodes)
-    style Jack fill:#1e293b,stroke:#38bdf8,stroke-width:1px,color:#f8fafc
-    style VM fill:#1e293b,stroke:#38bdf8,stroke-width:1px,color:#f8fafc
-    style Asm fill:#1e293b,stroke:#38bdf8,stroke-width:1px,color:#f8fafc
-    style Hack fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc
-
-    style NAND fill:#1e293b,stroke:#34d399,stroke-width:1px,color:#f8fafc
-    style Gates fill:#1e293b,stroke:#34d399,stroke-width:1px,color:#f8fafc
-    style Circuits fill:#1e293b,stroke:#34d399,stroke-width:1px,color:#f8fafc
-    style Modules fill:#1e293b,stroke:#34d399,stroke-width:1px,color:#f8fafc
-    style Subsystems fill:#1e293b,stroke:#34d399,stroke-width:2px,color:#f8fafc
-
-    style Computer fill:#0f172a,stroke:#3182ce,stroke-width:2px,color:#fff
-
-    %% Subgraph Container Styles (Masks out the sketch lines)
-    style Software fill:#111827,stroke:#4b5563,stroke-width:1px
-    style Hardware fill:#111827,stroke:#4b5563,stroke-width:1px
+```ISA_Pattern
+ opcode   integer
 ```
+
+:::
+
+::: tip C-Instruction (Compute or Control)
+
+An opcode of `1` will denote a `c_instruction`, the remaining bits can then be grouped to accomplish three specific tasks: setting the desired
+`CPU()` computation, selecting the destination in `Memory()` where that computation's output is placed, and controlling the `Instruction()`
+jump criteria by which that computation's output will be compared.
+
+These three tasks can be grouped in one of three ways: `compute`, `compute destination`, or `compute jump`.
+
+```ISA_Pattern
+ opcode   compute  [  destination  |  jump  ]
+```
+
+> **Legend**
+>
+> - `[ … ]` = optional (zero or one)
+> - `|` = alternative
+
+:::
+
+## Software
+
+A software program in execution is ultimately a set of binary values written for the hardware's native ISA. High-level
+concepts — such as printing characters, graphics, and user input — do not exist within the core architecture, but must be
+constructed above it.
+
+To relieve the user of this task, we will construct an Operating System Kernel to handle these functions and Standard Library
+(`<libj>`) that will act as an interface for the user program to access these kernel functions.
+
+::: tip User-Kernel Model
+
+- **OS Domain (Kernel Space):** The privileged domain responsible for resource management (`Memory`, `Sys`), application support (`Screen`, `Output`, `Keyboard`), and core language extensions (`String`).
+- **Standard Library Domain (User Space):** A section of the unprivileged domain responsible for some helper subroutines (`Math`) and exposing the kernel space resources to the user (`Libj`).
+- **Application Domain (User Space):** The unprivileged domain. It is a highly permissive instruction block reserved entirely for user-level programs and custom utilities to safely execute within.
+
+:::
+
+::: details Software Diagram
+
+```text
+                           ( Reset Vector )
+                          [ Hardware Reset ]
+                                  │
+                                  ▼
+               ┌──────────────────────────────────────┐
+               │         KERNEL MODE (kern = 1)       │◄───────┐
+               │                                      │        │
+               │  • Addr 0x0000                       │        │
+               │  • Check Boot Flag:                  │        │
+               │    - Cold init  -OR-                 │        │
+               │      Request Dispatch (by SID #)     │        │
+               └──────────────────┬───────────────────┘        │
+                                  │                            |
+                        [ Lower to User Mode ]       [ User Calls <Libj> ]
+                       Mailboxes Set (SA1, SA2)*           LR Saved
+                            LR Retrieved**       Mailboxes Set (SID, SA1, SA2)
+                             Trap Return                  Trap Vector
+                                  │                            │
+                                  ▼                            │
+               ┌──────────────────────────────────────┐        │
+               │          USER MODE (kern = 0)        │        │
+               │                                      │        │
+               │  • Runs Users-Space Loop             │        │
+               │  • Direct 'hardware' access blocked  │────────┘
+               └──────────────────┬───────────────────┘
+                                  │
+                          [ Hardware Reset ]
+                                  │
+                                 ...
+                       ( back to Reset Vector )
+
+* Mailboxes used for returning ptr (malloc), char (keyboard), etc.
+** Link Register (LR) not used on cold boot (link to 0x0000).
+```
+
+:::
+
+## Hardware
+
+A computer's hardware is best thought of as an ecosystem of cooperating modules that collect input, execute instructions, manipulate data,
+and deliver output.
+
+To orchestrate these modules we employ the Harvard model, which isolates instructions and data into separate
+physical modules.
+
+::: tip Harvard Model
+
+1. **Central Processing Unit (CPU):** The primary execution engine of the computer.
+2. **Memory (RAM):** Volatile storage for maintaining intermediate states, variables, and I/O.
+3. **Instruction (ROM):** Non-volatile storage housing instruction sets.
+
+:::
+
+::: details Hardware Description
+
+```hdl
+CHIP Computer {
+    IN reset, keyboard[16];
+
+    PARTS:
+    // Central Processing Unit
+    CPU(reset=reset,
+        inD=inD, writeD=load, addrD=addrD, outD=outD,  // Datapath
+        inI=inI, kern=domain, outI=addrI);             // Controlpath
+
+    // Data + Memory-Mapped I/O (RAM)
+    Memory(key=keyboard, in=outD, load=load, address=addrD, out=inD);
+
+    // Application or OS (ROM)
+    Instruction(in=addrI, sel=domain, out=inI);
+}
+```
+
+:::
+
+This architectural split complements the software-level User-Kernel model, allowing us to isolate
+hardware-enforced context switches entirely within a single CPU-driven component, the `Instruction()` module.

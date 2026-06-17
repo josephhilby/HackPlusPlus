@@ -1,3 +1,5 @@
+import { HEIGHT, WIDTH } from "../../types";
+
 import "./Screen.css";
 
 export default function Screen({ canvasRef }) {
@@ -8,8 +10,8 @@ export default function Screen({ canvasRef }) {
           <canvas
             ref={canvasRef}
             className="console-screen-canvas"
-            width={512}
-            height={256}
+            width={WIDTH}
+            height={HEIGHT}
           />
           <div className="console-crt-overlay" aria-hidden="true"></div>
         </div>

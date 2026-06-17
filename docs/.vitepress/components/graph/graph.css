@@ -1,0 +1,81 @@
+.system-hierarchy-container {
+  width: 100%;
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.hierarchy-svg {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  overflow: visible;
+}
+
+/* Base Node Rectangles */
+.node-rect {
+  fill: var(--vp-c-bg-alt, #1a1a1a);
+  stroke: var(--vp-c-divider, #3c3c3c);
+  stroke-width: 1.5;
+  rx: 6;
+  transition: all 0.3s ease;
+}
+
+/* System and Subsystem Labels inside Boxes */
+.text-main {
+  font-family: var(--vp-font-family-mono, monospace);
+  font-size: 13px;
+  fill: var(--vp-c-text-1, #ffffff);
+  font-weight: 600;
+  text-anchor: middle;
+  transition: all 0.3s ease;
+}
+
+/* Detail Text Lines under Branches */
+.text-sub {
+  font-family: var(--vp-font-family-mono, monospace);
+  font-size: 12px;
+  fill: var(--vp-c-text-1, #ffffff);
+  transition: all 0.3s ease;
+}
+
+/* Colorful Prefix Badges */
+.label-prefix {
+  fill: var(--vp-c-brand-1, #3eaf7c);
+  font-weight: 600;
+}
+
+/* Structural Tree Skeleton */
+.tree-line {
+  stroke: var(--vp-c-divider, #3c3c3c);
+  stroke-width: 1.5;
+  fill: none;
+  transition: all 0.3s ease;
+}
+
+/* Interactive Focus States */
+.highlight-node {
+  stroke: var(--vp-c-brand-1, #3eaf7c);
+  stroke-width: 2;
+  fill: var(--vp-c-brand-soft, rgba(62, 175, 124, 0.15));
+}
+
+.highlight-text {
+  fill: var(--vp-c-text-1, #ffffff) !important;
+  font-weight: bold;
+}
+
+.highlight-text .label-prefix {
+  fill: var(--vp-c-brand-1, #3eaf7c);
+  text-shadow: 0 0 8px var(--vp-c-brand-soft);
+}
+
+.highlight-line {
+  stroke: var(--vp-c-brand-1, #3eaf7c);
+  stroke-width: 2.5;
+}
+
+/* Clean dimming overlay for out-of-focus paths */
+.dimmed {
+  opacity: 0.15;
+}

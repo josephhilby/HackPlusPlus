@@ -67,7 +67,7 @@ complete, every other gate in this system can be expressed as a composition of N
 The **NOT gate** performs signal inversion and is the core of bitwise negation, control-signal
 inversion, and two’s-complement arithmetic throughout the datapath and control logic.
 
-::: details Hardware Description
+::: details Not Description
 
 ```hdl
 CHIP Not {
@@ -96,7 +96,7 @@ CHIP Not {
 The **AND gate** controls enables by allowing a value to pass only when all conditions are asserted. It is widely
 used in: write-enable qualification, jump-condition evaluation, and masked datapath propagation.
 
-::: details Hardware Description
+::: details And Description
 
 ```hdl
 CHIP And {
@@ -128,9 +128,9 @@ The **OR gate** aggregates multiple signal sources into a single logical result.
 It is commonly used for: flag reduction (`zr`, jump conditions), multi-source control logic, and datapath signal
 merging.
 
-_Note: Derived using De Morgan’s Law._
+- _Note: Derived using De Morgan’s Law._
 
-::: details Hardware Description
+::: details Or Description
 
 ```hdl
 CHIP Or {
@@ -163,7 +163,7 @@ The **XOR gate** produces a high output when its inputs differ.
 It is the fundamental building block of **binary addition**, forming the sum path in half-adders, full-adders,
 and the ALU’s arithmetic pipeline.
 
-::: details Hardware Description
+::: details Xor Description
 
 ```hdl
 CHIP Xor {
@@ -213,7 +213,7 @@ The **Not16 gate** performs a parallel bitwise inversion across a 16-bit input b
 It is used in: ALU output negation (`no` control bit), two’s complement formation (via downstream adders),
 general-purpose bus inversion and masking
 
-::: details Hardware Description
+::: details Not16 Description
 
 ```hdl
 CHIP Not16 {
@@ -260,7 +260,7 @@ The **And16 gate** computes a parallel logical AND across two 16-bit input buses
 It is used for: masking intermediate ALU results, qualifying memory addresses, and conditional propagation of data
 paths.
 
-::: details Hardware Description
+::: details And16 Description
 
 ```hdl
 CHIP And16 {
@@ -304,7 +304,7 @@ The **Or16 gate** computes a parallel logical OR across two 16-bit input buses.
 
 It is used for: merging ALU intermediate results, combining bus sources, and forming reduction trees for flag logic.
 
-::: details Hardware Description
+::: details Or16 Description
 
 ```hdl
 CHIP Or16 {
@@ -342,21 +342,42 @@ CHIP Or16 {
 
 ---
 
-### Or16Way — Reduction OR
+### Or3/16Way — Reduction OR
 
 > **Also known as:** _Non-zero detector_
 
+The **Or3Way gate** reduces 3-bits to a single status bit by computing the logical OR of all inputs.
+
+It is a core component of **CPU flag generation**, most notably for helping the CPU set the PC’s load flag.
+
 The **Or16Way gate** reduces a 16-bit bus to a single status bit by computing the logical OR of all inputs.
 
-It is a core component of **flag generation**, most notably for helping compute the ALU’s zero flag (`zr`).
+It is a core component of **ALU flag generation**, most notably for helping compute the zero flag (`zr`).
 
-::: warning Change
+::: warning Change HACK to HACK++
 In the nand2tetris system this gate is made to be an `Or8Way gate`. However, the only use of this gate, in
-hardware, is in setting the ALU's zero flag. This is set by checking the ALU output (a 16-bit value). Because
-of this, the gate has been widened to account for the value size.
+hardware, is in setting the ALU's zero flag and CPU's jump condition. Because of this, the gate has been
+split into two and made as efficient as possible to allow for faster processing.
+
+Due to the simplicity of these circuits only the `Or3Way gate` demo will be provided.
 :::
 
-::: details Hardware Description
+::: details Or3Way Description
+
+```hdl
+CHIP Or3Way {
+    IN in[3];
+    OUT out;
+
+    PARTS:
+    Or(a=in[0],  b=in[1],  out=or0);
+    Or(a=in[2], b=or0, out=out);
+}
+```
+
+:::
+
+::: details Or16Way Description
 
 ```hdl
 CHIP Or16Way {
@@ -364,6 +385,8 @@ CHIP Or16Way {
     OUT out;
 
     PARTS:
+    // Level 1
+    // LSBs
     Or(a=in[0],  b=in[1],  out=or0);
     Or(a=in[2],  b=in[3],  out=or1);
     Or(a=in[4],  b=in[5],  out=or2);
@@ -371,24 +394,28 @@ CHIP Or16Way {
     Or(a=in[8],  b=in[9],  out=or4);
     Or(a=in[10], b=in[11], out=or5);
     Or(a=in[12], b=in[13], out=or6);
+    // MSBs
     Or(a=in[14], b=in[15], out=or7);
 
+    // Level 2
     Or(a=or0, b=or1, out=or00);
     Or(a=or2, b=or3, out=or01);
     Or(a=or4, b=or5, out=or02);
     Or(a=or6, b=or7, out=or03);
 
+    // Level 3
     Or(a=or00, b=or01, out=or000);
     Or(a=or02, b=or03, out=or001);
 
+    // Level 4
     Or(a=or000, b=or001, out=out);
 }
 ```
 
 :::
 
-::: tip OR16WAY(in)
+::: tip OR3WAY(in)
 
-<ReductionGateDemo gate="Or8Way" />
+<ReductionGateDemo />
 
 :::

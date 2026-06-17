@@ -1,4 +1,6 @@
-export async function asmLoader(program) {
+import { Program } from "../types";
+
+export async function asmLoader(program: Program | null): Promise<string[]> {
   if (!program?.asm) {
     throw new Error("Program is missing an asm path.");
   }

@@ -1,3 +1,5 @@
+import { ProgramLoaderProps } from "../../types";
+
 import "./ProgramLoader.css";
 
 export default function ProgramLoader({
@@ -7,7 +9,8 @@ export default function ProgramLoader({
   onLoad,
   onView,
   canView,
-}) {
+  isLoading,
+}: ProgramLoaderProps) {
   return (
     <section className="control-card">
       <h2 className="control-card-title">Program</h2>

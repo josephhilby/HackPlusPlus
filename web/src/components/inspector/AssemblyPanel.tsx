@@ -1,7 +1,8 @@
+import { AssemblyRow, AssemblyPanelProps } from "../../types";
 import "./AssemblyPanel.css";
 
-function normalizeInstructions(instructions) {
-  const result = [];
+function normalizeInstructions(instructions: string[]): AssemblyRow[] {
+  const result: AssemblyRow[] = [];
   let address = 0;
 
   for (const line of instructions) {
@@ -34,7 +35,7 @@ export default function AssemblyPanel({
   onStep,
   onClose,
   canStep = false,
-}) {
+}: AssemblyPanelProps) {
   const rows = normalizeInstructions(instructions);
 
   return (
