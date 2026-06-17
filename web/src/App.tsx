@@ -13,20 +13,20 @@ import { renderFramebufferToCanvas } from "./lib/framebuffer";
 import { formatMachineState } from "./lib/machineState";
 import { asmLoader } from "./lib/asmLoader";
 
-import { programCatalog } from "./config/programCatalog.js";
+import { programCatalog } from "./config/programCatalog";
 
 export default function App() {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedProgramId, setSelectedProgramId] = useState(
     programCatalog[0]?.id ?? "",
   );
-  const [assemblyLines, setAssemblyLines] = useState([]);
-  const [isAssemblyOpen, setIsAssemblyOpen] = useState(false);
-  const [isLoadingProgram, setIsLoadingProgram] = useState(false);
+  const [assemblyLines, setAssemblyLines] = useState<string[]>([]);
+  const [isAssemblyOpen, setIsAssemblyOpen] = useState<boolean>(false);
+  const [isLoadingProgram, setIsLoadingProgram] = useState<boolean>(false);
 
   const { runtimeStatus, machineState, load, run, stop, step, reset } =
     useMachine({
-      onFramebuffer: (buffer) => {
+      onFramebuffer: (buffer: Uint8Array) => {
         renderFramebufferToCanvas(canvasRef.current, buffer);
       },
     });
@@ -62,7 +62,9 @@ export default function App() {
         }
       } catch (error) {
         if (!cancelled) {
-          setAssemblyLines([`// Failed to load ASM source: ${error.message}`]);
+          setAssemblyLines([
+            `// Failed to load ASM source: ${(error as Error).message}`,
+          ]);
         }
       }
     }
