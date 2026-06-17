@@ -1,3 +1,4 @@
 *.hack linguist-vendored
 *.vm linguist-vendored
 *.asm linguist-vendored
+computer.js linguist-generated
